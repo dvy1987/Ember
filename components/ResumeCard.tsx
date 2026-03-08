@@ -1,12 +1,13 @@
 'use client';
 
-import { Project, Task, Session, DragonType } from '@/lib/types';
+import { Project, Task, Session, DragonType, ResumeContext } from '@/lib/types';
 import { getDragonImagePath, hasDragonImage, getDragonAccentVar } from '@/lib/dragonAssets';
 
 interface ResumeCardProps {
   project: Project;
   lastSession: Session | null;
   activeTasks: Task[];
+  resumeContext?: ResumeContext | null;
   onStartSession: () => void;
   onChooseDifferentTask?: () => void;
 }
@@ -15,6 +16,7 @@ export default function ResumeCard({
   project,
   lastSession,
   activeTasks,
+  resumeContext,
   onStartSession,
   onChooseDifferentTask,
 }: ResumeCardProps) {
@@ -23,13 +25,15 @@ export default function ResumeCard({
   const hasImage = hasDragonImage(dragonType, project.dragon_stage);
   const imagePath = hasImage ? getDragonImagePath(dragonType, project.dragon_stage) : null;
 
-  // Fallback logic: if no AI, suggest unfinished session tasks or first active task
-  const suggestedTask = activeTasks.length > 0 ? activeTasks[0].task_text : null;
+  // Use AI resume context if available, otherwise fall back
+  const suggestedTask = resumeContext?.suggested_next_step
+    || (activeTasks.length > 0 ? activeTasks[0].task_text : null);
 
-  // Format last session info
-  const lastSessionInfo = lastSession
-    ? lastSession.reflection || `${lastSession.duration_minutes} minute training session`
-    : null;
+  // Format last session info — prefer AI summary
+  const lastSessionInfo = resumeContext?.last_session_summary
+    || (lastSession
+      ? lastSession.ai_summary || lastSession.reflection || `${lastSession.duration_minutes} minute training session`
+      : null);
 
   const lastSessionDate = lastSession
     ? new Date(lastSession.created_at).toLocaleDateString('en-US', {
@@ -41,7 +45,7 @@ export default function ResumeCard({
 
   return (
     <div
-      className="rounded-2xl border border-ember-border bg-ember-panel p-6 relative overflow-hidden"
+      className="rounded-2xl border border-ember-border bg-ember-panel p-6 relative overflow-hidden animate-slide-up"
       style={{ boxShadow: `0 0 30px ${accentColor}20` }}
     >
       {/* Subtle glow background */}

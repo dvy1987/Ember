@@ -88,5 +88,16 @@ export function initializeSchema(db: Database.Database): void {
       output_json TEXT,
       created_at TEXT NOT NULL
     );
+
+    CREATE TABLE IF NOT EXISTS project_memory (
+      id TEXT PRIMARY KEY,
+      project_id TEXT NOT NULL UNIQUE,
+      long_term_summary TEXT NOT NULL DEFAULT '',
+      key_decisions TEXT NOT NULL DEFAULT '',
+      persistent_blockers TEXT NOT NULL DEFAULT '',
+      memory_version INTEGER NOT NULL DEFAULT 0,
+      last_updated TEXT NOT NULL,
+      FOREIGN KEY (project_id) REFERENCES projects(id)
+    );
   `);
 }

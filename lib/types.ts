@@ -89,6 +89,40 @@ export interface AiLog {
   created_at: string;
 }
 
+export interface ProjectMemory {
+  id: string;
+  project_id: string;
+  long_term_summary: string;
+  key_decisions: string;
+  persistent_blockers: string;
+  memory_version: number;
+  last_updated: string;
+}
+
+export interface AiExtractionResult {
+  new_active_tasks: string[];
+  new_backlog_tasks: string[];
+  completed_tasks: string[];
+  insights: string[];
+  blockers: string[];
+  summary_update: string;
+}
+
+export interface ResumeContext {
+  status_summary: string;
+  suggested_next_step: string;
+  last_session_summary: string | null;
+}
+
+export interface ProjectContext {
+  project: Project;
+  activeTasks: Task[];
+  backlogTasks: Task[];
+  recentSessions: Session[];
+  recentInsights: Insight[];
+  projectMemory: ProjectMemory | null;
+}
+
 export const DRAGON_STAGES: { stage: DragonStage; minMinutes: number }[] = [
   { stage: 'egg', minMinutes: 0 },
   { stage: 'hatchling', minMinutes: 20 },

@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Project } from '@/lib/types';
 import DragonCard from '@/components/DragonCard';
 import CreateProjectModal from '@/components/CreateProjectModal';
+import Link from 'next/link';
 
 export default function Home() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -36,12 +37,20 @@ export default function Home() {
           <h1 className="text-3xl font-bold tracking-tight">Dragon Roost 🐉</h1>
           <p className="text-ember-text-muted mt-1">Your projects need training</p>
         </div>
-        <button
-          onClick={() => setShowCreateModal(true)}
-          className="px-5 py-2.5 rounded-xl bg-ember-cinder text-ember-bg font-semibold text-sm hover:scale-[1.02] active:scale-[0.98] transition-all"
-        >
-          + Hatch New Dragon
-        </button>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/analytics"
+            className="px-4 py-2.5 rounded-xl bg-ember-panel text-ember-text-muted text-sm font-medium hover:text-ember-text hover:bg-ember-panel-light transition-all"
+          >
+            📊 Insights
+          </Link>
+          <button
+            onClick={() => setShowCreateModal(true)}
+            className="px-5 py-2.5 rounded-xl bg-ember-cinder text-ember-bg font-semibold text-sm hover:scale-[1.02] active:scale-[0.98] transition-all"
+          >
+            + Hatch New Dragon
+          </button>
+        </div>
       </div>
 
       {/* Dragon grid */}
@@ -64,7 +73,7 @@ export default function Home() {
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 stagger-children">
           {projects.map((project) => (
             <DragonCard key={project.id} project={project} />
           ))}

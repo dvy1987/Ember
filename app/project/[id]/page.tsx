@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, use } from 'react';
 import { useRouter } from 'next/navigation';
-import { Project, Task, Session, DragonType } from '@/lib/types';
+import { Project, Task, Session, DragonType, ResumeContext } from '@/lib/types';
 import { getDragonAccentVar } from '@/lib/dragonAssets';
 import ResumeCard from '@/components/ResumeCard';
 import TaskList from '@/components/TaskList';
@@ -16,7 +16,9 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
   const [activeTasks, setActiveTasks] = useState<Task[]>([]);
   const [backlogTasks, setBacklogTasks] = useState<Task[]>([]);
   const [lastSession, setLastSession] = useState<Session | null>(null);
+  const [resumeContext, setResumeContext] = useState<ResumeContext | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isBrainDumping, setIsBrainDumping] = useState(false);
 
   const fetchProject = useCallback(async () => {
     try {
@@ -46,9 +48,19 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
     } catch { /* ignore */ }
   }, [projectId]);
 
+  const fetchResumeContext = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/resume?project_id=${projectId}`);
+      if (res.ok) {
+        const data = await res.json();
+        setResumeContext(data);
+      }
+    } catch { /* ignore */ }
+  }, [projectId]);
+
   useEffect(() => {
-    Promise.all([fetchProject(), fetchTasks(), fetchSessions()]).then(() => setIsLoading(false));
-  }, [fetchProject, fetchTasks, fetchSessions]);
+    Promise.all([fetchProject(), fetchTasks(), fetchSessions(), fetchResumeContext()]).then(() => setIsLoading(false));
+  }, [fetchProject, fetchTasks, fetchSessions, fetchResumeContext]);
 
   const handleStartSession = () => {
     router.push(`/session/${projectId}`);
@@ -96,17 +108,34 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
   };
 
   const handleBrainDump = async (text: string) => {
-    // Without AI, brain dumps are saved as tasks for now
-    // When AI is added, this will extract tasks from the brain dump
-    const lines = text.split('\n').filter(l => l.trim());
-    for (const line of lines) {
-      await fetch('/api/tasks', {
+    setIsBrainDumping(true);
+    try {
+      // Try AI extraction first
+      const aiRes = await fetch('/api/ai/extract-tasks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ project_id: projectId, task_text: line.trim() }),
+        body: JSON.stringify({ project_id: projectId, user_input: text }),
       });
+
+      if (aiRes.ok) {
+        // AI handled task creation — refresh data
+        await Promise.all([fetchTasks(), fetchProject(), fetchResumeContext()]);
+        return;
+      }
+
+      // Fallback: split by lines and create tasks manually
+      const lines = text.split('\n').filter(l => l.trim());
+      for (const line of lines) {
+        await fetch('/api/tasks', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ project_id: projectId, task_text: line.trim() }),
+        });
+      }
+      await fetchTasks();
+    } finally {
+      setIsBrainDumping(false);
     }
-    fetchTasks();
   };
 
   if (isLoading) {
@@ -144,6 +173,7 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
           project={project}
           lastSession={lastSession}
           activeTasks={activeTasks}
+          resumeContext={resumeContext}
           onStartSession={handleStartSession}
         />
       </div>
@@ -156,7 +186,8 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
         <BrainDumpInput
           onSubmit={handleBrainDump}
           accentColor={accentColor}
-          placeholder="What's on your mind about this project? Each line becomes a task..."
+          placeholder="What's on your mind about this project? Dump your thoughts and AI will extract tasks..."
+          isLoading={isBrainDumping}
         />
       </div>
 
