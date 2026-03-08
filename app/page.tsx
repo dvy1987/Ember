@@ -4,11 +4,13 @@ import { useState, useEffect, useCallback } from 'react';
 import { Project } from '@/lib/types';
 import DragonCard from '@/components/DragonCard';
 import CreateProjectModal from '@/components/CreateProjectModal';
+import SettingsModal from '@/components/SettingsModal';
 
 export default function Home() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
 
   const fetchProjects = useCallback(async () => {
     try {
@@ -36,12 +38,21 @@ export default function Home() {
           <h1 className="text-3xl font-bold tracking-tight">Dragon Roost 🐉</h1>
           <p className="text-ember-text-muted mt-1">Your projects need training</p>
         </div>
-        <button
-          onClick={() => setShowCreateModal(true)}
-          className="px-5 py-2.5 rounded-xl bg-ember-cinder text-ember-bg font-semibold text-sm hover:scale-[1.02] active:scale-[0.98] transition-all"
-        >
-          + Hatch New Dragon
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowSettings(true)}
+            className="p-2.5 rounded-xl bg-ember-panel border border-ember-border text-ember-text-muted hover:text-ember-text hover:border-ember-panel-light transition-all"
+            title="Settings"
+          >
+            ⚙
+          </button>
+          <button
+            onClick={() => setShowCreateModal(true)}
+            className="px-5 py-2.5 rounded-xl bg-ember-cinder text-ember-bg font-semibold text-sm hover:scale-[1.02] active:scale-[0.98] transition-all"
+          >
+            + Hatch New Dragon
+          </button>
+        </div>
       </div>
 
       {/* Dragon grid */}
@@ -75,6 +86,11 @@ export default function Home() {
         isOpen={showCreateModal}
         onClose={() => setShowCreateModal(false)}
         onCreated={fetchProjects}
+      />
+
+      <SettingsModal
+        isOpen={showSettings}
+        onClose={() => setShowSettings(false)}
       />
     </div>
   );

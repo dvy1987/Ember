@@ -52,13 +52,14 @@ export default function DragonCard({ project, neglectState = 'active' }: DragonC
         className={`relative rounded-2xl border ${neglectBorder} bg-ember-panel p-5 transition-all duration-200 hover:bg-ember-panel-light hover:scale-[1.02] cursor-pointer`}
         style={{ boxShadow: `0 0 20px ${accentColor}15` }}
       >
-        {/* Dragon image */}
+        {/* Dragon image — idle breathing animation */}
         <div className="flex justify-center mb-4">
           {imagePath ? (
             <img
               src={imagePath}
               alt={`${project.dragon_type} dragon - ${project.dragon_stage}`}
-              className="w-28 h-28 object-contain drop-shadow-lg"
+              className="w-28 h-28 object-contain drop-shadow-lg dragon-breathe"
+              style={{ filter: `drop-shadow(0 0 8px ${accentColor}60)` }}
             />
           ) : (
             <div

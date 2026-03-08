@@ -44,3 +44,80 @@ body {
     color-scheme: dark;
   }
 }
+
+/* ============================================================
+   Dragon Animations — visual-direction.md
+   Dragon: 400–600ms | UI transitions: 150–250ms
+   ============================================================ */
+
+/* Idle breathing — subtle scale + opacity pulse */
+@keyframes dragon-breathe {
+  0%, 100% { transform: scale(1);     opacity: 1; }
+  50%       { transform: scale(1.04); opacity: 0.92; }
+}
+
+/* Alert state — dragon becomes energised at session start */
+@keyframes dragon-alert {
+  0%   { transform: scale(1)    translateY(0);    filter: brightness(1); }
+  30%  { transform: scale(1.08) translateY(-4px); filter: brightness(1.2); }
+  60%  { transform: scale(1.05) translateY(-2px); filter: brightness(1.15); }
+  100% { transform: scale(1.06) translateY(-3px); filter: brightness(1.1); }
+}
+
+/* Evolution burst — brief glow expansion on stage change */
+@keyframes evolution-burst {
+  0%   { transform: scale(1);    filter: brightness(1)   drop-shadow(0 0 0px currentColor); }
+  40%  { transform: scale(1.15); filter: brightness(1.4) drop-shadow(0 0 24px currentColor); }
+  70%  { transform: scale(1.1);  filter: brightness(1.2) drop-shadow(0 0 16px currentColor); }
+  100% { transform: scale(1.06); filter: brightness(1.1) drop-shadow(0 0 8px currentColor); }
+}
+
+/* Glow pulse — soft ambient glow on panels */
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 12px var(--glow-color, #ff6b3540); }
+  50%       { box-shadow: 0 0 28px var(--glow-color, #ff6b3560); }
+}
+
+/* Task complete — quick fade + slide down microinteraction */
+@keyframes task-complete {
+  0%   { opacity: 1; transform: translateX(0); }
+  40%  { opacity: 0.5; transform: translateX(8px); }
+  100% { opacity: 0; transform: translateX(16px); }
+}
+
+/* Fade-in slide up — for new tasks appearing */
+@keyframes fade-in-up {
+  0%   { opacity: 0; transform: translateY(8px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Spin for loading states */
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* ---- Utility classes ---- */
+.dragon-breathe {
+  animation: dragon-breathe 4s ease-in-out infinite;
+}
+
+.dragon-alert {
+  animation: dragon-alert 600ms ease-out forwards;
+}
+
+.dragon-evolve {
+  animation: evolution-burst 600ms ease-out forwards;
+}
+
+.glow-pulse {
+  animation: glow-pulse 3s ease-in-out infinite;
+}
+
+.fade-in-up {
+  animation: fade-in-up 200ms ease-out forwards;
+}
+
+.task-completing {
+  animation: task-complete 250ms ease-out forwards;
+}
