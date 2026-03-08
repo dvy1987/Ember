@@ -58,11 +58,11 @@ export default function DragonCard({ project, neglectState = 'active' }: DragonC
             <img
               src={imagePath}
               alt={`${project.dragon_type} dragon - ${project.dragon_stage}`}
-              className="w-28 h-28 object-contain drop-shadow-lg"
+              className="w-28 h-28 object-contain drop-shadow-lg animate-dragon-breathe"
             />
           ) : (
             <div
-              className="w-28 h-28 rounded-full flex items-center justify-center text-4xl"
+              className="w-28 h-28 rounded-full flex items-center justify-center text-4xl animate-glow-pulse"
               style={{ backgroundColor: `${accentColor}20` }}
             >
               🥚

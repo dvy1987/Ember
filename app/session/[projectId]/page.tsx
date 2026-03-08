@@ -90,6 +90,19 @@ export default function SessionPage({ params }: { params: Promise<{ projectId: s
         }),
       });
 
+      // Process reflection with AI (non-blocking, best effort)
+      if (reflection?.trim()) {
+        fetch('/api/ai/process-reflection', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            project_id: projectId,
+            session_id: sessionId,
+            reflection: reflection.trim(),
+          }),
+        }).catch(() => {});
+      }
+
       setPhase('complete');
     } catch { /* ignore */ }
   };
@@ -172,12 +185,12 @@ export default function SessionPage({ params }: { params: Promise<{ projectId: s
 
       {/* Focusing phase */}
       {phase === 'focusing' && (
-        <div className="flex flex-col items-center pt-8">
+        <div className="flex flex-col items-center pt-8 animate-fade-in">
           {imagePath && (
             <img
               src={imagePath}
               alt="dragon training"
-              className="w-32 h-32 object-contain mb-6"
+              className="w-32 h-32 object-contain mb-6 animate-session-burst animate-dragon-breathe"
               style={{ filter: `drop-shadow(0 0 20px ${accentColor})` }}
             />
           )}
@@ -281,12 +294,12 @@ export default function SessionPage({ params }: { params: Promise<{ projectId: s
 
       {/* Complete phase */}
       {phase === 'complete' && (
-        <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
+        <div className="flex flex-col items-center justify-center min-h-[60vh] text-center animate-fade-in">
           {imagePath && (
             <img
               src={imagePath}
               alt="dragon happy"
-              className="w-36 h-36 object-contain mb-6"
+              className="w-36 h-36 object-contain mb-6 animate-celebrate"
               style={{ filter: `drop-shadow(0 0 30px ${accentColor})` }}
             />
           )}

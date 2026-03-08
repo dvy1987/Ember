@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { endSession } from '@/services/sessionService';
 import { updateDragonState } from '@/services/dragonEngine';
+import { checkAndCompressMemory } from '@/services/aiService';
 
 export async function POST(request: NextRequest) {
   try {
@@ -18,6 +19,9 @@ export async function POST(request: NextRequest) {
 
     // Update dragon state after session ends
     const project = updateDragonState(session.project_id);
+
+    // Trigger memory compression check (async, non-blocking)
+    checkAndCompressMemory(session.project_id).catch(() => {});
 
     return NextResponse.json({ session, project });
   } catch (error) {
