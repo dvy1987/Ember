@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, use } from 'react';
 import { useRouter } from 'next/navigation';
-import { Project, Task, Session, DragonType } from '@/lib/types';
+import { Project, Task, Session, DragonType, ContextRestorationResult } from '@/lib/types';
 import { getDragonAccentVar } from '@/lib/dragonAssets';
 import ResumeCard from '@/components/ResumeCard';
 import TaskList from '@/components/TaskList';
@@ -17,6 +17,9 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
   const [backlogTasks, setBacklogTasks] = useState<Task[]>([]);
   const [lastSession, setLastSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [aiContext, setAiContext] = useState<ContextRestorationResult | null>(null);
+  const [isBrainDumping, setIsBrainDumping] = useState(false);
+  const [brainDumpStatus, setBrainDumpStatus] = useState<'idle' | 'ai' | 'fallback'>('idle');
 
   const fetchProject = useCallback(async () => {
     try {
@@ -46,9 +49,29 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
     } catch { /* ignore */ }
   }, [projectId]);
 
+  const fetchAiContext = useCallback(async () => {
+    try {
+      const res = await fetch('/api/ai/restore-context', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ project_id: projectId }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.ai_available && data.status_summary) {
+          setAiContext(data as ContextRestorationResult);
+        }
+      }
+    } catch { /* non-fatal */ }
+  }, [projectId]);
+
   useEffect(() => {
-    Promise.all([fetchProject(), fetchTasks(), fetchSessions()]).then(() => setIsLoading(false));
-  }, [fetchProject, fetchTasks, fetchSessions]);
+    Promise.all([fetchProject(), fetchTasks(), fetchSessions()]).then(() => {
+      setIsLoading(false);
+      // Fetch AI context after initial load — non-blocking
+      fetchAiContext();
+    });
+  }, [fetchProject, fetchTasks, fetchSessions, fetchAiContext]);
 
   const handleStartSession = () => {
     router.push(`/session/${projectId}`);
@@ -96,8 +119,29 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
   };
 
   const handleBrainDump = async (text: string) => {
-    // Without AI, brain dumps are saved as tasks for now
-    // When AI is added, this will extract tasks from the brain dump
+    setIsBrainDumping(true);
+    setBrainDumpStatus('idle');
+    try {
+      // Try AI extraction first
+      const res = await fetch('/api/ai/extract-tasks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ project_id: projectId, user_input: text }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.ai_available && !data.error) {
+          setBrainDumpStatus('ai');
+          await fetchTasks();
+          // Refresh AI context after brain dump updates the project
+          fetchAiContext();
+          return;
+        }
+      }
+    } catch { /* fall through to fallback */ }
+
+    // Fallback: split by newline and create tasks manually
+    setBrainDumpStatus('fallback');
     const lines = text.split('\n').filter(l => l.trim());
     for (const line of lines) {
       await fetch('/api/tasks', {
@@ -106,7 +150,8 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
         body: JSON.stringify({ project_id: projectId, task_text: line.trim() }),
       });
     }
-    fetchTasks();
+    await fetchTasks();
+    setIsBrainDumping(false);
   };
 
   if (isLoading) {
@@ -145,6 +190,7 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
           lastSession={lastSession}
           activeTasks={activeTasks}
           onStartSession={handleStartSession}
+          aiContext={aiContext}
         />
       </div>
 
@@ -152,11 +198,27 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
       <div className="mb-8">
         <h3 className="text-sm font-medium text-ember-text-muted mb-3 uppercase tracking-wider">
           Brain Dump
+          {isBrainDumping && (
+            <span className="ml-2 text-xs font-normal normal-case" style={{ color: accentColor }}>
+              Extracting tasks...
+            </span>
+          )}
+          {brainDumpStatus === 'ai' && !isBrainDumping && (
+            <span className="ml-2 text-xs font-normal normal-case text-ember-success">
+              ✓ AI extracted tasks
+            </span>
+          )}
+          {brainDumpStatus === 'fallback' && !isBrainDumping && (
+            <span className="ml-2 text-xs font-normal normal-case text-ember-text-muted">
+              Tasks added
+            </span>
+          )}
         </h3>
         <BrainDumpInput
           onSubmit={handleBrainDump}
           accentColor={accentColor}
-          placeholder="What's on your mind about this project? Each line becomes a task..."
+          placeholder="What's on your mind about this project? AI will extract your tasks..."
+          isLoading={isBrainDumping}
         />
       </div>
 
@@ -176,13 +238,24 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
 
       {/* Project summary */}
       {project.project_summary && (
-        <div className="bg-ember-panel rounded-xl p-4">
+        <div className="bg-ember-panel rounded-xl p-4 mb-4">
           <h3 className="text-sm font-medium text-ember-text-muted mb-2 uppercase tracking-wider">
             Project Summary
           </h3>
           <p className="text-sm">{project.project_summary}</p>
         </div>
       )}
+
+      {/* Footer nav */}
+      <div className="flex items-center justify-between text-xs text-ember-text-muted pt-2">
+        <Link href="/" className="hover:text-ember-text transition-colors">← Dragon Roost</Link>
+        <Link
+          href={`/analytics/${projectId}`}
+          className="hover:text-ember-text transition-colors"
+        >
+          Analytics →
+        </Link>
+      </div>
     </div>
   );
 }

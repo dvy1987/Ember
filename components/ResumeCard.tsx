@@ -1,6 +1,6 @@
 'use client';
 
-import { Project, Task, Session, DragonType } from '@/lib/types';
+import { Project, Task, Session, DragonType, ContextRestorationResult } from '@/lib/types';
 import { getDragonImagePath, hasDragonImage, getDragonAccentVar } from '@/lib/dragonAssets';
 
 interface ResumeCardProps {
@@ -9,6 +9,7 @@ interface ResumeCardProps {
   activeTasks: Task[];
   onStartSession: () => void;
   onChooseDifferentTask?: () => void;
+  aiContext?: ContextRestorationResult | null;
 }
 
 export default function ResumeCard({
@@ -17,14 +18,18 @@ export default function ResumeCard({
   activeTasks,
   onStartSession,
   onChooseDifferentTask,
+  aiContext,
 }: ResumeCardProps) {
   const dragonType = project.dragon_type as DragonType;
   const accentColor = getDragonAccentVar(dragonType);
   const hasImage = hasDragonImage(dragonType, project.dragon_stage);
   const imagePath = hasImage ? getDragonImagePath(dragonType, project.dragon_stage) : null;
 
-  // Fallback logic: if no AI, suggest unfinished session tasks or first active task
-  const suggestedTask = activeTasks.length > 0 ? activeTasks[0].task_text : null;
+  // Use AI-generated suggestion if available; fallback to first active task
+  const suggestedTask = aiContext?.suggested_next_step
+    || (activeTasks.length > 0 ? activeTasks[0].task_text : null);
+
+  const statusSummary = aiContext?.status_summary ?? null;
 
   // Format last session info
   const lastSessionInfo = lastSession
@@ -59,7 +64,8 @@ export default function ResumeCard({
             <img
               src={imagePath}
               alt={`${project.dragon_type} dragon`}
-              className="w-16 h-16 object-contain"
+              className="w-16 h-16 object-contain dragon-breathe"
+              style={{ filter: `drop-shadow(0 0 8px ${accentColor}80)` }}
             />
           ) : (
             <div
@@ -75,8 +81,16 @@ export default function ResumeCard({
           </div>
         </div>
 
-        {/* Last session info */}
-        {lastSessionInfo && (
+        {/* AI status summary — shown when AI is available */}
+        {statusSummary && (
+          <div className="mb-4 bg-ember-bg/50 rounded-lg px-4 py-3">
+            <p className="text-xs text-ember-text-muted mb-1">Dragon status</p>
+            <p className="text-sm">{statusSummary}</p>
+          </div>
+        )}
+
+        {/* Last session info — shown when no AI status summary */}
+        {!statusSummary && lastSessionInfo && (
           <div className="mb-4 bg-ember-bg/50 rounded-lg px-4 py-3">
             <p className="text-xs text-ember-text-muted mb-1">Last session{lastSessionDate ? ` · ${lastSessionDate}` : ''}</p>
             <p className="text-sm">{lastSessionInfo}</p>
@@ -86,7 +100,9 @@ export default function ResumeCard({
         {/* Suggested next step */}
         {suggestedTask && (
           <div className="mb-5">
-            <p className="text-xs text-ember-text-muted mb-1">Suggested next move</p>
+            <p className="text-xs text-ember-text-muted mb-1">
+              {aiContext ? 'AI suggests' : 'Suggested next move'}
+            </p>
             <p className="text-sm font-medium" style={{ color: accentColor }}>{suggestedTask}</p>
           </div>
         )}

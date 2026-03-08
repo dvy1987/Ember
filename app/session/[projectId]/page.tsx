@@ -90,6 +90,19 @@ export default function SessionPage({ params }: { params: Promise<{ projectId: s
         }),
       });
 
+      // AI reflection processing — fire-and-forget, non-blocking
+      if (reflection?.trim()) {
+        fetch('/api/ai/process-reflection', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            project_id: projectId,
+            session_id: sessionId,
+            reflection,
+          }),
+        }).catch(() => {});
+      }
+
       setPhase('complete');
     } catch { /* ignore */ }
   };
@@ -177,7 +190,7 @@ export default function SessionPage({ params }: { params: Promise<{ projectId: s
             <img
               src={imagePath}
               alt="dragon training"
-              className="w-32 h-32 object-contain mb-6"
+              className="w-32 h-32 object-contain mb-6 dragon-alert"
               style={{ filter: `drop-shadow(0 0 20px ${accentColor})` }}
             />
           )}
