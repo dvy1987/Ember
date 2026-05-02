@@ -288,27 +288,92 @@
   animation: filigree-glow-cinder 5s ease-in-out infinite alternate;
 }
 
-/* Eye gleam: warm amber pinpoint on Cinder's painted eye, pulses softly between blinks.
-   Position is the SAME as the eyelid (52.5% left, 26% top) but slightly smaller and warmer. */
-@keyframes cinder-eye-gleam {
-  0%, 100% { opacity: 0.35; transform: scale(0.85); }
-  50%      { opacity: 0.85; transform: scale(1.15); }
+#cinder-tail, #cinder-wing-left, #cinder-wing-right,
+#cinder-body, #cinder-head, #cinder-jaw,
+#cinder-eyelid, #cinder-filigree, #cinder-eye {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
 }
-.cinder-eye-gleam {
-  position: absolute;
-  left: 53.5%;
-  top: 27%;
-  width: 14px;
-  height: 14px;
-  margin-left: -7px;
-  margin-top: -7px;
-  background: radial-gradient(circle, #F8C77A 0%, #F0A04A 35%, transparent 70%);
-  border-radius: 50%;
-  pointer-events: none;
-  mix-blend-mode: screen;
-  animation: cinder-eye-gleam 4.2s ease-in-out infinite;
-  z-index: 11;
-  filter: blur(0.5px);
+
+@keyframes cinder-tail-sway {
+  0%   { transform: rotate(-8deg); }
+  100% { transform: rotate(8deg); }
+}
+#cinder-tail {
+  animation: cinder-tail-sway 5s ease-in-out infinite alternate;
+  transform-origin: 0% 50%;
+}
+
+@keyframes cinder-wing-left-flap {
+  0%, 100% { transform: rotate(0deg)   translateY(0); }
+  50%      { transform: rotate(-14deg) translateY(-4px); }
+}
+#cinder-wing-left {
+  animation: cinder-wing-left-flap 3.8s ease-in-out infinite;
+  transform-origin: 100% 35%;
+}
+
+@keyframes cinder-wing-right-flap {
+  0%, 100% { transform: rotate(0deg)  translateY(0); }
+  50%      { transform: rotate(14deg) translateY(-4px); }
+}
+#cinder-wing-right {
+  animation: cinder-wing-right-flap 3.8s ease-in-out infinite;
+  transform-origin: 0% 35%;
+}
+
+@keyframes cinder-body-breath {
+  0%   { transform: scaleY(1)     scaleX(1); }
+  100% { transform: scaleY(1.022) scaleX(1.008); }
+}
+#cinder-body {
+  animation: cinder-body-breath 4s ease-in-out infinite alternate;
+  transform-origin: 50% 100%;
+}
+
+@keyframes cinder-head-nod {
+  0%, 100% { transform: rotate(-2deg) translateY(0); }
+  50%      { transform: rotate(3deg)  translateY(-1.5px); }
+}
+#cinder-head {
+  animation: cinder-head-nod 6s ease-in-out infinite;
+  transform-origin: 50% 100%;
+}
+
+@keyframes cinder-jaw-yawn {
+  0%, 88%, 100% { transform: rotate(0deg); }
+  92%           { transform: rotate(16deg); }
+  96%           { transform: rotate(7deg); }
+}
+#cinder-jaw {
+  animation: cinder-jaw-yawn 12s ease-in-out infinite;
+  transform-origin: 50% 0%;
+}
+
+@keyframes cinder-eye-pulse {
+  0%, 100% { opacity: 0.75; transform: scale(0.92); }
+  50%      { opacity: 1;    transform: scale(1.08); }
+}
+#cinder-eye {
+  animation: cinder-eye-pulse 3.5s ease-in-out infinite;
+}
+
+@keyframes cinder-blink {
+  0%, 94% { transform: scaleY(0); }
+  97%     { transform: scaleY(1); }
+  100%    { transform: scaleY(0); }
+}
+#cinder-eyelid {
+  animation: cinder-blink 6s ease-in-out infinite;
+  transform-origin: 50% 0%;
+}
+
+@keyframes cinder-filigree-pulse {
+  0%, 100% { opacity: 0.55; }
+  50%      { opacity: 0.95; }
+}
+#cinder-filigree {
+  animation: cinder-filigree-pulse 5s ease-in-out infinite;
 }
 
 /* Hover: she leans toward you, glow intensifies, breath quickens slightly */

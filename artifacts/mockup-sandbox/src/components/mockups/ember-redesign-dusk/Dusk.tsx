@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './_group.css';
+import { CinderSVG } from './CinderSVG';
 
 // SVG Icons
 const FlameIcon = () => (
@@ -159,22 +160,7 @@ export function Dusk() {
                 <div className="cinder-bobble">
                   <div className="cinder-headturn">
                     <div className="dragon-image-container relative z-10 flex justify-center w-full h-full">
-                      <img 
-                        src="/__mockup/images/dragons/cinder/adolescent-cinder.webp" 
-                        alt="Cinder, adolescent dragon"
-                        className="dragon-image h-[280px] w-auto object-contain"
-                      />
-                      <div 
-                        className="dragon-eyelid"
-                        style={{
-                          left: '52.5%',
-                          top: '26%',
-                          width: '20px',
-                          height: '14px',
-                          transformOrigin: 'top center'
-                        }}
-                      />
-                      <div className="cinder-eye-gleam" />
+                      <CinderSVG />
                     </div>
                   </div>
                 </div>
