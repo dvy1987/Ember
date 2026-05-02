@@ -2,9 +2,10 @@
 type ModuleMap = Record<string, () => Promise<Record<string, unknown>>>;
 export const modules: ModuleMap = {
   "./components/mockups/ember-dragons-alive/DragonsAlive.tsx": () => import("../components/mockups/ember-dragons-alive/DragonsAlive.tsx"),
+  "./components/mockups/ember-redesign-dusk/Dusk.tsx": () => import("../components/mockups/ember-redesign-dusk/Dusk.tsx"),
   "./components/mockups/ember-redesign-den/Den.tsx": () => import("../components/mockups/ember-redesign-den/Den.tsx"),
   "./components/mockups/ember-redesign-field-journal/FieldJournal.tsx": () => import("../components/mockups/ember-redesign-field-journal/FieldJournal.tsx"),
-  "./components/mockups/ember-redesign-sanctuary/Sanctuary.tsx": () => import("../components/mockups/ember-redesign-sanctuary/Sanctuary.tsx"),
   "./components/mockups/ember-redesign-hearth/Hearth.tsx": () => import("../components/mockups/ember-redesign-hearth/Hearth.tsx"),
+  "./components/mockups/ember-redesign-sanctuary/Sanctuary.tsx": () => import("../components/mockups/ember-redesign-sanctuary/Sanctuary.tsx"),
   "./components/mockups/ember-redesign-today/Today.tsx": () => import("../components/mockups/ember-redesign-today/Today.tsx")
 };
