@@ -346,7 +346,7 @@ export default function SessionPage() {
                   className="inline-block px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest mb-3"
                   style={{ backgroundColor: `${accentColor}25`, color: accentColor, border: `1px solid ${accentColor}50` }}
                 >
-                  ✨ Evolution!
+                  Evolution
                 </span>
               </div>
 
