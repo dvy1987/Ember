@@ -42,6 +42,18 @@ export function getAllProjects(): Project[] {
   return db.prepare('SELECT * FROM projects WHERE is_archived = 0 ORDER BY updated_at DESC').all() as Project[];
 }
 
+/** Columns that callers are permitted to update. Keys are validated against this set before being interpolated into SQL. */
+const ALLOWED_PROJECT_UPDATE_COLUMNS = new Set([
+  'name',
+  'dragon_type',
+  'dragon_stage',
+  'total_focus_minutes',
+  'project_summary',
+  'last_session_at',
+  'last_decay_check',
+  'is_archived',
+] as const);
+
 export function updateProject(
   id: string,
   updates: Partial<Pick<Project, 'name' | 'dragon_type' | 'dragon_stage' | 'total_focus_minutes' | 'project_summary' | 'last_session_at' | 'last_decay_check' | 'is_archived'>>
@@ -53,6 +65,8 @@ export function updateProject(
   const values: unknown[] = [];
 
   for (const [key, value] of Object.entries(updates)) {
+    // Allowlist check: only columns explicitly permitted above are included
+    if (!ALLOWED_PROJECT_UPDATE_COLUMNS.has(key as typeof ALLOWED_PROJECT_UPDATE_COLUMNS extends Set<infer T> ? T : never)) continue;
     fields.push(`${key} = ?`);
     values.push(value);
   }

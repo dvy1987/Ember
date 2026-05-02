@@ -47,3 +47,11 @@ Thumbs.db
 # Replit
 .cache/
 .local/
+
+# Editor swap files
+*.swp
+*.swo
+
+# SQLite runtime files (WAL/shared-memory — not part of source)
+*.db-shm
+*.db-wal

@@ -71,6 +71,14 @@ export function getActiveTaskCount(projectId: string): number {
   return result.count;
 }
 
+/** Columns that callers are permitted to update. Keys are validated against this set before being interpolated into SQL. */
+const ALLOWED_TASK_UPDATE_COLUMNS = new Set([
+  'task_text',
+  'status',
+  'priority',
+  'task_order',
+] as const);
+
 export function updateTask(
   id: string,
   updates: Partial<Pick<Task, 'task_text' | 'status' | 'priority' | 'task_order'>>
@@ -80,6 +88,8 @@ export function updateTask(
   const values: unknown[] = [];
 
   for (const [key, value] of Object.entries(updates)) {
+    // Allowlist check: only columns explicitly permitted above are included
+    if (!ALLOWED_TASK_UPDATE_COLUMNS.has(key as typeof ALLOWED_TASK_UPDATE_COLUMNS extends Set<infer T> ? T : never)) continue;
     fields.push(`${key} = ?`);
     values.push(value);
   }
