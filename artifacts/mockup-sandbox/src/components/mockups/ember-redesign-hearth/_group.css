@@ -1,0 +1,89 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;1,500&family=Inter+Tight:wght@500&family=JetBrains+Mono:wght@400&display=swap');
+
+.hearth-container {
+  /* Fonts */
+  --font-serif: 'Cormorant Garamond', serif;
+  --font-sans: 'Inter Tight', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Colors */
+  --bg-base: #170D08;
+  --surface-mid: #241410;
+  --surface-mid-hover: #2C1A12;
+  --ember-accent: #D4421A;
+  --amber-glow: #F0A04A;
+  --text-parchment: #F4E8D0;
+  --text-muted: #A89478;
+  --border-subtle: #3A2F23;
+  
+  background-color: var(--bg-base);
+  color: var(--text-parchment);
+  font-family: var(--font-sans);
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+.hearth-firelight {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 20% 85%, #D4421A33 0%, #8A2A0E1F 25%, transparent 55%);
+  animation: firelight-flicker 5s infinite alternate ease-in-out;
+  z-index: 0;
+}
+
+@keyframes firelight-flicker {
+  0% {
+    opacity: 0.85;
+    transform: translate(0, 0);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(6px, 8px);
+  }
+}
+
+.dragon-breathing {
+  animation: dragon-breathe 5s infinite alternate ease-in-out;
+}
+
+@keyframes dragon-breathe {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(1px); }
+}
+
+.room-view-stagger > * {
+  animation: room-reveal 700ms ease-out backwards;
+}
+
+.room-view-stagger > *:nth-child(1) { animation-delay: 0ms; }
+.room-view-stagger > *:nth-child(2) { animation-delay: 200ms; }
+.room-view-stagger > *:nth-child(3) { animation-delay: 400ms; }
+.room-view-stagger .hearth-firelight { animation-delay: 600ms; }
+
+@keyframes room-reveal {
+  0% { opacity: 0; transform: translateY(8px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.dragon-container {
+  transition: transform 200ms ease-out;
+}
+.dragon-container:hover {
+  transform: translateY(2px) scale(1.02);
+}
+.dragon-container:hover .dragon-rim-light {
+  opacity: 1;
+  transform: scale(1.15);
+}
+
+.cta-button {
+  box-shadow: inset 0 0 32px #F0A04A30;
+  transition: all 200ms ease-out;
+}
+.cta-button:hover {
+  box-shadow: inset 0 0 48px #F0A04A50;
+}
