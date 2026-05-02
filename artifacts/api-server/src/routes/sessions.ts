@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { startSession, endSession, getSessionsByProject } from '../services/sessionService.js';
 import { updateDragonState } from '../services/dragonEngine.js';
+import { getProject } from '../services/projectService.js';
 import { checkAndCompressMemory } from '../services/aiService.js';
 
 const router = Router();
@@ -40,11 +41,14 @@ router.post('/sessions/end', async (req, res) => {
       return;
     }
 
+    const projectBefore = getProject(session.project_id);
+    const previousDragonStage = projectBefore?.dragon_stage ?? null;
+
     const project = updateDragonState(session.project_id);
 
     checkAndCompressMemory(session.project_id).catch(() => {});
 
-    res.json({ session, project });
+    res.json({ session, project, previous_dragon_stage: previousDragonStage });
   } catch {
     res.status(500).json({ error: 'Failed to end session' });
   }

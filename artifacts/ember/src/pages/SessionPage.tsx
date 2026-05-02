@@ -1,11 +1,19 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRoute, useLocation } from 'wouter';
-import { Project, Task, DragonType } from '@/lib/types';
+import { Project, Task, DragonType, DragonStage } from '@/lib/types';
 import { getDragonImagePath, hasDragonImage, getDragonAccentVar } from '@/lib/dragonAssets';
 import FocusTimer from '@/components/FocusTimer';
 import { Link } from 'wouter';
 
 type SessionPhase = 'select-tasks' | 'focusing' | 'reflect' | 'complete';
+
+const STAGE_DISPLAY_NAMES: Record<DragonStage, string> = {
+  egg: 'Egg',
+  hatchling: 'Hatchling',
+  adolescent: 'Adolescent',
+  adult: 'Adult',
+  ancient: 'Ancient',
+};
 
 export default function SessionPage() {
   const [, params] = useRoute('/session/:projectId');
@@ -20,6 +28,9 @@ export default function SessionPage() {
   const [reflection, setReflection] = useState('');
   const [completedTaskIds, setCompletedTaskIds] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [evolvedToStage, setEvolvedToStage] = useState<DragonStage | null>(null);
+  const [isEvolving, setIsEvolving] = useState(false);
+  const evolutionTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const fetchData = useCallback(async () => {
     try {
@@ -40,6 +51,12 @@ export default function SessionPage() {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  useEffect(() => {
+    return () => {
+      if (evolutionTimerRef.current) clearTimeout(evolutionTimerRef.current);
+    };
+  }, []);
 
   const handleStartSession = async () => {
     try {
@@ -78,7 +95,7 @@ export default function SessionPage() {
         });
       }
 
-      await fetch('/api/sessions/end', {
+      const endRes = await fetch('/api/sessions/end', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -87,6 +104,26 @@ export default function SessionPage() {
           tasks_completed_count: completedTaskIds.length,
         }),
       });
+
+      if (endRes.ok) {
+        const data = await endRes.json();
+        const updatedProject: Project = data.project;
+        const previousStage: DragonStage | null = data.previous_dragon_stage ?? null;
+
+        if (updatedProject) {
+          setProject(updatedProject);
+
+          if (
+            previousStage &&
+            updatedProject.dragon_stage !== previousStage &&
+            STAGE_DISPLAY_NAMES[updatedProject.dragon_stage as DragonStage]
+          ) {
+            setEvolvedToStage(updatedProject.dragon_stage as DragonStage);
+            setIsEvolving(true);
+            evolutionTimerRef.current = setTimeout(() => setIsEvolving(false), 1200);
+          }
+        }
+      }
 
       if (reflection?.trim()) {
         fetch('/api/ai/process-reflection', {
@@ -285,18 +322,65 @@ export default function SessionPage() {
 
       {phase === 'complete' && (
         <div className="flex flex-col items-center justify-center min-h-[60vh] text-center animate-fade-in">
-          {imagePath && (
-            <img
-              src={imagePath}
-              alt="dragon happy"
-              className="w-36 h-36 object-contain mb-6 animate-celebrate"
-              style={{ filter: `drop-shadow(0 0 30px ${accentColor})` }}
-            />
+          {evolvedToStage ? (
+            <>
+              <div className="relative mb-6">
+                {imagePath && (
+                  <img
+                    src={imagePath}
+                    alt="dragon evolved"
+                    className={`w-36 h-36 object-contain ${isEvolving ? 'animate-evolution-burst' : 'animate-celebrate'}`}
+                    style={{ filter: `drop-shadow(0 0 40px ${accentColor})` }}
+                  />
+                )}
+                {isEvolving && (
+                  <div
+                    className="absolute inset-0 rounded-full animate-evolution-ring pointer-events-none"
+                    style={{ background: `radial-gradient(circle, ${accentColor}60 0%, transparent 70%)` }}
+                  />
+                )}
+              </div>
+
+              <div className="animate-slide-up mb-2">
+                <span
+                  className="inline-block px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest mb-3"
+                  style={{ backgroundColor: `${accentColor}25`, color: accentColor, border: `1px solid ${accentColor}50` }}
+                >
+                  ✨ Evolution!
+                </span>
+              </div>
+
+              <h1 className="text-3xl font-bold mb-2" style={{ color: accentColor }}>
+                {project.name} Evolved!
+              </h1>
+              <p className="text-ember-text-muted text-lg mb-1">
+                Your dragon is now a{' '}
+                <span className="font-semibold" style={{ color: accentColor }}>
+                  {STAGE_DISPLAY_NAMES[evolvedToStage]}
+                </span>
+                !
+              </p>
+              <p className="text-ember-text-muted/70 text-sm mb-8">
+                Keep training to unlock the next stage.
+              </p>
+            </>
+          ) : (
+            <>
+              {imagePath && (
+                <img
+                  src={imagePath}
+                  alt="dragon happy"
+                  className="w-36 h-36 object-contain mb-6 animate-celebrate"
+                  style={{ filter: `drop-shadow(0 0 30px ${accentColor})` }}
+                />
+              )}
+              <h1 className="text-2xl font-bold mb-2">Training Complete!</h1>
+              <p className="text-ember-text-muted mb-8">
+                Your dragon has grown stronger. Keep the momentum going!
+              </p>
+            </>
           )}
-          <h1 className="text-2xl font-bold mb-2">Training Complete!</h1>
-          <p className="text-ember-text-muted mb-8">
-            Your dragon has grown stronger. Keep the momentum going!
-          </p>
+
           <div className="flex gap-3">
             <Link
               href={`/project/${projectId}`}
