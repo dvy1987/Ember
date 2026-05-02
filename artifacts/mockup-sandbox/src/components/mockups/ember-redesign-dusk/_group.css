@@ -288,93 +288,105 @@
   animation: filigree-glow-cinder 5s ease-in-out infinite alternate;
 }
 
-#cinder-tail, #cinder-wing-left, #cinder-wing-right,
-#cinder-body, #cinder-head, #cinder-jaw,
-#cinder-eyelid, #cinder-filigree, #cinder-eye {
-  transform-box: fill-box;
-  transform-origin: 50% 50%;
+/* CinderAnimated — painterly bitmap + layered overlays for "alive" feel.
+   The bitmap inherits .dragon-image filigree-glow and the container
+   inherits breath-cinder; everything below adds atmosphere on top. */
+.cinder-animated-frame {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
-@keyframes cinder-tail-sway {
-  0%   { transform: rotate(-8deg); }
-  100% { transform: rotate(8deg); }
-}
-#cinder-tail {
-  animation: cinder-tail-sway 5s ease-in-out infinite alternate;
-  transform-origin: 0% 50%;
-}
-
-@keyframes cinder-wing-left-flap {
-  0%, 100% { transform: rotate(0deg)   translateY(0); }
-  50%      { transform: rotate(-14deg) translateY(-4px); }
-}
-#cinder-wing-left {
-  animation: cinder-wing-left-flap 3.8s ease-in-out infinite;
-  transform-origin: 100% 35%;
+.cinder-painterly-img {
+  position: relative;
+  z-index: 5;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
-@keyframes cinder-wing-right-flap {
-  0%, 100% { transform: rotate(0deg)  translateY(0); }
-  50%      { transform: rotate(14deg) translateY(-4px); }
+/* 1. Soft warm halo behind her — slow breathing pulse */
+@keyframes cinder-aura-radial-pulse {
+  0%, 100% { opacity: 0.45; transform: scale(0.94); }
+  50%      { opacity: 0.78; transform: scale(1.05); }
 }
-#cinder-wing-right {
-  animation: cinder-wing-right-flap 3.8s ease-in-out infinite;
-  transform-origin: 0% 35%;
-}
-
-@keyframes cinder-body-breath {
-  0%   { transform: scaleY(1)     scaleX(1); }
-  100% { transform: scaleY(1.022) scaleX(1.008); }
-}
-#cinder-body {
-  animation: cinder-body-breath 4s ease-in-out infinite alternate;
-  transform-origin: 50% 100%;
-}
-
-@keyframes cinder-head-nod {
-  0%, 100% { transform: rotate(-2deg) translateY(0); }
-  50%      { transform: rotate(3deg)  translateY(-1.5px); }
-}
-#cinder-head {
-  animation: cinder-head-nod 6s ease-in-out infinite;
-  transform-origin: 50% 100%;
+.cinder-aura-radial {
+  position: absolute;
+  inset: 8% 8% 4% 8%;
+  z-index: 1;
+  background: radial-gradient(
+    ellipse at 50% 58%,
+    rgba(240, 160, 74, 0.32) 0%,
+    rgba(212, 66, 26, 0.18) 32%,
+    rgba(212, 66, 26, 0) 68%
+  );
+  filter: blur(14px);
+  animation: cinder-aura-radial-pulse 4.2s ease-in-out infinite;
+  pointer-events: none;
+  transform-origin: 50% 60%;
+  will-change: transform, opacity;
 }
 
-@keyframes cinder-jaw-yawn {
-  0%, 88%, 100% { transform: rotate(0deg); }
-  92%           { transform: rotate(16deg); }
-  96%           { transform: rotate(7deg); }
+/* 2. Tighter chest-glow ring — the actual visible breath, offset rhythm */
+@keyframes cinder-breath-pulse {
+  0%, 100% { opacity: 0.22; transform: translate(-50%, -50%) scale(0.82); }
+  50%      { opacity: 0.55; transform: translate(-50%, -50%) scale(1.10); }
 }
-#cinder-jaw {
-  animation: cinder-jaw-yawn 12s ease-in-out infinite;
-  transform-origin: 50% 0%;
-}
-
-@keyframes cinder-eye-pulse {
-  0%, 100% { opacity: 0.75; transform: scale(0.92); }
-  50%      { opacity: 1;    transform: scale(1.08); }
-}
-#cinder-eye {
-  animation: cinder-eye-pulse 3.5s ease-in-out infinite;
-}
-
-@keyframes cinder-blink {
-  0%, 94% { transform: scaleY(0); }
-  97%     { transform: scaleY(1); }
-  100%    { transform: scaleY(0); }
-}
-#cinder-eyelid {
-  animation: cinder-blink 6s ease-in-out infinite;
-  transform-origin: 50% 0%;
+.cinder-aura-pulse {
+  position: absolute;
+  left: 50%;
+  top: 64%;
+  width: 130px;
+  height: 130px;
+  z-index: 2;
+  background: radial-gradient(
+    circle at center,
+    rgba(255, 167, 99, 0.38) 0%,
+    rgba(212, 66, 26, 0.12) 42%,
+    transparent 72%
+  );
+  filter: blur(10px);
+  animation: cinder-breath-pulse 3.7s ease-in-out infinite;
+  pointer-events: none;
+  will-change: transform, opacity;
 }
 
-@keyframes cinder-filigree-pulse {
-  0%, 100% { opacity: 0.55; }
-  50%      { opacity: 0.95; }
+/* 3. Mouth-area ember stream — small warm particles rising from her face,
+   distinct from the scene-wide ember system because these come FROM her. */
+.cinder-mouth-breath {
+  position: absolute;
+  left: 50%;
+  top: 30%;
+  width: 64px;
+  height: 90px;
+  transform: translateX(-50%);
+  z-index: 8;
+  pointer-events: none;
 }
-#cinder-filigree {
-  animation: cinder-filigree-pulse 5s ease-in-out infinite;
+.cinder-ember {
+  position: absolute;
+  bottom: 0;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #FFD78F 0%, #F0A04A 55%, #D4421A 100%);
+  filter: blur(0.4px) drop-shadow(0 0 4px rgba(255, 167, 99, 0.85));
+  opacity: 0;
+  animation: cinder-ember-rise linear infinite;
+  will-change: transform, opacity;
 }
+@keyframes cinder-ember-rise {
+  0%   { opacity: 0;   transform: translate(0, 0)      scale(0.55); }
+  12%  { opacity: 1;   transform: translate(-2px, -8px) scale(0.95); }
+  55%  { opacity: 0.7; transform: translate(3px, -36px) scale(1); }
+  100% { opacity: 0;   transform: translate(-2px, -72px) scale(0.4); }
+}
+.cinder-ember.e1 { left: 36%; animation-delay: 0s;    animation-duration: 3.6s; }
+.cinder-ember.e2 { left: 56%; animation-delay: 0.7s;  animation-duration: 4.2s; }
+.cinder-ember.e3 { left: 24%; animation-delay: 1.4s;  animation-duration: 3.9s; }
+.cinder-ember.e4 { left: 60%; animation-delay: 2.1s;  animation-duration: 3.4s; }
+.cinder-ember.e5 { left: 44%; animation-delay: 2.8s;  animation-duration: 4.0s; }
 
 /* Hover: she leans toward you, glow intensifies, breath quickens slightly */
 .scene-cinder:hover .cinder-headturn {
@@ -386,14 +398,10 @@
 .scene-cinder:hover .dragon-image {
   animation-duration: 2.5s;
 }
-.scene-cinder:hover .cinder-eye-gleam {
-  animation-duration: 1.8s;
-}
-
 .scene-cinder .dragon-eyelid {
   background-color: #1a0f08;
   animation: blink-cinder 6s ease-in-out infinite;
-  z-index: 12; /* sits above the gleam so the blink covers it */
+  z-index: 12;
 }
 
 /* Moss */

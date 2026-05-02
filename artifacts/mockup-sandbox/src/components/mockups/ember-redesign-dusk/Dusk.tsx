@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './_group.css';
-import { CinderSVG } from './CinderSVG';
+import { CinderAnimated } from './CinderAnimated';
 
 // SVG Icons
 const FlameIcon = () => (
@@ -159,8 +159,8 @@ export function Dusk() {
               <div className="cinder-sway">
                 <div className="cinder-bobble">
                   <div className="cinder-headturn">
-                    <div className="dragon-image-container relative z-10 flex justify-center w-full h-full">
-                      <CinderSVG />
+                    <div className="dragon-image-container relative z-10 flex justify-center items-center w-full h-full">
+                      <CinderAnimated />
                     </div>
                   </div>
                 </div>
