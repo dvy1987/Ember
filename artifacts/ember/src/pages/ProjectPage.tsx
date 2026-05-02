@@ -1,11 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useRoute, useLocation } from 'wouter';
+import { useRoute, useLocation, Link } from 'wouter';
 import { Project, Task, Session, DragonType, ResumeContext } from '@/lib/types';
 import { getDragonAccentVar } from '@/lib/dragonAssets';
 import ResumeCard from '@/components/ResumeCard';
 import TaskList from '@/components/TaskList';
 import BrainDumpInput from '@/components/BrainDumpInput';
-import { Link } from 'wouter';
+
+type BrainDumpStatus = 'idle' | 'extracting' | 'ai-success' | 'fallback';
 
 export default function ProjectPage() {
   const [, params] = useRoute('/project/:id');
@@ -18,7 +19,7 @@ export default function ProjectPage() {
   const [lastSession, setLastSession] = useState<Session | null>(null);
   const [resumeContext, setResumeContext] = useState<ResumeContext | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isBrainDumping, setIsBrainDumping] = useState(false);
+  const [brainDumpStatus, setBrainDumpStatus] = useState<BrainDumpStatus>('idle');
 
   const fetchProject = useCallback(async () => {
     try {
@@ -48,19 +49,23 @@ export default function ProjectPage() {
     } catch { }
   }, [projectId]);
 
-  const fetchResumeContext = useCallback(async () => {
+  // Non-blocking: called independently after core data loads and after AI updates
+  const refreshResumeContext = useCallback(async () => {
     try {
       const res = await fetch(`/api/resume?project_id=${projectId}`);
       if (res.ok) {
-        const data = await res.json();
-        setResumeContext(data);
+        setResumeContext(await res.json());
       }
     } catch { }
   }, [projectId]);
 
   useEffect(() => {
-    Promise.all([fetchProject(), fetchTasks(), fetchSessions(), fetchResumeContext()]).then(() => setIsLoading(false));
-  }, [fetchProject, fetchTasks, fetchSessions, fetchResumeContext]);
+    // Phase 3: Load core project/task/session data first (fast, no AI),
+    // then refresh resume context in background (may involve AI call).
+    Promise.all([fetchProject(), fetchTasks(), fetchSessions()])
+      .then(() => setIsLoading(false))
+      .then(() => refreshResumeContext()); // non-blocking background fetch
+  }, [fetchProject, fetchTasks, fetchSessions, refreshResumeContext]);
 
   const handleStartSession = () => {
     navigate(`/session/${projectId}`);
@@ -108,7 +113,7 @@ export default function ProjectPage() {
   };
 
   const handleBrainDump = async (text: string) => {
-    setIsBrainDumping(true);
+    setBrainDumpStatus('extracting');
     try {
       const aiRes = await fetch('/api/ai/extract-tasks', {
         method: 'POST',
@@ -117,21 +122,28 @@ export default function ProjectPage() {
       });
 
       if (aiRes.ok) {
-        await Promise.all([fetchTasks(), fetchProject(), fetchResumeContext()]);
-        return;
+        setBrainDumpStatus('ai-success');
+        // Refresh project state and resume context after AI updates
+        await Promise.all([fetchTasks(), fetchProject()]);
+        refreshResumeContext(); // non-blocking background refresh
+      } else {
+        // AI unavailable — fall back to line-by-line manual task creation
+        setBrainDumpStatus('fallback');
+        const lines = text.split('\n').filter(l => l.trim());
+        for (const line of lines) {
+          await fetch('/api/tasks', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ project_id: projectId, task_text: line.trim() }),
+          });
+        }
+        await fetchTasks();
       }
-
-      const lines = text.split('\n').filter(l => l.trim());
-      for (const line of lines) {
-        await fetch('/api/tasks', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ project_id: projectId, task_text: line.trim() }),
-        });
-      }
-      await fetchTasks();
+    } catch {
+      setBrainDumpStatus('fallback');
     } finally {
-      setIsBrainDumping(false);
+      // Clear status banner after a brief pause so user can read it
+      setTimeout(() => setBrainDumpStatus('idle'), 3000);
     }
   };
 
@@ -156,12 +168,20 @@ export default function ProjectPage() {
 
   return (
     <div className="min-h-screen p-6 max-w-3xl mx-auto">
-      <Link
-        href="/"
-        className="inline-flex items-center gap-1 text-sm text-ember-text-muted hover:text-ember-text mb-6 transition-colors"
-      >
-        ← Dragon Roost
-      </Link>
+      <div className="flex items-center justify-between mb-6">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-1 text-sm text-ember-text-muted hover:text-ember-text transition-colors"
+        >
+          ← Dragon Roost
+        </Link>
+        <Link
+          href={`/analytics/${project.id}`}
+          className="text-sm text-ember-text-muted hover:text-ember-text transition-colors"
+        >
+          📊 Dragon Stats
+        </Link>
+      </div>
 
       <div className="mb-8">
         <ResumeCard
@@ -181,8 +201,18 @@ export default function ProjectPage() {
           onSubmit={handleBrainDump}
           accentColor={accentColor}
           placeholder="What's on your mind about this project? Dump your thoughts and AI will extract tasks..."
-          isLoading={isBrainDumping}
+          isLoading={brainDumpStatus === 'extracting'}
         />
+        {/* Phase 3: lightweight brain dump status feedback */}
+        {brainDumpStatus === 'extracting' && (
+          <p className="text-xs text-ember-text-muted mt-2">Extracting tasks…</p>
+        )}
+        {brainDumpStatus === 'ai-success' && (
+          <p className="text-xs text-emerald-400 mt-2">✓ AI extracted tasks</p>
+        )}
+        {brainDumpStatus === 'fallback' && (
+          <p className="text-xs text-ember-text-muted mt-2">Tasks added</p>
+        )}
       </div>
 
       <div className="mb-8">

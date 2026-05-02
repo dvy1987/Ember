@@ -2,12 +2,14 @@ import { useState, useEffect, useCallback } from 'react';
 import { Project } from '@/lib/types';
 import DragonCard from '@/components/DragonCard';
 import CreateProjectModal from '@/components/CreateProjectModal';
+import SettingsModal from '@/components/SettingsModal';
 import { Link } from 'wouter';
 
 export default function HomePage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
 
   const fetchProjects = useCallback(async () => {
     try {
@@ -33,13 +35,20 @@ export default function HomePage() {
           <h1 className="text-3xl font-bold tracking-tight">Dragon Roost 🐉</h1>
           <p className="text-ember-text-muted mt-1">Your projects need training</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <Link
             href="/analytics"
             className="px-4 py-2.5 rounded-xl bg-ember-panel text-ember-text-muted text-sm font-medium hover:text-ember-text hover:bg-ember-panel-light transition-all"
           >
             📊 Insights
           </Link>
+          <button
+            onClick={() => setShowSettings(true)}
+            title="AI Settings"
+            className="px-3 py-2.5 rounded-xl bg-ember-panel text-ember-text-muted text-sm hover:text-ember-text hover:bg-ember-panel-light transition-all"
+          >
+            ⚙️
+          </button>
           <button
             onClick={() => setShowCreateModal(true)}
             className="px-5 py-2.5 rounded-xl bg-ember-cinder text-ember-bg font-semibold text-sm hover:scale-[1.02] active:scale-[0.98] transition-all"
@@ -79,6 +88,11 @@ export default function HomePage() {
         isOpen={showCreateModal}
         onClose={() => setShowCreateModal(false)}
         onCreated={fetchProjects}
+      />
+
+      <SettingsModal
+        isOpen={showSettings}
+        onClose={() => setShowSettings(false)}
       />
     </div>
   );

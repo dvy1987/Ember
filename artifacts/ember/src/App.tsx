@@ -3,6 +3,7 @@ import HomePage from "@/pages/HomePage";
 import ProjectPage from "@/pages/ProjectPage";
 import SessionPage from "@/pages/SessionPage";
 import AnalyticsPage from "@/pages/AnalyticsPage";
+import ProjectAnalyticsPage from "@/pages/ProjectAnalyticsPage";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -12,6 +13,7 @@ function Router() {
       <Route path="/project/:id" component={ProjectPage} />
       <Route path="/session/:projectId" component={SessionPage} />
       <Route path="/analytics" component={AnalyticsPage} />
+      <Route path="/analytics/:projectId" component={ProjectAnalyticsPage} />
       <Route component={NotFound} />
     </Switch>
   );

@@ -1,0 +1,67 @@
+# Replit Agent Handoff For PR #3 Merge Work
+
+You are implementing the selective merge plan for Ember.
+
+Before making changes, read:
+
+- `AGENTS.md`
+- `docs/PRD.md`
+- `docs/master-prompt.md`
+- `docs/architecture-guard.md`
+- `docs/backend-architecture.md`
+- `docs/ai-system-architecture.md`
+- `docs/memory-compression.md`
+- `docs/resume-card.md`
+- `docs/visual-direction.md`
+- `docs/common-mistakes.md`
+- `docs/build-plan.md`
+- `docs/repo-map.md`
+- `docs/merge-plan.md`
+
+## Task
+
+Execute `docs/merge-plan.md`.
+
+This is **not** a direct PR merge task.
+
+Open GitHub PR `#3` only as a reference donor for selective porting.
+
+## Critical Constraints
+
+1. Do **not** merge PR `#3` directly.
+2. Do **not** replace current `main` wholesale with PR `#3`.
+3. Preserve Ember’s current architecture and product framing.
+4. Keep the app local-first and offline-capable.
+5. Keep business logic in services.
+6. Keep `/api/resume`.
+7. Keep existing global analytics.
+8. Do not move memory compression behind optional reflection flow.
+
+## Intended Outcome
+
+Port only the good parts from PR `#3`, specifically:
+
+- reflection-processing correctness improvements
+- in-app AI settings
+- project-page brain dump UX improvements
+- non-blocking resume-context refresh improvements
+- per-project analytics as an additive feature
+
+Do **not** import the parts of PR `#3` that:
+
+- delete current routes
+- replace product-oriented APIs with lower-level AI-oriented naming
+- remove global analytics
+- weaken Resume Card emphasis on last-session context
+- relocate memory compression trigger into reflection processing
+
+## Execution Notes
+
+- Follow the implementation sequence in `docs/merge-plan.md`
+- Preserve route compatibility unless the merge plan explicitly says to add a route
+- Prefer small, controlled edits over rewrites
+- If a PR `#3` file contains both good and bad changes, port only the targeted sections
+
+## Deliverable
+
+Implement the plan, verify the acceptance criteria in `docs/merge-plan.md`, and leave the repo in a working state.

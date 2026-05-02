@@ -18,9 +18,28 @@ interface AiExtractionResult {
   summary_update: string;
 }
 
+/**
+ * Resolve AI provider config using priority order:
+ * 1. Generic DB settings (ai_api_key / ai_base_url / ai_model)
+ * 2. Legacy provider-specific DB keys (openai_api_key / openrouter_api_key)
+ * 3. Environment variables (OPENAI_API_KEY / OPENROUTER_API_KEY)
+ */
 function getApiConfig(): { apiKey: string; baseUrl: string; model: string } | null {
   const db = getDb();
 
+  // 1. Generic in-app settings (preferred — set via settings UI)
+  const genericKey = db.prepare("SELECT value FROM settings WHERE key = 'ai_api_key'").get() as { value: string } | undefined;
+  if (genericKey?.value) {
+    const baseUrlRow = db.prepare("SELECT value FROM settings WHERE key = 'ai_base_url'").get() as { value: string } | undefined;
+    const modelRow = db.prepare("SELECT value FROM settings WHERE key = 'ai_model'").get() as { value: string } | undefined;
+    return {
+      apiKey: genericKey.value,
+      baseUrl: baseUrlRow?.value || 'https://api.openai.com/v1',
+      model: modelRow?.value || 'gpt-4o-mini',
+    };
+  }
+
+  // 2. Legacy DB keys for backward compatibility
   const openaiKey = db.prepare("SELECT value FROM settings WHERE key = 'openai_api_key'").get() as { value: string } | undefined;
   if (openaiKey?.value) {
     return { apiKey: openaiKey.value, baseUrl: 'https://api.openai.com/v1', model: 'gpt-4o-mini' };
@@ -31,6 +50,7 @@ function getApiConfig(): { apiKey: string; baseUrl: string; model: string } | nu
     return { apiKey: openrouterKey.value, baseUrl: 'https://openrouter.ai/api/v1', model: 'openai/gpt-4o-mini' };
   }
 
+  // 3. Environment variable fallback
   if (process.env['OPENAI_API_KEY']) {
     return { apiKey: process.env['OPENAI_API_KEY'], baseUrl: 'https://api.openai.com/v1', model: 'gpt-4o-mini' };
   }
@@ -40,6 +60,10 @@ function getApiConfig(): { apiKey: string; baseUrl: string; model: string } | nu
   }
 
   return null;
+}
+
+export function isAiAvailable(): boolean {
+  return getApiConfig() !== null;
 }
 
 async function callLlm(messages: LlmMessage[]): Promise<string | null> {
@@ -86,6 +110,10 @@ Never invent tasks unrelated to user input.
 Only extract actionable tasks. Split complex tasks into smaller ones.
 Maximum 5 active tasks per project — overflow goes to backlog.`;
 
+/**
+ * Apply new tasks, insights, and summary updates from an AI result.
+ * Used by both brain dump extraction and reflection processing.
+ */
 async function applyExtractionResult(projectId: string, result: AiExtractionResult): Promise<void> {
   const db = getDb();
   const now = new Date().toISOString();
@@ -109,6 +137,46 @@ async function applyExtractionResult(projectId: string, result: AiExtractionResu
   if (result.summary_update?.trim()) {
     updateProject(projectId, { project_summary: result.summary_update.trim() });
   }
+}
+
+/**
+ * Mark tasks as completed when AI reflection identifies them as done.
+ * Matches by case-insensitive substring inclusion against active task text.
+ * This is Phase 1 of the merge plan: reflection processing correctness.
+ *
+ * Note: text-based matching can be imprecise if task text is very short or
+ * ambiguous. A future improvement could use task IDs embedded in the prompt.
+ */
+function applyReflectionCompletions(projectId: string, completedTaskDescriptions: string[]): number {
+  if (!completedTaskDescriptions?.length) return 0;
+
+  const db = getDb();
+  const now = new Date().toISOString();
+
+  const activeTasks = db
+    .prepare("SELECT id, task_text FROM tasks WHERE project_id = ? AND status = 'active'")
+    .all(projectId) as Array<{ id: string; task_text: string }>;
+
+  let markedCount = 0;
+
+  for (const description of completedTaskDescriptions) {
+    const descLower = description.toLowerCase().trim();
+    if (!descLower) continue;
+
+    for (const task of activeTasks) {
+      const taskLower = task.task_text.toLowerCase();
+      // Match if either contains the other (handles both exact and partial descriptions)
+      if (taskLower.includes(descLower) || descLower.includes(taskLower)) {
+        db.prepare(
+          "UPDATE tasks SET status = 'completed', completed_at = ? WHERE id = ? AND status = 'active'"
+        ).run(now, task.id);
+        markedCount++;
+        break;
+      }
+    }
+  }
+
+  return markedCount;
 }
 
 export async function extractTasks(projectId: string, userInput: string): Promise<AiExtractionResult | null> {
@@ -155,21 +223,26 @@ export async function processReflection(projectId: string, sessionId: string, re
 
   const promptContext = formatPromptContext(ctx);
   const currentActiveCount = ctx.activeTasks.length;
+  const activeTaskList = ctx.activeTasks.map(t => `- ${t.task_text}`).join('\n') || 'None';
 
   const userMessage = `${promptContext}
+
+CURRENT ACTIVE TASKS
+${activeTaskList}
 
 SESSION REFLECTION
 ${reflection}
 
 INSTRUCTIONS
 Process this post-session reflection.
-Identify any tasks that were completed, new tasks that emerged, insights, and blockers.
+For completed_tasks: list exact or close matches to the active task texts above that the user says they finished.
+Identify new tasks that emerged, insights, and blockers.
 Currently ${currentActiveCount} active tasks exist (max 5). New tasks beyond the limit go to new_backlog_tasks.
 Return JSON in this exact format:
 {
   "new_active_tasks": ["task text", ...],
   "new_backlog_tasks": ["task text", ...],
-  "completed_tasks": ["completed task description", ...],
+  "completed_tasks": ["task text matching active tasks above", ...],
   "insights": ["insight text", ...],
   "blockers": ["blocker text", ...],
   "summary_update": "updated project summary or empty string"
@@ -183,11 +256,25 @@ Return JSON in this exact format:
   const result = parseJsonResponse<AiExtractionResult>(response);
   if (!result) return null;
 
+  // Phase 1: Mark completed tasks in DB before adding new ones
+  const markedCount = applyReflectionCompletions(projectId, result.completed_tasks ?? []);
+
+  // Add new tasks and insights, update summary
   await applyExtractionResult(projectId, result);
 
-  if (result.summary_update) {
+  // Store AI-generated summary in the session record
+  const summaryToStore = result.summary_update?.trim() || null;
+  if (summaryToStore) {
     const db = getDb();
-    db.prepare('UPDATE sessions SET ai_summary = ? WHERE id = ?').run(result.summary_update, sessionId);
+    db.prepare('UPDATE sessions SET ai_summary = ? WHERE id = ?').run(summaryToStore, sessionId);
+  }
+
+  // Update session completed task count if we actually marked any
+  if (markedCount > 0) {
+    const db = getDb();
+    db.prepare(
+      'UPDATE sessions SET tasks_completed_count = tasks_completed_count + ? WHERE id = ?'
+    ).run(markedCount, sessionId);
   }
 
   return result;

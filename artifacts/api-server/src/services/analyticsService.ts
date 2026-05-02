@@ -6,6 +6,8 @@ export interface DailyStat {
   sessions_completed: number;
 }
 
+// ─── Global analytics ────────────────────────────────────────────────────────
+
 export function getWeeklyStats(): DailyStat[] {
   const db = getDb();
   const dates: DailyStat[] = [];
@@ -98,4 +100,165 @@ export function getOverallStats(): {
     totalProjects: projectCount.count,
     currentStreak: streak,
   };
+}
+
+// ─── Per-project analytics ────────────────────────────────────────────────────
+
+export interface ProjectOverallStats {
+  totalFocusMinutes: number;
+  sessionsCount: number;
+  avgSessionMinutes: number;
+  completedTasksCount: number;
+  activeTasksCount: number;
+  insightsCount: number;
+  currentStage: string;
+  minutesToNextStage: number | null;
+}
+
+export interface RecentProjectSession {
+  id: string;
+  start_time: string;
+  end_time: string | null;
+  duration_minutes: number;
+  reflection: string | null;
+  ai_summary: string | null;
+  tasks_completed_count: number;
+}
+
+export interface ProjectDailyStat {
+  date: string;
+  focus_minutes: number;
+  sessions_completed: number;
+}
+
+const DRAGON_STAGE_THRESHOLDS = [
+  { stage: 'egg', min: 0 },
+  { stage: 'hatchling', min: 20 },
+  { stage: 'adolescent', min: 120 },
+  { stage: 'adult', min: 840 },
+  { stage: 'ancient', min: 2400 },
+] as const;
+
+function getNextStageMinutes(totalMinutes: number): number | null {
+  for (let i = 0; i < DRAGON_STAGE_THRESHOLDS.length; i++) {
+    if (totalMinutes < DRAGON_STAGE_THRESHOLDS[i].min) {
+      return DRAGON_STAGE_THRESHOLDS[i].min - totalMinutes;
+    }
+  }
+  return null; // already at max stage
+}
+
+export function getProjectOverallStats(projectId: string): ProjectOverallStats | null {
+  const db = getDb();
+
+  const project = db
+    .prepare('SELECT total_focus_minutes, dragon_stage FROM projects WHERE id = ?')
+    .get(projectId) as { total_focus_minutes: number; dragon_stage: string } | undefined;
+
+  if (!project) return null;
+
+  const sessionsResult = db.prepare(`
+    SELECT
+      COUNT(*) as count,
+      COALESCE(AVG(duration_minutes), 0) as avg_minutes
+    FROM sessions
+    WHERE project_id = ? AND end_time IS NOT NULL
+  `).get(projectId) as { count: number; avg_minutes: number };
+
+  const completedTasks = db
+    .prepare("SELECT COUNT(*) as count FROM tasks WHERE project_id = ? AND status = 'completed'")
+    .get(projectId) as { count: number };
+
+  const activeTasks = db
+    .prepare("SELECT COUNT(*) as count FROM tasks WHERE project_id = ? AND status = 'active'")
+    .get(projectId) as { count: number };
+
+  const insights = db
+    .prepare('SELECT COUNT(*) as count FROM insights WHERE project_id = ?')
+    .get(projectId) as { count: number };
+
+  return {
+    totalFocusMinutes: project.total_focus_minutes,
+    sessionsCount: sessionsResult.count,
+    avgSessionMinutes: Math.round(sessionsResult.avg_minutes),
+    completedTasksCount: completedTasks.count,
+    activeTasksCount: activeTasks.count,
+    insightsCount: insights.count,
+    currentStage: project.dragon_stage,
+    minutesToNextStage: getNextStageMinutes(project.total_focus_minutes),
+  };
+}
+
+export function getProjectDailyStats(projectId: string, days = 30): ProjectDailyStat[] {
+  const db = getDb();
+  const results: ProjectDailyStat[] = [];
+
+  for (let i = days - 1; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const dateStr = d.toISOString().slice(0, 10);
+
+    // Derive per-project daily stats from sessions table directly
+    const row = db.prepare(`
+      SELECT
+        COALESCE(SUM(duration_minutes), 0) as focus_minutes,
+        COUNT(*) as sessions_completed
+      FROM sessions
+      WHERE project_id = ?
+        AND end_time IS NOT NULL
+        AND date(start_time) = ?
+    `).get(projectId, dateStr) as { focus_minutes: number; sessions_completed: number };
+
+    results.push({
+      date: dateStr,
+      focus_minutes: row.focus_minutes,
+      sessions_completed: row.sessions_completed,
+    });
+  }
+
+  return results;
+}
+
+export function getRecentProjectSessions(projectId: string, limit = 10): RecentProjectSession[] {
+  const db = getDb();
+  return db.prepare(`
+    SELECT id, start_time, end_time, duration_minutes, reflection, ai_summary, tasks_completed_count
+    FROM sessions
+    WHERE project_id = ? AND end_time IS NOT NULL
+    ORDER BY start_time DESC
+    LIMIT ?
+  `).all(projectId, limit) as RecentProjectSession[];
+}
+
+/**
+ * Computed growth timeline derived from cumulative session minutes.
+ * Each entry represents a session and the dragon's stage at that point.
+ * Distinct from milestone-based getProjectMilestones — kept separately per merge plan.
+ */
+export function getComputedDragonGrowthTimeline(projectId: string): Array<{
+  session_date: string;
+  cumulative_minutes: number;
+  stage: string;
+}> {
+  const db = getDb();
+
+  const sessions = db.prepare(`
+    SELECT start_time, duration_minutes
+    FROM sessions
+    WHERE project_id = ? AND end_time IS NOT NULL
+    ORDER BY start_time ASC
+  `).all(projectId) as Array<{ start_time: string; duration_minutes: number }>;
+
+  let cumulative = 0;
+  return sessions.map(s => {
+    cumulative += s.duration_minutes;
+    const stage = [...DRAGON_STAGE_THRESHOLDS]
+      .reverse()
+      .find(t => cumulative >= t.min)?.stage ?? 'egg';
+    return {
+      session_date: s.start_time.slice(0, 10),
+      cumulative_minutes: cumulative,
+      stage,
+    };
+  });
 }
