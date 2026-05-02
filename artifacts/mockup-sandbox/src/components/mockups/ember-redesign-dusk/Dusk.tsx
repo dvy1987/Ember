@@ -56,15 +56,26 @@ export function Dusk() {
     setMounted(true);
   }, []);
 
-  const embers = Array.from({ length: 10 }).map((_, i) => {
+  const embers = Array.from({ length: 16 }).map((_, i) => {
     const size = Math.random() * 2 + 1; // 1 to 3px
     const left = 10 + Math.random() * 80;
-    const bottom = 10 + Math.random() * 20;
+    const bottom = 5 + Math.random() * 25;
     const duration = 3.5 + Math.random() * 2; // 3.5s to 5.5s
     const delay = Math.random() * 5;
     const driftX = (Math.random() - 0.5) * 40; // ±20px drift
     const color = Math.random() > 0.5 ? '#F0A04A' : '#D4421A';
     return { id: i, size, left, bottom, duration, delay, driftX, color };
+  });
+
+  // Occasional brighter, longer-rising "flare" embers — sparser and more dramatic
+  const flareEmbers = Array.from({ length: 4 }).map((_, i) => {
+    const size = 2 + Math.random() * 2; // 2 to 4px - bigger
+    const left = 25 + Math.random() * 50;
+    const bottom = 5 + Math.random() * 15;
+    const duration = 6 + Math.random() * 2; // 6s to 8s - longer rise
+    const delay = i * 3 + Math.random() * 4; // staggered so they don't all fire together
+    const driftX = (Math.random() - 0.5) * 60;
+    return { id: `flare-${i}`, size, left, bottom, duration, delay, driftX };
   });
 
   const leaves = Array.from({ length: 4 }).map((_, i) => {
@@ -128,23 +139,45 @@ export function Dusk() {
                     } as React.CSSProperties}
                   />
                 ))}
+                {flareEmbers.map(e => (
+                  <div 
+                    key={e.id}
+                    className="ember ember-flare"
+                    style={{
+                      width: e.size,
+                      height: e.size,
+                      left: `${e.left}%`,
+                      bottom: `${e.bottom}%`,
+                      animationDuration: `${e.duration}s`,
+                      animationDelay: `-${e.delay}s`,
+                      '--drift-x': `${e.driftX}px`
+                    } as React.CSSProperties}
+                  />
+                ))}
               </div>
-              <div className="dragon-image-container relative z-10 flex justify-center w-full h-full">
-                <img 
-                  src="/__mockup/images/dragons/cinder/adolescent-cinder.webp" 
-                  alt="Cinder, adolescent dragon"
-                  className="dragon-image h-[280px] w-auto object-contain"
-                />
-                <div 
-                  className="dragon-eyelid"
-                  style={{
-                    left: '52.5%',
-                    top: '26%',
-                    width: '20px',
-                    height: '14px',
-                    transformOrigin: 'top center'
-                  }}
-                />
+              <div className="cinder-sway">
+                <div className="cinder-bobble">
+                  <div className="cinder-headturn">
+                    <div className="dragon-image-container relative z-10 flex justify-center w-full h-full">
+                      <img 
+                        src="/__mockup/images/dragons/cinder/adolescent-cinder.webp" 
+                        alt="Cinder, adolescent dragon"
+                        className="dragon-image h-[280px] w-auto object-contain"
+                      />
+                      <div 
+                        className="dragon-eyelid"
+                        style={{
+                          left: '52.5%',
+                          top: '26%',
+                          width: '20px',
+                          height: '14px',
+                          transformOrigin: 'top center'
+                        }}
+                      />
+                      <div className="cinder-eye-gleam" />
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

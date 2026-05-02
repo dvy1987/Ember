@@ -231,22 +231,104 @@
   border-radius: 50%;
 }
 
-/* Cinder */
+/* Cinder — layered motion (each cycle is a different period so motion never repeats in lockstep) */
+
+/* Outer wrapper: slow body sway, rocking from the base */
+@keyframes cinder-sway {
+  0%, 100% { transform: rotate(-0.7deg); }
+  50%      { transform: rotate(0.7deg); }
+}
+.cinder-sway {
+  display: inline-block;
+  animation: cinder-sway 7s ease-in-out infinite;
+  transform-origin: 50% 95%;
+}
+
+/* Mid wrapper: gentle vertical bobble offset from breath rhythm */
+@keyframes cinder-bobble {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-2.5px); }
+}
+.cinder-bobble {
+  display: inline-block;
+  animation: cinder-bobble 3.5s ease-in-out infinite;
+}
+
+/* Inner wrapper: idle head-turn — most of the time still, occasional look around.
+   Also carries an "occasional flap" glow burst that brightens her aura every cycle. */
+@keyframes cinder-headturn {
+  0%, 60%, 100%     { transform: rotateY(0deg); }
+  68%               { transform: rotateY(2.5deg); }
+  82%               { transform: rotateY(-1.8deg); }
+  92%               { transform: rotateY(0deg); }
+}
+@keyframes cinder-flap-pulse {
+  0%, 70%, 100% { filter: drop-shadow(0 0 0 #F0A04A00); }
+  76%           { filter: drop-shadow(0 0 22px #F0A04AAA) drop-shadow(0 0 6px #D4421A55); }
+  84%           { filter: drop-shadow(0 0 8px #F0A04A40); }
+}
+.cinder-headturn {
+  display: inline-block;
+  animation:
+    cinder-headturn 14s ease-in-out infinite,
+    cinder-flap-pulse 14s ease-in-out infinite;
+  transform-origin: 50% 65%;
+  perspective: 600px;
+}
+
+/* Compound breath: scaleY for the chest + tiny scaleX for wing-tip lift */
+@keyframes breath-cinder {
+  0%   { transform: scaleY(1)     scaleX(1); }
+  100% { transform: scaleY(1.014) scaleX(1.005); }
+}
 .scene-cinder .dragon-image-container {
   animation: breath-cinder 4s ease-in-out infinite alternate;
 }
 .scene-cinder .dragon-image {
   animation: filigree-glow-cinder 5s ease-in-out infinite alternate;
 }
+
+/* Eye gleam: warm amber pinpoint on Cinder's painted eye, pulses softly between blinks.
+   Position is the SAME as the eyelid (52.5% left, 26% top) but slightly smaller and warmer. */
+@keyframes cinder-eye-gleam {
+  0%, 100% { opacity: 0.35; transform: scale(0.85); }
+  50%      { opacity: 0.85; transform: scale(1.15); }
+}
+.cinder-eye-gleam {
+  position: absolute;
+  left: 53.5%;
+  top: 27%;
+  width: 14px;
+  height: 14px;
+  margin-left: -7px;
+  margin-top: -7px;
+  background: radial-gradient(circle, #F8C77A 0%, #F0A04A 35%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  animation: cinder-eye-gleam 4.2s ease-in-out infinite;
+  z-index: 11;
+  filter: blur(0.5px);
+}
+
+/* Hover: she leans toward you, glow intensifies, breath quickens slightly */
+.scene-cinder:hover .cinder-headturn {
+  animation-play-state: paused;
+}
 .scene-cinder:hover .dragon-image-container {
-  transform: rotateY(-3deg) scale(1.02);
+  animation-duration: 2.8s;
 }
 .scene-cinder:hover .dragon-image {
-  animation-duration: 2.5s; /* Faster pulse */
+  animation-duration: 2.5s;
 }
+.scene-cinder:hover .cinder-eye-gleam {
+  animation-duration: 1.8s;
+}
+
 .scene-cinder .dragon-eyelid {
   background-color: #1a0f08;
   animation: blink-cinder 6s ease-in-out infinite;
+  z-index: 12; /* sits above the gleam so the blink covers it */
 }
 
 /* Moss */
@@ -322,6 +404,22 @@
   background-color: currentColor;
   box-shadow: 0 0 4px currentColor;
   animation: ember-rise linear infinite;
+  color: #F0A04A;
+}
+
+/* Brighter, longer-rising flare embers — staggered to avoid synchronisation */
+@keyframes ember-flare-rise {
+  0%   { transform: translateY(0) translateX(0) scale(0.6); opacity: 0; }
+  8%   { opacity: 1; }
+  40%  { transform: translateY(-120px) translateX(calc(var(--drift-x, 20px) * 0.5)) scale(1.1); opacity: 1; }
+  85%  { opacity: 0.7; }
+  100% { transform: translateY(-320px) translateX(var(--drift-x, 20px)) scale(0.4); opacity: 0; }
+}
+.ember-flare {
+  background: radial-gradient(circle, #FFD9A0 0%, #F0A04A 50%, #D4421A 100%);
+  box-shadow: 0 0 8px #F0A04A, 0 0 14px #D4421A88;
+  animation-name: ember-flare-rise !important;
+  animation-timing-function: ease-out !important;
 }
 
 .leaf {
