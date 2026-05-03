@@ -51,6 +51,15 @@ export default function DragonScene({ type, stage, size = 160, intense = false }
     maxOpacity: 0.4 + Math.random() * 0.4,
   })), []);
 
+  const leaves = useMemo(() => Array.from({ length: 4 }).map((_, i) => ({
+    id: i,
+    left: 20 + Math.random() * 60,
+    top: -5 + Math.random() * 15,
+    duration: 6 + Math.random() * 3,
+    delay: Math.random() * 8,
+    driftX: (Math.random() - 0.5) * 60,
+  })), []);
+
   if (!imagePath) {
     return (
       <div
@@ -110,15 +119,6 @@ export default function DragonScene({ type, stage, size = 160, intense = false }
       </div>
     );
   }
-
-  const leaves = useMemo(() => Array.from({ length: 4 }).map((_, i) => ({
-    id: i,
-    left: 20 + Math.random() * 60,
-    top: -5 + Math.random() * 15,
-    duration: 6 + Math.random() * 3,
-    delay: Math.random() * 8,
-    driftX: (Math.random() - 0.5) * 60,
-  })), []);
 
   if (type === 'moss') {
     return (
