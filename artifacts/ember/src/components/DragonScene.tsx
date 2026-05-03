@@ -111,15 +111,16 @@ export default function DragonScene({ type, stage, size = 160, intense = false }
     );
   }
 
+  const leaves = useMemo(() => Array.from({ length: 4 }).map((_, i) => ({
+    id: i,
+    left: 20 + Math.random() * 60,
+    top: -5 + Math.random() * 15,
+    duration: 6 + Math.random() * 3,
+    delay: Math.random() * 8,
+    driftX: (Math.random() - 0.5) * 60,
+  })), []);
+
   if (type === 'moss') {
-    const leaves = Array.from({ length: 4 }).map((_, i) => ({
-      id: i,
-      left: 20 + Math.random() * 60,
-      top: -5 + Math.random() * 15,
-      duration: 6 + Math.random() * 3,
-      delay: Math.random() * 8,
-      driftX: (Math.random() - 0.5) * 60,
-    }));
     return (
       <div className="scene-moss dragon-scene relative" style={{ width: size, height: size }}>
         <div className="particle-layer">
