@@ -20,8 +20,8 @@ const TYPE_BLURB: Record<DragonType, string> = {
 const STAGE_PHRASE: Record<DragonStage, string> = {
   egg: 'just an egg',
   hatchling: 'a hatchling',
-  adolescent: 'half-grown',
-  adult: 'full-grown',
+  adolescent: 'a teen',
+  adult: 'an adult',
   ancient: 'ancient',
 };
 
