@@ -173,12 +173,10 @@ function evalTakeFirstPass(dragonId: string, now: number): Suggestion | null {
     if (recent.length < 5) continue;
     if (!recent.every((r) => r.mode === 'paired')) continue;
 
-    // Per-skill cooldown is intentional: the suggestion is bound to a
-    // specific skill (its CTA seeds the trigger modal for that skill), so
-    // a dismissal of "first-pass on writing" should not silence
-    // "first-pass on planning". Single-skill repos see this as identical
-    // to a per-kind cooldown; the model scales when more skills land.
-    const dismissalKey = `take_first_pass:${maturity.skill_id}`;
+    // Per-kind cooldown per spec: dismissals persist by suggestion_kind,
+    // not per (kind, skill). The first eligible skill wins; once dismissed
+    // the whole take_first_pass surface goes quiet for the cooldown.
+    const dismissalKey = 'take_first_pass';
     if (isBlocked(getDismissal(dragonId, dismissalKey), now)) continue;
 
     const skillRow = db
