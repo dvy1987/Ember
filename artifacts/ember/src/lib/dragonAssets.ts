@@ -12,7 +12,7 @@ export function hasDragonImage(dragonType: DragonType, dragonStage: DragonStage)
   const existingImages: Record<DragonType, DragonStage[]> = {
     cinder: ['egg', 'hatchling', 'adolescent', 'adult', 'ancient'],
     drift: ['egg', 'hatchling', 'adolescent', 'adult', 'ancient'],
-    moss: ['hatchling', 'adolescent'],
+    moss: ['egg', 'hatchling', 'adolescent', 'adult', 'ancient'],
   };
 
   return existingImages[dragonType]?.includes(dragonStage) ?? false;

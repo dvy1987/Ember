@@ -4,6 +4,7 @@ import ProjectPage from "@/pages/ProjectPage";
 import SessionPage from "@/pages/SessionPage";
 import AnalyticsPage from "@/pages/AnalyticsPage";
 import ProjectAnalyticsPage from "@/pages/ProjectAnalyticsPage";
+import MenageriePage from "@/pages/MenageriePage";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -14,6 +15,7 @@ function Router() {
       <Route path="/session/:projectId" component={SessionPage} />
       <Route path="/analytics" component={AnalyticsPage} />
       <Route path="/analytics/:projectId" component={ProjectAnalyticsPage} />
+      <Route path="/menagerie" component={MenageriePage} />
       <Route component={NotFound} />
     </Switch>
   );

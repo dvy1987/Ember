@@ -480,6 +480,157 @@ html, body {
   100% { transform: translateX(calc(100% + 20px)) translateY(var(--drift-y, -20px)); opacity: 0; }
 }
 
+/* ------------------------------------------------------------ */
+/* Per-stage tuning — applied via [data-stage] on .dragon-scene  */
+/* ------------------------------------------------------------ */
+
+/* HATCHLING — young, twitchy, faster cycles, small "sneeze" pulse */
+@keyframes hatchling-sneeze-cinder {
+  0%,88%,100% { filter: drop-shadow(0 0 0 #F0A04A00); }
+  92%         { filter: drop-shadow(0 0 12px #F0A04A88); }
+}
+@keyframes hatchling-sneeze-moss {
+  0%,88%,100% { filter: drop-shadow(0 0 0 #9BB86800); }
+  92%         { filter: drop-shadow(0 0 10px #9BB86888); }
+}
+@keyframes hatchling-sneeze-drift {
+  0%,88%,100% { filter: drop-shadow(0 0 0 #B0C4D800); }
+  92%         { filter: drop-shadow(0 0 12px #B0C4D8AA); }
+}
+[data-stage="hatchling"] .cinder-bobble  { animation-duration: 2.4s; }
+[data-stage="hatchling"] .cinder-headturn { animation-duration: 9s, 9s; }
+[data-stage="hatchling"].scene-cinder .dragon-image { animation: filigree-glow-cinder 5s ease-in-out infinite alternate, hatchling-sneeze-cinder 7s ease-in-out infinite; }
+[data-stage="hatchling"] .moss-bobble    { animation-duration: 3.2s; }
+[data-stage="hatchling"] .moss-headturn  { animation-duration: 10s, 10s; }
+[data-stage="hatchling"].scene-moss .dragon-image { animation: filigree-glow-moss 7s ease-in-out infinite alternate, hatchling-sneeze-moss 8s ease-in-out infinite; }
+[data-stage="hatchling"] .drift-hover    { animation-duration: 2.6s; }
+[data-stage="hatchling"] .drift-headturn { animation-duration: 7s, 7s; }
+[data-stage="hatchling"].scene-drift .dragon-image { animation: filigree-glow-drift 3s ease-in-out infinite alternate, hatchling-sneeze-drift 6s ease-in-out infinite; }
+
+/* ADULT — weighty, slow breath, stronger steady aura */
+[data-stage="adult"] .cinder-bobble  { animation-duration: 5.5s; }
+[data-stage="adult"] .cinder-headturn { animation-duration: 20s, 20s; }
+[data-stage="adult"].scene-cinder .dragon-image-container { animation-duration: 6.5s; }
+[data-stage="adult"] .cinder-aura-radial { animation-duration: 6s; opacity: 0.6; }
+[data-stage="adult"] .moss-bobble    { animation-duration: 7s; }
+[data-stage="adult"] .moss-headturn  { animation-duration: 22s, 22s; }
+[data-stage="adult"].scene-moss .dragon-image-container { animation-duration: 8.5s; }
+[data-stage="adult"] .moss-aura-radial { animation-duration: 7.5s; opacity: 0.55; }
+[data-stage="adult"] .drift-hover    { animation-duration: 6s; }
+[data-stage="adult"] .drift-headturn { animation-duration: 16s, 16s; }
+[data-stage="adult"].scene-drift .dragon-image-container { animation-duration: 4s; }
+[data-stage="adult"] .drift-aura-radial { animation-duration: 5.5s; opacity: 0.5; }
+
+/* ANCIENT — ceremonial, much slower, deep aura swell, wider particle field */
+@keyframes ancient-deep-swell-cinder {
+  0%,100% { opacity: 0.55; transform: scale(0.92); }
+  50%     { opacity: 0.95; transform: scale(1.18); }
+}
+@keyframes ancient-deep-swell-moss {
+  0%,100% { opacity: 0.50; transform: scale(0.92); }
+  50%     { opacity: 0.85; transform: scale(1.18); }
+}
+@keyframes ancient-deep-swell-drift {
+  0%,100% { opacity: 0.45; transform: scale(0.92); }
+  50%     { opacity: 0.85; transform: scale(1.20); }
+}
+[data-stage="ancient"] .cinder-sway     { animation-duration: 13s; }
+[data-stage="ancient"] .cinder-bobble   { animation-duration: 7s; }
+[data-stage="ancient"] .cinder-headturn { animation-duration: 26s, 26s; }
+[data-stage="ancient"].scene-cinder .dragon-image-container { animation-duration: 8s; }
+[data-stage="ancient"] .cinder-aura-radial { inset: -6% -6% -10% -6%; animation: ancient-deep-swell-cinder 9s ease-in-out infinite; filter: blur(20px); }
+[data-stage="ancient"] .moss-rootsway   { animation-duration: 16s; }
+[data-stage="ancient"] .moss-bobble     { animation-duration: 9s; }
+[data-stage="ancient"] .moss-headturn   { animation-duration: 28s, 28s; }
+[data-stage="ancient"].scene-moss .dragon-image-container { animation-duration: 10s; }
+[data-stage="ancient"] .moss-aura-radial { inset: -6% -6% -10% -6%; animation: ancient-deep-swell-moss 10s ease-in-out infinite; filter: blur(22px); }
+[data-stage="ancient"] .drift-bank      { animation-duration: 16s; }
+[data-stage="ancient"] .drift-hover     { animation-duration: 7s; }
+[data-stage="ancient"] .drift-headturn  { animation-duration: 20s, 20s; }
+[data-stage="ancient"].scene-drift .dragon-image-container { animation-duration: 4.5s; }
+[data-stage="ancient"] .drift-aura-radial { inset: -6% -6% -6% -6%; animation: ancient-deep-swell-drift 8s ease-in-out infinite; filter: blur(22px); }
+
+/* EGG — base-anchored wobble, type-tinted inner glow, occasional kick.
+   No head-turn, no banking, no hovering. */
+@keyframes egg-wobble {
+  0%,100% { transform: rotate(-0.7deg); }
+  50%     { transform: rotate(0.7deg); }
+}
+@keyframes egg-still { 0%,100% { transform: none; } }
+@keyframes egg-kick-cinder {
+  0%,86%,100% { transform: scale(1); filter: drop-shadow(0 0 0 #F0A04A00); }
+  90%         { transform: scale(1.025); filter: drop-shadow(0 0 14px #F0A04ACC); }
+  94%         { transform: scale(0.99);  filter: drop-shadow(0 0 6px  #F0A04A55); }
+}
+@keyframes egg-kick-moss {
+  0%,86%,100% { transform: scale(1); filter: drop-shadow(0 0 0 #9BB86800); }
+  90%         { transform: scale(1.025); filter: drop-shadow(0 0 14px #9BB868CC); }
+  94%         { transform: scale(0.99);  filter: drop-shadow(0 0 6px  #9BB86855); }
+}
+@keyframes egg-kick-drift {
+  0%,86%,100% { transform: scale(1); filter: drop-shadow(0 0 0 #B0C4D800); }
+  90%         { transform: scale(1.025); filter: drop-shadow(0 0 14px #B0C4D8DD); }
+  94%         { transform: scale(0.99);  filter: drop-shadow(0 0 6px  #B0C4D866); }
+}
+@keyframes egg-inner-glow-cinder {
+  0%,100% { opacity: 0.40; transform: scale(0.95); }
+  50%     { opacity: 0.85; transform: scale(1.08); }
+}
+@keyframes egg-inner-glow-moss {
+  0%,100% { opacity: 0.35; transform: scale(0.95); }
+  50%     { opacity: 0.75; transform: scale(1.08); }
+}
+@keyframes egg-inner-glow-drift {
+  0%,100% { opacity: 0.35; transform: scale(0.95); }
+  50%     { opacity: 0.78; transform: scale(1.10); }
+}
+
+/* Suppress non-egg motion on the wrappers, replace with wobble */
+[data-stage="egg"] .cinder-sway,
+[data-stage="egg"] .moss-rootsway,
+[data-stage="egg"] .drift-bank {
+  animation: egg-wobble 5s ease-in-out infinite;
+  transform-origin: 50% 100%;
+}
+[data-stage="egg"] .cinder-bobble,
+[data-stage="egg"] .moss-bobble,
+[data-stage="egg"] .drift-hover {
+  animation: egg-still 1s linear infinite;
+}
+[data-stage="egg"] .cinder-headturn,
+[data-stage="egg"] .moss-headturn,
+[data-stage="egg"] .drift-headturn {
+  animation: egg-still 1s linear infinite;
+  perspective: none;
+}
+/* Type-specific kick (the dragon-inside punch) on the image itself */
+[data-stage="egg"].scene-cinder .dragon-image { animation: egg-kick-cinder 12s ease-in-out infinite; }
+[data-stage="egg"].scene-moss   .dragon-image { animation: egg-kick-moss   12s ease-in-out infinite; }
+[data-stage="egg"].scene-drift  .dragon-image { animation: egg-kick-drift  12s ease-in-out infinite; }
+/* Steady inner-glow halo, retuned per type */
+[data-stage="egg"].scene-cinder .cinder-aura-pulse { animation: egg-inner-glow-cinder 4.2s ease-in-out infinite; }
+[data-stage="egg"].scene-moss   .moss-aura-pulse   { animation: egg-inner-glow-moss   4.6s ease-in-out infinite; }
+[data-stage="egg"].scene-drift  .drift-aura-pulse  { animation: egg-inner-glow-drift  4.0s ease-in-out infinite; }
+/* Eggs don't breathe, blow embers, drop tails, or shed spores */
+[data-stage="egg"] .cinder-mouth-breath,
+[data-stage="egg"] .moss-spore-emitter,
+[data-stage="egg"] .drift-tail-stream { display: none; }
+[data-stage="egg"] .dragon-image-container { animation: none; }
+
+/* ---------- Moss richness pass: yawn + denser spore pop ---------- */
+@keyframes moss-yawn {
+  0%,84%,100% { transform: scaleY(1) scaleX(1); }
+  90%         { transform: scaleY(1.04) scaleX(0.985); }
+  95%         { transform: scaleY(0.99) scaleX(1.005); }
+}
+[data-stage="hatchling"].scene-moss .dragon-image-container,
+[data-stage="adolescent"].scene-moss .dragon-image-container {
+  animation: breath-moss 6s ease-in-out infinite alternate, moss-yawn 11s ease-in-out infinite;
+}
+/* Brighter, more present green halo for moss adolescent/hatchling */
+[data-stage="hatchling"].scene-moss .moss-aura-radial,
+[data-stage="adolescent"].scene-moss .moss-aura-radial { opacity: 0.65; }
+
 @media (prefers-reduced-motion: reduce) {
   *, ::before, ::after {
     animation-duration: 0.01ms !important;

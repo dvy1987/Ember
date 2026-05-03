@@ -73,7 +73,7 @@ export default function DragonScene({ type, stage, size = 160, intense = false }
 
   if (type === 'cinder') {
     return (
-      <div className={`scene-cinder dragon-scene relative`} style={{ width: size, height: size }}>
+      <div className={`scene-cinder dragon-scene relative`} data-stage={stage} data-resolved-stage={resolvedStage} style={{ width: size, height: size }}>
         <div className="particle-layer">
           {embers.map(e => (
             <div
@@ -118,7 +118,7 @@ export default function DragonScene({ type, stage, size = 160, intense = false }
 
   if (type === 'moss') {
     return (
-      <div className="scene-moss dragon-scene relative" style={{ width: size, height: size }}>
+      <div className="scene-moss dragon-scene relative" data-stage={stage} data-resolved-stage={resolvedStage} style={{ width: size, height: size }}>
         <div className="particle-layer">
           {leaves.map(l => (
             <svg
@@ -165,7 +165,7 @@ export default function DragonScene({ type, stage, size = 160, intense = false }
 
   // drift
   return (
-    <div className="scene-drift dragon-scene relative" style={{ width: size, height: size }}>
+    <div className="scene-drift dragon-scene relative" data-stage={stage} data-resolved-stage={resolvedStage} style={{ width: size, height: size }}>
       <div className="rim-light" />
       <div className="particle-layer">
         {wisps.map(w => (
