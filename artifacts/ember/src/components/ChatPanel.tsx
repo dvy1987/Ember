@@ -275,7 +275,6 @@ export default function ChatPanel({
           style={{ borderBottom: '1px solid var(--border-subtle)' }}
         >
           <div className="min-w-0">
-            <p className="font-mono-caps text-ember-text-muted">Co-work</p>
             <h2 className="font-display text-[24px] text-ember-text leading-tight truncate">
               {dragonName}
             </h2>
