@@ -56,7 +56,11 @@ router.get('/dragons/:id/skills', (req, res) => {
 
 router.post('/dragons/:id/skills/:skillId/run', async (req, res) => {
   try {
-    const { user_prompt, mode } = req.body as { user_prompt: string; mode?: SkillMode };
+    const { user_prompt, mode, confirm_high_cost } = req.body as {
+      user_prompt: string;
+      mode?: SkillMode;
+      confirm_high_cost?: boolean;
+    };
     if (!user_prompt || typeof user_prompt !== 'string' || !user_prompt.trim()) {
       res.status(400).json({ error: 'user_prompt is required' });
       return;
@@ -75,12 +79,14 @@ router.post('/dragons/:id/skills/:skillId/run', async (req, res) => {
       skillId: resolved.id,
       userPrompt: user_prompt.trim(),
       mode: mode ?? 'paired',
+      confirmHighCost: confirm_high_cost === true,
     });
     if (!result.ok) {
       const code =
         result.error === 'no_project' || result.error === 'no_skill' ? 404
         : result.error === 'no_ai_config' ? 503
         : result.error === 'over_budget' ? 402
+        : result.error === 'requires_confirmation' ? 428
         : result.error === 'paused' ? 409
         : 500;
       res.status(code).json({ error: result.error, budget: result.budget, estimated_cost_usd: result.estimated_cost_usd });

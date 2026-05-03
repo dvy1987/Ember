@@ -20,7 +20,15 @@ export interface Skill {
   created_at: string;
 }
 
-export type TrustBand = 'novice' | 'apprentice' | 'adept' | 'trusted';
+/**
+ * Trust ladder per (dragon, skill). Spec C/E:
+ *  - `paired`     — default. Dragon assists only when keeper is present.
+ *  - `solo`       — dragon may quietly assist while keeper works.
+ *  - `autonomous` — dragon may queue work to the inbox without keeper present.
+ * Auto-derived from approval rate + run count, with explicit user override
+ * via `dragon_skill_maturity.locked_band`.
+ */
+export type TrustBand = 'paired' | 'solo' | 'autonomous';
 
 export const DEFAULT_USER_ID = 'default';
 
@@ -31,7 +39,7 @@ const SEED_SKILLS: Array<Omit<Skill, 'id' | 'created_at'>> = [
     description:
       'Talk to your dragon about the project — ask for help, ideas, perspective, or planning.',
     agent_recipe_key: 'generic-converse',
-    default_trust_band: 'novice',
+    default_trust_band: 'paired',
     cost_estimate_input_tokens: 800,
   },
 ];

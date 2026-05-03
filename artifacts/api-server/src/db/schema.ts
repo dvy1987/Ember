@@ -155,7 +155,7 @@ export function initializeSchema(db: Database.Database): void {
       name TEXT NOT NULL UNIQUE,
       description TEXT NOT NULL DEFAULT '',
       agent_recipe_key TEXT NOT NULL,
-      default_trust_band TEXT NOT NULL DEFAULT 'novice',
+      default_trust_band TEXT NOT NULL DEFAULT 'paired',
       cost_estimate_input_tokens INTEGER NOT NULL DEFAULT 800,
       created_at TEXT NOT NULL
     );
@@ -167,7 +167,7 @@ export function initializeSchema(db: Database.Database): void {
       approvals INTEGER NOT NULL DEFAULT 0,
       edits INTEGER NOT NULL DEFAULT 0,
       rejections INTEGER NOT NULL DEFAULT 0,
-      current_trust TEXT NOT NULL DEFAULT 'novice',
+      current_trust TEXT NOT NULL DEFAULT 'paired',
       locked_band TEXT,
       paused INTEGER NOT NULL DEFAULT 0,
       last_used_at TEXT,
@@ -270,5 +270,40 @@ export function initializeSchema(db: Database.Database): void {
       ON skill_rules_project(dragon_id, skill_id);
     CREATE INDEX IF NOT EXISTS idx_skill_rules_global
       ON skill_rules_global(user_id, skill_id);
+  `);
+
+  // Idempotent migration: spec E renamed the trust ladder mid-Phase-0 from
+  // novice/apprentice/adept/trusted to paired/solo/autonomous. Map any rows
+  // written under the old vocabulary so reads stay consistent.
+  db.exec(`
+    UPDATE skills
+       SET default_trust_band = CASE default_trust_band
+         WHEN 'novice'     THEN 'paired'
+         WHEN 'apprentice' THEN 'paired'
+         WHEN 'adept'      THEN 'solo'
+         WHEN 'trusted'    THEN 'autonomous'
+         ELSE default_trust_band
+       END
+     WHERE default_trust_band IN ('novice','apprentice','adept','trusted');
+
+    UPDATE dragon_skill_maturity
+       SET current_trust = CASE current_trust
+         WHEN 'novice'     THEN 'paired'
+         WHEN 'apprentice' THEN 'paired'
+         WHEN 'adept'      THEN 'solo'
+         WHEN 'trusted'    THEN 'autonomous'
+         ELSE current_trust
+       END
+     WHERE current_trust IN ('novice','apprentice','adept','trusted');
+
+    UPDATE dragon_skill_maturity
+       SET locked_band = CASE locked_band
+         WHEN 'novice'     THEN 'paired'
+         WHEN 'apprentice' THEN 'paired'
+         WHEN 'adept'      THEN 'solo'
+         WHEN 'trusted'    THEN 'autonomous'
+         ELSE locked_band
+       END
+     WHERE locked_band IN ('novice','apprentice','adept','trusted');
   `);
 }

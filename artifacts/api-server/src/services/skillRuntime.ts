@@ -228,15 +228,20 @@ export function getMaturityForDragon(dragonId: string): DragonSkillMaturity[] {
  * any time. Counters are the source of truth; current_trust on the row is a
  * cached view that recordVerdict() refreshes after each run.
  */
+/**
+ * Spec E — trust ladder derivation.
+ *  paired (default) → solo (≥5 runs, ≥80% approve-without-edit)
+ *                   → autonomous (≥15 runs, ≥90% approve-without-edit)
+ * Note: approvals here means "approved without edits". Edits do NOT count
+ * toward solo/autonomous promotion — they signal the dragon still needs help.
+ */
 function deriveTrust(m: { runs: number; approvals: number; edits: number; rejections: number }): TrustBand {
   const total = m.runs;
-  if (total < 5) return 'novice';
-  const successes = m.approvals + m.edits * 0.5;
-  const rate = successes / total;
-  if (total >= 30 && rate >= 0.92) return 'trusted';
-  if (total >= 15 && rate >= 0.85) return 'adept';
-  if (rate >= 0.7) return 'apprentice';
-  return 'novice';
+  if (total < 5) return 'paired';
+  const approveOnlyRate = total === 0 ? 0 : m.approvals / total;
+  if (total >= 15 && approveOnlyRate >= 0.9) return 'autonomous';
+  if (total >= 5 && approveOnlyRate >= 0.8) return 'solo';
+  return 'paired';
 }
 
 // ---------------------------------------------------------------------------
@@ -349,12 +354,30 @@ export interface InvokeOptions {
   skillName?: string;
   userPrompt: string;
   mode?: SkillMode;
+  /**
+   * Spec F safety gate: any run whose worst-case cost projection exceeds
+   * HIGH_COST_THRESHOLD_USD requires explicit confirmation, even on a skill
+   * the dragon would normally run autonomously. Paired-mode invocations are
+   * implicitly confirmed (the keeper is at the keyboard); autonomous-mode
+   * invocations must pass `confirmHighCost: true` to proceed.
+   */
+  confirmHighCost?: boolean;
 }
+
+/** Spec F — per-run paired-confirmation threshold. */
+export const HIGH_COST_THRESHOLD_USD = 0.5;
 
 export interface InvokeResult {
   ok: boolean;
   run?: SkillRun;
-  error?: 'no_project' | 'no_skill' | 'no_ai_config' | 'over_budget' | 'llm_failed' | 'paused';
+  error?:
+    | 'no_project'
+    | 'no_skill'
+    | 'no_ai_config'
+    | 'over_budget'
+    | 'llm_failed'
+    | 'paused'
+    | 'requires_confirmation';
   budget?: DragonBudget;
   estimated_cost_usd?: number;
 }
@@ -386,6 +409,23 @@ export async function invokeSkill(opts: InvokeOptions): Promise<InvokeResult> {
   // the monthly cap a hard cap even under concurrent invocations.
   const promptText = `${system}\n${user}`;
   const reservation = maxCost(promptText, apiConfig.model);
+
+  // Spec F safety gate — high-cost runs in autonomous mode require an
+  // explicit `confirmHighCost` flag (the future paired-confirmation step).
+  // Paired-mode runs are implicitly confirmed by the keeper being present.
+  if (
+    mode === 'autonomous' &&
+    reservation > HIGH_COST_THRESHOLD_USD &&
+    !opts.confirmHighCost
+  ) {
+    return {
+      ok: false,
+      error: 'requires_confirmation',
+      budget: getBudget(opts.dragonId),
+      estimated_cost_usd: reservation,
+    };
+  }
+
   const reserved = reserveBudget(opts.dragonId, reservation);
   if (!reserved) {
     return {
@@ -463,7 +503,7 @@ export async function invokeSkill(opts: InvokeOptions): Promise<InvokeResult> {
   if (status === 'failed') {
     return { ok: false, error: 'llm_failed', run, budget: getBudget(opts.dragonId) };
   }
-  return { ok: true, run, budget: getBudget(opts.dragonId), estimated_cost_usd: estimated };
+  return { ok: true, run, budget: getBudget(opts.dragonId), estimated_cost_usd: reservation };
 }
 
 // ---------------------------------------------------------------------------
@@ -506,6 +546,55 @@ export function recordVerdict(input: VerdictInput): VerdictResult {
   db.prepare(
     `UPDATE dragon_skill_maturity SET ${col} = ${col} + 1 WHERE dragon_id = ? AND skill_id = ?`
   ).run(run.dragon_id, run.skill_id);
+
+  // Spec D + step 6 — every edit becomes a candidate row in skill_rules_project.
+  // Phase 0 records the candidate; the dragon-proposed promotion mechanic
+  // (auto-bumping promotion_candidate at applied_count >= 3) lives in F5 UI.
+  // We seed applied_count=1 so a single repeat edit reaches the threshold.
+  if (input.verdict === 'edit' && input.user_edit && input.user_edit.trim()) {
+    const examples = JSON.stringify([
+      {
+        run_id: run.id,
+        prompt: run.user_prompt,
+        original: run.output_text,
+        edit: input.user_edit,
+        captured_at: now,
+      },
+    ]);
+    db.prepare(
+      `INSERT INTO skill_rules_project
+         (id, dragon_id, skill_id, project_id, rule_text, examples_json,
+          applied_count, promotion_candidate, promoted, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, 1, 0, 0, ?)`
+    ).run(
+      randomUUID(),
+      run.dragon_id,
+      run.skill_id,
+      run.project_id,
+      // Phase 0 placeholder rule_text — the keeper names this in the F5 rules
+      // editor. Storing the edit here keeps the candidate self-describing.
+      `(captured from keeper edit) ${input.user_edit.trim().slice(0, 200)}`,
+      examples,
+      now
+    );
+  }
+
+  // Spec E auto-pause: three consecutive rejections on this (dragon, skill)
+  // pair → pause the skill on that dragon, surfaced for keeper review later.
+  if (input.verdict === 'reject') {
+    const lastThree = db
+      .prepare(
+        `SELECT status FROM skill_runs
+          WHERE dragon_id = ? AND skill_id = ? AND status IN ('approved','edited','rejected')
+          ORDER BY verdicted_at DESC LIMIT 3`
+      )
+      .all(run.dragon_id, run.skill_id) as Array<{ status: string }>;
+    if (lastThree.length === 3 && lastThree.every((r) => r.status === 'rejected')) {
+      db.prepare(
+        'UPDATE dragon_skill_maturity SET paused = 1 WHERE dragon_id = ? AND skill_id = ?'
+      ).run(run.dragon_id, run.skill_id);
+    }
+  }
 
   // Refresh derived trust.
   const m = db
