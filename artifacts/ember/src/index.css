@@ -634,10 +634,13 @@ html, body {
 [data-stage="adolescent"].scene-moss .dragon-image-container {
   animation: breath-moss 6s ease-in-out infinite alternate, moss-yawn 11s ease-in-out infinite;
 }
-/* Rooted micro-shake layered onto rootsway — settling-in-earth feel */
-[data-stage="hatchling"].scene-moss .moss-bobble,
+/* Rooted micro-shake layered onto bobble — settling-in-earth feel.
+   Preserves stage-specific bobble cadence (hatchling 3.2s, adolescent 5s). */
+[data-stage="hatchling"].scene-moss .moss-bobble {
+  animation: moss-bobble 3.2s ease-in-out infinite, moss-microshake 1.1s ease-in-out infinite;
+}
 [data-stage="adolescent"].scene-moss .moss-bobble {
-  animation: moss-bobble 5s ease-in-out infinite, moss-microshake 1.2s ease-in-out infinite;
+  animation: moss-bobble 5s ease-in-out infinite, moss-microshake 1.4s ease-in-out infinite;
 }
 /* Brighter, more present green halo for moss adolescent/hatchling */
 [data-stage="hatchling"].scene-moss .moss-aura-radial,
