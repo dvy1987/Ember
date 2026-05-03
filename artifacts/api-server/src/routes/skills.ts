@@ -434,7 +434,7 @@ router.get('/dragons/:id/suggestion', (req, res) => {
       res.status(400).json({ error: 'project_id_mismatch' });
       return;
     }
-    const suggestion = evaluateForDragon(dragonId);
+    const suggestion = evaluateForDragon(dragonId, projectId);
     res.json({ suggestion });
   } catch {
     res.status(500).json({ error: 'Failed to evaluate suggestion' });

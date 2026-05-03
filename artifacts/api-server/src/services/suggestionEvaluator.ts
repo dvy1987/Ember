@@ -276,8 +276,21 @@ function evalWanderingCheckIn(dragonId: string, now: number): Suggestion | null 
  * Page-banner evaluator. Returns the highest-priority unblocked suggestion
  * for this dragon, or null. One banner per page is enforced by the caller
  * choosing to render the result.
+ *
+ * `projectId` is accepted as an optional second parameter so callers can
+ * pass the page's project context through. In the current model
+ * dragon_id == project_id, so a mismatch is a contract bug; we throw to
+ * surface it loudly rather than silently mis-route the suggestion.
  */
-export function evaluateForDragon(dragonId: string): Suggestion | null {
+export function evaluateForDragon(
+  dragonId: string,
+  projectId?: string,
+): Suggestion | null {
+  if (projectId && projectId !== dragonId) {
+    throw new Error(
+      `evaluator_id_mismatch: dragon=${dragonId} project=${projectId}`,
+    );
+  }
   const now = Date.now();
   return (
     evalTakeFirstPass(dragonId, now) ??
