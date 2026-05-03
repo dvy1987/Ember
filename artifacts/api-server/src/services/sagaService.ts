@@ -96,9 +96,9 @@ export function writeSagaEntry(
   };
 }
 
-export function getRecentSaga(projectId: string, limit: number = 10): SagaEntry[] {
+export function getRecentSaga(projectId: string, limit: number = 10, offset: number = 0): SagaEntry[] {
   const db = getDb();
   return db.prepare(
-    'SELECT * FROM saga_entries WHERE project_id = ? ORDER BY occurred_at DESC LIMIT ?'
-  ).all(projectId, limit) as SagaEntry[];
+    'SELECT * FROM saga_entries WHERE project_id = ? ORDER BY occurred_at DESC LIMIT ? OFFSET ?'
+  ).all(projectId, limit, offset) as SagaEntry[];
 }

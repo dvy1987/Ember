@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'wouter';
 import { SagaEntry } from '@/lib/types';
 
 interface SagaTeaserProps {
@@ -37,6 +38,14 @@ export default function SagaTeaser({ projectId, refreshKey = 0 }: SagaTeaserProp
           </li>
         ))}
       </ol>
+      <div className="mt-4 pt-3 border-t" style={{ borderColor: 'var(--border-subtle)' }}>
+        <Link
+          href={`/saga/${projectId}`}
+          className="font-mono-caps text-[10px] text-ember-text-muted hover:text-ember-text transition-colors"
+        >
+          Read the full saga →
+        </Link>
+      </div>
     </div>
   );
 }
