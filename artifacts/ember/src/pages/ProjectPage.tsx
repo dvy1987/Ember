@@ -7,6 +7,7 @@ import TaskList from '@/components/TaskList';
 import RitualList from '@/components/RitualList';
 import SagaTeaser from '@/components/SagaTeaser';
 import BrainDumpInput from '@/components/BrainDumpInput';
+import SettingsModal from '@/components/SettingsModal';
 import { ArrowLeftIcon, InsightsIcon, CheckIcon, ArchiveIcon } from '@/components/Icons';
 
 type BrainDumpStatus = 'idle' | 'extracting' | 'ai-success' | 'fallback';
@@ -26,6 +27,22 @@ export default function ProjectPage() {
   const [brainDumpStatus, setBrainDumpStatus] = useState<BrainDumpStatus>('idle');
   const [archiveState, setArchiveState] = useState<ArchiveState>('idle');
   const [sagaTick, setSagaTick] = useState(0);
+  const [aiKeyConnected, setAiKeyConnected] = useState<boolean>(false);
+  const [showSettings, setShowSettings] = useState(false);
+
+  const refreshAiStatus = useCallback(async () => {
+    try {
+      const res = await fetch('/api/settings');
+      if (res.ok) {
+        const data: Record<string, string> = await res.json();
+        setAiKeyConnected(Boolean(data['ai_api_key']));
+      }
+    } catch { }
+  }, []);
+
+  useEffect(() => {
+    refreshAiStatus();
+  }, [refreshAiStatus, showSettings]);
 
   const fetchProject = useCallback(async () => {
     try {
@@ -214,38 +231,75 @@ export default function ProjectPage() {
           />
         </div>
 
-        {/* Two clear tending affordances under the dragon — per spec.
-            Each card explains its kind of tending and scrolls to the
-            corresponding section's input. Side-by-side on sm+, stacked
-            on small screens. */}
-        <div id="tending-affordances" className="mb-10 grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {/* Brain dump — the hero input, sits directly under the dragon.
+            Lowest-friction way to give the dragon context; with an AI key
+            connected, the server will draw tasks out automatically. */}
+        <div className="mb-8">
+          <h3 className="font-mono-caps text-ember-text-muted mb-2">
+            Tell your dragon what's on your mind
+          </h3>
+          <p className="body-sm text-ember-text-muted mb-4 leading-relaxed">
+            The easiest way to give your dragon context. {aiKeyConnected
+              ? 'Dump your thoughts and tasks will be drawn out for you.'
+              : 'Each line becomes a task — or connect a key to have them drawn out properly.'}
+          </p>
+          <BrainDumpInput
+            onSubmit={handleBrainDump}
+            placeholder={aiKeyConnected
+              ? "What's stirring with this dragon? Dump it here and tasks will be drawn out…"
+              : "What's stirring with this dragon? One thought per line — each becomes a task…"}
+            isLoading={brainDumpStatus === 'extracting'}
+          />
+          {brainDumpStatus === 'extracting' && (
+            <p className="font-mono-caps text-ember-text-muted mt-2">drawing tasks from the dump…</p>
+          )}
+          {brainDumpStatus === 'ai-success' && (
+            <p className="font-mono-caps mt-2 inline-flex items-center gap-1.5" style={{ color: 'var(--amber-glow)' }}>
+              <CheckIcon size={13} /> Tasks drawn from the dump
+            </p>
+          )}
+          {brainDumpStatus === 'fallback' && (
+            <p className="font-mono-caps text-ember-text-muted mt-2">tasks added, line by line</p>
+          )}
+          {!aiKeyConnected && brainDumpStatus === 'idle' && (
+            <p className="body-sm text-ember-text-muted mt-3 italic">
+              Tip:{' '}
+              <button
+                type="button"
+                onClick={() => setShowSettings(true)}
+                className="underline hover:text-ember-text transition-colors"
+              >
+                connect a key in AI Settings
+              </button>{' '}
+              to have tasks drawn out automatically.
+            </p>
+          )}
+        </div>
+
+        {/* Quiet shortcuts to the structured tending below. These no longer
+            compete with the brain dump — they just scroll-link and focus. */}
+        <div id="tending-affordances" className="mb-12 flex flex-wrap gap-x-5 gap-y-2">
           <a
             href="#tasks-section"
-            className="parchment-card p-4 block hover:bg-[var(--surface-mid)] transition-colors"
+            className="font-mono-caps text-ember-text-muted hover:text-ember-text transition-colors"
             onClick={(e) => {
               e.preventDefault();
               document.getElementById('tasks-section')?.scrollIntoView({ behavior: 'smooth' });
               (document.querySelector<HTMLInputElement>('#tasks-section input[type="text"]'))?.focus();
             }}
           >
-            <div className="font-mono-caps text-ember-text-muted mb-1">+ Add a task</div>
-            <div className="body-sm text-ember-text leading-snug">
-              something to finish
-            </div>
+            + Add a task
           </a>
           <a
             href="#rituals-section"
-            className="parchment-card p-4 block hover:bg-[var(--surface-mid)] transition-colors"
+            className="font-mono-caps text-ember-text-muted hover:text-ember-text transition-colors"
             onClick={(e) => {
               e.preventDefault();
               document.getElementById('rituals-section')?.scrollIntoView({ behavior: 'smooth' });
               (document.querySelector<HTMLInputElement>('#rituals-section input[type="text"]'))?.focus();
             }}
           >
-            <div className="font-mono-caps text-ember-text-muted mb-1">+ Add a ritual</div>
-            <div className="body-sm text-ember-text leading-snug">
-              something to keep
-            </div>
+            + Add a ritual
           </a>
         </div>
 
@@ -258,28 +312,6 @@ export default function ProjectPage() {
             accentColor={accentColor}
             onRitualLogged={() => setSagaTick(t => t + 1)}
           />
-        </div>
-
-        <div className="mb-12">
-          <h3 className="font-mono-caps text-ember-text-muted mb-4">
-            Brain dump
-          </h3>
-          <BrainDumpInput
-            onSubmit={handleBrainDump}
-            placeholder="What's on your mind about this dragon? Dump your thoughts and tasks will be drawn out…"
-            isLoading={brainDumpStatus === 'extracting'}
-          />
-          {brainDumpStatus === 'extracting' && (
-            <p className="font-mono-caps text-ember-text-muted mt-2">extracting tasks…</p>
-          )}
-          {brainDumpStatus === 'ai-success' && (
-            <p className="font-mono-caps mt-2 inline-flex items-center gap-1.5" style={{ color: 'var(--amber-glow)' }}>
-              <CheckIcon size={13} /> Tasks drawn from the dump
-            </p>
-          )}
-          {brainDumpStatus === 'fallback' && (
-            <p className="font-mono-caps text-ember-text-muted mt-2">tasks added</p>
-          )}
         </div>
 
         <div id="tasks-section" className="mb-12 scroll-mt-20">
@@ -344,6 +376,7 @@ export default function ProjectPage() {
           )}
         </div>
       </div>
+      <SettingsModal isOpen={showSettings} onClose={() => setShowSettings(false)} />
     </div>
   );
 }
