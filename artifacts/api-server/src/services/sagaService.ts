@@ -33,10 +33,10 @@ function currentSeason(date: Date = new Date()): Season {
 }
 
 const SEASON_BLURBS: Record<Season, string> = {
-  winter: 'the wheel turned — winter has come to the keep.',
-  spring: 'the wheel turned — spring has come to the keep.',
-  summer: 'the wheel turned — summer has come to the keep.',
-  autumn: 'the wheel turned — autumn has come to the keep.',
+  winter: 'winter at the keep.',
+  spring: 'spring at the keep.',
+  summer: 'summer at the keep.',
+  autumn: 'autumn at the keep.',
 };
 
 /** If this project's last saga entry happened in a different season than now,

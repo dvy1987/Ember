@@ -124,8 +124,8 @@ export function updateDragonState(projectId: string): Project | null {
   if (finalStage !== previousStage) {
     const grew = stageIndex(finalStage) > stageIndex(previousStage);
     const text = grew
-      ? `the dragon grew — now a ${finalStage}.`
-      : `the dragon slipped back — now a ${finalStage}.`;
+      ? `grew to ${finalStage}.`
+      : `slipped to ${finalStage}.`;
     writeSagaEntry(projectId, 'stage_changed', text, {
       from: previousStage,
       to: finalStage,

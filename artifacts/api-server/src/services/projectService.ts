@@ -32,7 +32,7 @@ export function createProject(name: string, dragonType: DragonType, summary: str
     VALUES (?, ?, ?, 'egg', 0, ?, ?, ?, 0)
   `).run(id, name, dragonType, summary, now, now);
 
-  writeSagaEntry(id, 'hatch', `${name} came to the keep — a ${dragonType} egg.`, {
+  writeSagaEntry(id, 'hatch', `${name} hatched — a ${dragonType} egg.`, {
     dragon_type: dragonType,
   });
 

@@ -108,7 +108,7 @@ export function completeTask(id: string): Task | null {
   const existing = getTask(id);
   db.prepare('UPDATE tasks SET status = ?, completed_at = ? WHERE id = ?').run('completed', now, id);
   if (existing) {
-    writeSagaEntry(existing.project_id, 'task_completed', `done — ${existing.task_text}`, {
+    writeSagaEntry(existing.project_id, 'task_completed', existing.task_text, {
       task_id: id,
     });
   }

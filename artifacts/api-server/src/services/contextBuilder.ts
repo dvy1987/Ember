@@ -106,10 +106,10 @@ export function buildResumeContext(projectId: string): ResumeContext | null {
   const lastSession = ctx.recentSessions.length > 0 ? ctx.recentSessions[0] : null;
 
   const lastSessionSummary = lastSession
-    ? lastSession.ai_summary || lastSession.reflection || `${lastSession.duration_minutes} minute training session`
+    ? lastSession.ai_summary || lastSession.reflection || `${lastSession.duration_minutes} minute focus session`
     : null;
 
-  let suggestedNextStep = 'Start a brain dump to get going';
+  let suggestedNextStep = 'Start with a brain dump';
 
   if (lastSession) {
     const db = getDb();

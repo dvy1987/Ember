@@ -126,7 +126,7 @@ export function logRitual(ritualId: string, note?: string): RitualLog | null {
   writeSagaEntry(
     ritual.project_id,
     'ritual_logged',
-    `tended ritual — ${ritual.ritual_text}`,
+    ritual.ritual_text,
     { ritual_id: ritualId, ritual_text: ritual.ritual_text }
   );
 
