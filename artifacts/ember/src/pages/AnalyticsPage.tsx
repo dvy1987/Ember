@@ -153,7 +153,7 @@ export default function AnalyticsPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="body text-ember-text-muted">Tending the ledger…</p>
+        <p className="body text-ember-text-muted">Loading…</p>
       </div>
     );
   }
@@ -177,7 +177,6 @@ export default function AnalyticsPage() {
           <ArrowLeftIcon size={14} /> Ember Keep
         </Link>
         <header className="mb-10">
-          <p className="font-mono-caps text-ember-text mb-1">The keeper's ledger</p>
           <h1 className="font-display text-[40px] text-ember-text leading-tight">Training insights</h1>
         </header>
 

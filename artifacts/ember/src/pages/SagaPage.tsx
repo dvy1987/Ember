@@ -132,14 +132,14 @@ export default function SagaPage() {
             The saga {project ? `of ${project.name}` : ''}
           </h1>
           <p className="body-sm text-ember-text-muted">
-            Every hatch, ritual, task, session, and turning of the wheel — in the order it happened.
+            Every hatch, task, ritual, and session — in order.
           </p>
         </div>
 
         {entries.length === 0 && !isLoading && (
           <div className="parchment-card p-6">
             <p className="body-sm text-ember-text-muted">
-              No saga entries yet. Tend to your dragon and the chronicle will begin.
+              No entries yet. Tend to your dragon and they'll appear here.
             </p>
           </div>
         )}
@@ -179,7 +179,7 @@ export default function SagaPage() {
               disabled={isLoading}
               className="font-mono-caps text-ember-text-muted hover:text-ember-text transition-colors px-4 py-2 disabled:opacity-50"
             >
-              {isLoading ? 'turning the page…' : 'Read earlier entries'}
+              {isLoading ? 'Loading…' : 'Read earlier entries'}
             </button>
           ) : entries.length > 0 ? (
             <p className="font-mono-caps text-ember-text-muted">

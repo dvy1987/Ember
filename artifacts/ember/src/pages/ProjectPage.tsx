@@ -186,7 +186,7 @@ export default function ProjectPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="body text-ember-text-muted">Tending the keep…</p>
+        <p className="body text-ember-text-muted">Loading…</p>
       </div>
     );
   }
@@ -251,15 +251,15 @@ export default function ProjectPage() {
             isLoading={brainDumpStatus === 'extracting'}
           />
           {brainDumpStatus === 'extracting' && (
-            <p className="font-mono-caps text-ember-text-muted mt-2">drawing tasks from the dump…</p>
+            <p className="font-mono-caps text-ember-text-muted mt-2">Extracting tasks…</p>
           )}
           {brainDumpStatus === 'ai-success' && (
             <p className="font-mono-caps mt-2 inline-flex items-center gap-1.5" style={{ color: 'var(--amber-glow)' }}>
-              <CheckIcon size={13} /> Tasks drawn from the dump
+              <CheckIcon size={13} /> Tasks added
             </p>
           )}
           {brainDumpStatus === 'fallback' && (
-            <p className="font-mono-caps text-ember-text-muted mt-2">tasks added, line by line</p>
+            <p className="font-mono-caps text-ember-text-muted mt-2">Tasks added</p>
           )}
           {!aiKeyConnected && brainDumpStatus === 'idle' && (
             <p className="body-sm text-ember-text-muted mt-3 italic">
@@ -305,7 +305,7 @@ export default function ProjectPage() {
 
         <div id="rituals-section" className="mb-12 scroll-mt-20">
           <h3 className="font-mono-caps text-ember-text-muted mb-4">
-            Rituals — the small, repeatable tending
+            Rituals
           </h3>
           <RitualList
             projectId={projectId}
@@ -348,13 +348,13 @@ export default function ProjectPage() {
               onClick={handleArchive}
               className="inline-flex items-center gap-2 font-mono-caps text-ember-text-muted hover:text-ember-text transition-colors px-3 py-2"
             >
-              <ArchiveIcon size={14} /> Send this dragon to the archive
+              <ArchiveIcon size={14} /> Archive this dragon
             </button>
           )}
           {archiveState === 'confirming' && (
             <div className="flex items-center gap-3">
               <span className="font-mono-caps text-ember-text-muted">
-                Retire this dragon to the archive?
+                Archive this dragon?
               </span>
               <button
                 onClick={handleArchive}
@@ -372,7 +372,7 @@ export default function ProjectPage() {
             </div>
           )}
           {archiveState === 'archiving' && (
-            <span className="font-mono-caps text-ember-text-muted">Sending to the archive…</span>
+            <span className="font-mono-caps text-ember-text-muted">Archiving…</span>
           )}
         </div>
       </div>

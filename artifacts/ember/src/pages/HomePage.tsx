@@ -86,7 +86,7 @@ export default function HomePage() {
             Ember Keep
           </h1>
           <p className="body-lg text-ember-text-muted max-w-md">
-            Your dragons are waiting. Some guard a single endeavor; others tend a piece of your life. Pick the one that calls loudest today.
+            Some dragons guard a single endeavor; others tend a piece of your life. Pick the one that calls loudest today.
           </p>
           <p className="font-mono-caps text-ember-text-muted mt-3 opacity-90">
             {seasonBlurb}
@@ -125,7 +125,7 @@ export default function HomePage() {
             <div className="font-mono-caps text-ember-text-muted mb-3">An empty keep</div>
             <h2 className="font-display text-[32px] text-ember-text mb-3">No dragons yet.</h2>
             <p className="body text-ember-text-muted mb-8">
-              Bring your first dragon to the keep. Some guard a single endeavor; others tend a piece of life. Each one grows from what you tend.
+              Bring your first dragon to the keep. Each one grows from what you tend.
             </p>
             <button
               onClick={() => setShowCreateModal(true)}
@@ -160,7 +160,7 @@ export default function HomePage() {
           <div className="mt-6">
             {isLoadingArchived ? (
               <div className="flex justify-center py-8">
-                <p className="body-sm text-ember-text-muted">Searching the archive…</p>
+                <p className="body-sm text-ember-text-muted">Loading…</p>
               </div>
             ) : archivedProjects.length === 0 ? (
               <div className="text-center py-8">

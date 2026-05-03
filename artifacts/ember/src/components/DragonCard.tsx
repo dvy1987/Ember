@@ -14,10 +14,10 @@ const TYPE_LABEL: Record<DragonType, string> = {
 // Kind > Stage hierarchy: kind name leads, stage is a soft modifier.
 // "hatchling moss" → "Moss, just a hatchling"
 const STAGE_PHRASE: Record<DragonStage, string> = {
-  egg: 'just an egg',
-  hatchling: 'a hatchling',
-  adolescent: 'a teen',
-  adult: 'an adult',
+  egg: 'egg',
+  hatchling: 'hatchling',
+  adolescent: 'adolescent',
+  adult: 'adult',
   ancient: 'ancient',
 };
 

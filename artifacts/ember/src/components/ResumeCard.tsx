@@ -1,4 +1,4 @@
-import { Project, Task, Session, DragonType, ResumeContext, DRAGON_KIND_LABEL } from '@/lib/types';
+import { Project, Task, Session, DragonType, ResumeContext } from '@/lib/types';
 import { getDragonAccentVar } from '@/lib/dragonAssets';
 import DragonScene from './DragonScene';
 import { BeginIcon, CircleDotIcon } from './Icons';
@@ -22,7 +22,6 @@ export default function ResumeCard({
 }: ResumeCardProps) {
   const dragonType = project.dragon_type as DragonType;
   const accentColor = getDragonAccentVar(dragonType);
-  const dragonName = DRAGON_KIND_LABEL[dragonType] ?? 'Dragon';
 
   const suggestedTask = resumeContext?.suggested_next_step
     || (activeTasks.length > 0 ? activeTasks[0].task_text : null);
@@ -71,7 +70,7 @@ export default function ResumeCard({
           <div className="mb-7">
             <div className="font-mono-caps text-ember-text-muted mb-2 flex items-center gap-2">
               <CircleDotIcon size={9} className="text-ember-cinder" />
-              The move {dragonName} remembers
+              Suggested next step
             </div>
             <p className="font-serif-body text-[18px] leading-snug text-ember-text font-semibold">
               {suggestedTask}

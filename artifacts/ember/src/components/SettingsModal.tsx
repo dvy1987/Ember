@@ -91,7 +91,6 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
         </button>
 
         <div className="mb-6">
-          <p className="font-mono-caps text-ember-text-muted mb-2">The keeper's tools</p>
           <h2 className="font-display text-[28px] text-ember-text">AI Settings</h2>
         </div>
 

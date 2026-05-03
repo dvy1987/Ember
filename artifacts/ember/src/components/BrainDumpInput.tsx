@@ -47,7 +47,7 @@ export default function BrainDumpInput({
           disabled={!text.trim() || isLoading}
           className="cta-ember px-5 py-2 font-mono-caps"
         >
-          {isLoading ? 'Tending…' : 'Brain Dump'}
+          {isLoading ? 'Adding…' : 'Add to dragon'}
         </button>
       </div>
     </div>

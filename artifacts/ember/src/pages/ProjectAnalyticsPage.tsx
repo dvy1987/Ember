@@ -213,7 +213,7 @@ export default function ProjectAnalyticsPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="body text-ember-text-muted">Tending the ledger…</p>
+        <p className="body text-ember-text-muted">Loading…</p>
       </div>
     );
   }

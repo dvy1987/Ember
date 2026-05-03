@@ -140,7 +140,7 @@ export default function SessionPage() {
   if (isLoading || !project) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="body text-ember-text-muted">Preparing the tending ground…</p>
+        <p className="body text-ember-text-muted">Loading…</p>
       </div>
     );
   }
@@ -167,10 +167,10 @@ export default function SessionPage() {
               </div>
               <p className="font-mono-caps text-ember-text-muted mb-2">Today · 20 minutes</p>
               <h1 className="font-display text-[40px] text-ember-text leading-tight mb-2">
-                Prepare the tending.
+                Today's focus.
               </h1>
               <p className="body text-ember-text-muted">
-                Choose what {project.name} will tend today.
+                Choose what {project.name} will work on today.
               </p>
             </div>
 
@@ -262,7 +262,7 @@ export default function SessionPage() {
                 {project.name} grew stronger.
               </h1>
               <p className="body text-ember-text-muted">
-                What did the keeper see?
+                How did it go?
               </p>
             </div>
 
@@ -357,9 +357,9 @@ export default function SessionPage() {
                 <div className="mb-8">
                   <DragonScene type={dragonType} stage={project.dragon_stage} size={200} intense />
                 </div>
-                <p className="font-mono-caps text-ember-text-muted mb-2">training complete</p>
+                <p className="font-mono-caps text-ember-text-muted mb-2">session complete</p>
                 <h1 className="font-display text-[40px] text-ember-text leading-tight mb-3">
-                  Well-tended.
+                  Nicely done.
                 </h1>
                 <p className="body text-ember-text-muted mb-10 max-w-md">
                   Your dragon has grown stronger. Keep the momentum going.

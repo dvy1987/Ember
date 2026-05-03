@@ -142,11 +142,6 @@ export default function CreateProjectModal({ isOpen, onClose, onCreated }: Creat
             {step === 'tend' && selected.question}
             {step === 'name' && 'Name the dragon.'}
           </h2>
-          {step === 'tend' && (
-            <p className="body-sm text-ember-text-muted mt-2 max-w-md mx-auto">
-              Some dragons guard a single endeavor. Others guard a piece of your life you want to keep tending.
-            </p>
-          )}
         </div>
 
         {step === 'kind' && (
@@ -265,7 +260,7 @@ export default function CreateProjectModal({ isOpen, onClose, onCreated }: Creat
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="give your dragon a name"
+                placeholder="Give your dragon a name"
                 className="w-full input-parchment px-3 py-3 text-[15px]"
                 autoFocus
                 onKeyDown={(e) => { if (e.key === 'Enter' && name.trim()) handleCreate(); }}
