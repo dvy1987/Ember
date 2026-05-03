@@ -273,6 +273,8 @@ router.get('/dragons/:id/budget', (req, res) => {
 
 router.patch('/dragons/:id/budget', (req, res) => {
   try {
+    const project = getProject(req.params.id);
+    if (!project) { res.status(404).json({ error: 'Dragon not found' }); return; }
     const parsed = budgetPatchBodySchema.safeParse(req.body);
     if (!parsed.success) {
       res.status(400).json({ error: 'invalid_body', details: parsed.error.issues });
