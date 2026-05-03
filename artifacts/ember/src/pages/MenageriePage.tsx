@@ -60,11 +60,8 @@ export default function MenageriePage() {
                       <DragonScene type={type} stage={stage} size={200} />
                     </div>
                     <div className="mt-3 text-center">
-                      <div className="font-display text-[18px] text-ember-text leading-tight">
-                        {stageLabel(stage)}
-                      </div>
-                      <div className="font-mono-caps text-[9px] text-ember-text-muted mt-0.5">
-                        {TYPE_LABEL[type]}
+                      <div className="font-mono-caps text-[10px] text-ember-text">
+                        {stageLabel(stage)} <span className="mx-1.5 text-ember-text-muted">•</span> {TYPE_LABEL[type]}
                       </div>
                     </div>
                   </div>

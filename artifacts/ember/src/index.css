@@ -617,19 +617,84 @@ html, body {
 [data-stage="egg"] .drift-tail-stream { display: none; }
 [data-stage="egg"] .dragon-image-container { animation: none; }
 
-/* ---------- Moss richness pass: yawn + denser spore pop ---------- */
+/* ---------- Moss richness pass: yawn + micro-shake + denser spores ---------- */
 @keyframes moss-yawn {
   0%,84%,100% { transform: scaleY(1) scaleX(1); }
   90%         { transform: scaleY(1.04) scaleX(0.985); }
   95%         { transform: scaleY(0.99) scaleX(1.005); }
 }
+@keyframes moss-microshake {
+  0%,100% { transform: translate(0, 0); }
+  20%     { transform: translate(0.4px, -0.3px); }
+  40%     { transform: translate(-0.4px, 0.2px); }
+  60%     { transform: translate(0.3px, 0.4px); }
+  80%     { transform: translate(-0.3px, -0.2px); }
+}
 [data-stage="hatchling"].scene-moss .dragon-image-container,
 [data-stage="adolescent"].scene-moss .dragon-image-container {
   animation: breath-moss 6s ease-in-out infinite alternate, moss-yawn 11s ease-in-out infinite;
 }
+/* Rooted micro-shake layered onto rootsway — settling-in-earth feel */
+[data-stage="hatchling"].scene-moss .moss-bobble,
+[data-stage="adolescent"].scene-moss .moss-bobble {
+  animation: moss-bobble 5s ease-in-out infinite, moss-microshake 1.2s ease-in-out infinite;
+}
 /* Brighter, more present green halo for moss adolescent/hatchling */
 [data-stage="hatchling"].scene-moss .moss-aura-radial,
 [data-stage="adolescent"].scene-moss .moss-aura-radial { opacity: 0.65; }
+/* Denser, longer-travel spore field — wider emitter + bigger, brighter motes */
+@keyframes moss-spore-rise-long {
+  0%   { opacity: 0;   transform: translate(0, 0)         scale(0.5); }
+  12%  { opacity: 1;   transform: translate(-3px, -12px)  scale(1.05); }
+  60%  { opacity: 0.6; transform: translate(5px, -58px)   scale(1.1); }
+  100% { opacity: 0;   transform: translate(-3px, -110px) scale(0.4); }
+}
+[data-stage="hatchling"].scene-moss .moss-spore-emitter,
+[data-stage="adolescent"].scene-moss .moss-spore-emitter {
+  width: 82%; height: 95%;
+}
+[data-stage="hatchling"].scene-moss .moss-spore,
+[data-stage="adolescent"].scene-moss .moss-spore {
+  width: 4.5px; height: 4.5px;
+  filter: blur(0.4px) drop-shadow(0 0 6px rgba(180,210,130,0.95));
+  animation-name: moss-spore-rise-long;
+  animation-duration: 4.6s;
+}
+[data-stage="hatchling"].scene-moss .moss-spore.s2,
+[data-stage="adolescent"].scene-moss .moss-spore.s2 { animation-duration: 4s; }
+[data-stage="hatchling"].scene-moss .moss-spore.s3,
+[data-stage="adolescent"].scene-moss .moss-spore.s3 { animation-duration: 5.2s; }
+[data-stage="hatchling"].scene-moss .moss-spore.s4,
+[data-stage="adolescent"].scene-moss .moss-spore.s4 { animation-duration: 4.4s; }
+
+/* ---------- Ancient: wider ambient particle field across types ---------- */
+[data-stage="ancient"] .particle-layer {
+  inset: -14% -14% -14% -14%;
+}
+[data-stage="ancient"] .ember-particle { box-shadow: 0 0 7px currentColor; }
+[data-stage="ancient"] .leaf-particle  { transform-origin: center; }
+[data-stage="ancient"] .wisp-particle  { filter: blur(4px); }
+@keyframes ember-rise-ancient {
+  0%   { transform: translateY(0) translateX(0); opacity: 0; }
+  10%  { opacity: 0.95; }
+  90%  { opacity: 0.95; }
+  100% { transform: translateY(-360px) translateX(calc(var(--drift-x, 20px) * 1.6)); opacity: 0; }
+}
+@keyframes leaf-fall-ancient {
+  0%   { transform: translateY(0) rotate(0deg); opacity: 0; }
+  20%  { opacity: 0.85; }
+  80%  { opacity: 0.85; }
+  100% { transform: translateY(180px) rotate(220deg) translateX(calc(var(--drift-x, -20px) * 1.6)); opacity: 0; }
+}
+@keyframes wisp-move-ancient {
+  0%   { transform: translateX(-30px) translateY(0); opacity: 0; }
+  20%  { opacity: var(--max-opacity, 0.7); }
+  80%  { opacity: var(--max-opacity, 0.7); }
+  100% { transform: translateX(calc(100% + 40px)) translateY(calc(var(--drift-y, -20px) * 1.5)); opacity: 0; }
+}
+[data-stage="ancient"] .ember-particle { animation-name: ember-rise-ancient; }
+[data-stage="ancient"] .leaf-particle  { animation-name: leaf-fall-ancient; }
+[data-stage="ancient"] .wisp-particle  { animation-name: wisp-move-ancient; }
 
 @media (prefers-reduced-motion: reduce) {
   *, ::before, ::after {
