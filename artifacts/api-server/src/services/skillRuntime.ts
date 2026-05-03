@@ -796,15 +796,20 @@ export function autoFinalizePendingPaired(
   projectId: string
 ): number {
   const db = getDb();
-  const pending = db
+  // Only the most-recent pending paired run is auto-approved. In normal use
+  // there is at most one pending turn per (dragon, skill, project), but
+  // narrowing to the latest avoids implicitly resolving older orphans the
+  // keeper may have left intentionally pending.
+  const latest = db
     .prepare(
       `SELECT id FROM skill_runs
          WHERE dragon_id = ? AND skill_id = ? AND project_id = ?
-           AND mode = 'paired' AND status = 'pending'`
+           AND mode = 'paired' AND status = 'pending'
+         ORDER BY ran_at DESC
+         LIMIT 1`
     )
-    .all(dragonId, skillId, projectId) as Array<{ id: string }>;
-  for (const row of pending) {
-    recordVerdict({ runId: row.id, verdict: 'approve' });
-  }
-  return pending.length;
+    .get(dragonId, skillId, projectId) as { id: string } | undefined;
+  if (!latest) return 0;
+  recordVerdict({ runId: latest.id, verdict: 'approve' });
+  return 1;
 }

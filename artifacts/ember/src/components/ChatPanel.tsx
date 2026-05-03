@@ -105,8 +105,11 @@ function normalizeErrorCode(code: string | undefined | null): string {
 
 function trustBandLabel(maturity: Maturity | null): string {
   if (!maturity) return 'paired';
-  if (maturity.paused) return 'resting';
   return maturity.locked_band ?? maturity.current_trust;
+}
+
+function isPaused(maturity: Maturity | null): boolean {
+  return Boolean(maturity?.paused);
 }
 
 function fmtMoney(n: number): string {
@@ -249,6 +252,7 @@ export default function ChatPanel({
 
   const runs = thread?.runs ?? [];
   const trustLabel = trustBandLabel(thread?.maturity ?? null);
+  const paused = isPaused(thread?.maturity ?? null);
   const budgetLine = thread?.budget
     ? `${fmtMoney(thread.budget.current_spend_usd)} of ${fmtMoney(thread.budget.monthly_cap_usd)} this month`
     : '';
@@ -283,6 +287,14 @@ export default function ChatPanel({
               >
                 {trustLabel}
               </span>
+              {paused && (
+                <span
+                  className="font-mono-caps text-ember-text-muted"
+                  title="The keeper paused this skill — replies are off until resumed"
+                >
+                  resting
+                </span>
+              )}
               {budgetLine && (
                 <span className="font-mono-caps text-ember-text-muted" title="Monthly AI spend">
                   {budgetLine}
