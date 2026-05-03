@@ -225,3 +225,12 @@ export function ArchiveIcon({ size = 14, ...rest }: IconProps) {
     </svg>
   );
 }
+
+export function EditIcon({ size = 14, ...rest }: IconProps) {
+  return (
+    <svg {...base(size)} {...rest}>
+      <path d="M14.5 3.5L16.5 5.5L6 16H4V14L14.5 3.5Z" />
+      <path d="M13 5L15 7" />
+    </svg>
+  );
+}

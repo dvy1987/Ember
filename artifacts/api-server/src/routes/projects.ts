@@ -53,9 +53,36 @@ router.get('/projects/:id', (req, res) => {
   }
 });
 
+export const PROJECT_NAME_MAX_LENGTH = 80;
+
 router.patch('/projects/:id', (req, res) => {
   try {
-    const project = updateProject(req.params.id, req.body);
+    const updates = { ...(req.body ?? {}) } as Record<string, unknown>;
+
+    // Validate name when present: trim, non-empty, within max length.
+    // Empty/whitespace-only names and over-long names are rejected up front
+    // with a clear error so the UI can surface it inline.
+    if ('name' in updates) {
+      const raw = updates.name;
+      if (typeof raw !== 'string') {
+        res.status(400).json({ error: 'name must be a string' });
+        return;
+      }
+      const trimmed = raw.trim();
+      if (trimmed.length === 0) {
+        res.status(400).json({ error: 'Name cannot be empty.' });
+        return;
+      }
+      if (trimmed.length > PROJECT_NAME_MAX_LENGTH) {
+        res.status(400).json({
+          error: `Name must be ${PROJECT_NAME_MAX_LENGTH} characters or fewer.`,
+        });
+        return;
+      }
+      updates.name = trimmed;
+    }
+
+    const project = updateProject(req.params.id, updates);
     if (!project) {
       res.status(404).json({ error: 'Project not found' });
       return;

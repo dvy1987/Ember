@@ -388,6 +388,30 @@ export default function ProjectPage() {
             activeTasks={activeTasks}
             resumeContext={resumeContext}
             onStartSession={handleStartSession}
+            onRename={async (newName) => {
+              try {
+                const res = await fetch(`/api/projects/${projectId}`, {
+                  method: 'PATCH',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ name: newName }),
+                });
+                if (res.ok) {
+                  const updated = await res.json();
+                  // Optimistically update so the new name shows everywhere
+                  // immediately; subsequent fetches will agree.
+                  setProject(updated);
+                  return { ok: true } as const;
+                }
+                let message = 'Could not save the new name.';
+                try {
+                  const data = await res.json();
+                  if (data && typeof data.error === 'string') message = data.error;
+                } catch { /* keep default */ }
+                return { ok: false, error: message } as const;
+              } catch {
+                return { ok: false, error: 'Could not reach the keep. Try again.' } as const;
+              }
+            }}
           />
         </div>
 
