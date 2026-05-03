@@ -160,9 +160,11 @@ router.get('/dragons/:id/skill-runs', (req, res) => {
 
 router.get('/projects/:id/skills/:skillId/rules', (req, res) => {
   try {
-    const skill = getSkillById(req.params.skillId);
+    // Accept skill DB id OR stable name (mirrors the /run route).
+    const param = req.params.skillId;
+    const skill = getSkillById(param) ?? getSkillByName(param);
     if (!skill) { res.status(404).json({ error: 'Skill not found' }); return; }
-    res.json(getCombinedRules(req.params.id, req.params.skillId, req.params.id));
+    res.json(getCombinedRules(req.params.id, skill.id, req.params.id));
   } catch {
     res.status(500).json({ error: 'Failed to fetch rules' });
   }
@@ -177,11 +179,13 @@ router.post('/projects/:id/skills/:skillId/rules', (req, res) => {
     };
     if (!rule_text || !rule_text.trim()) { res.status(400).json({ error: 'rule_text required' }); return; }
     const dragonId = req.params.id; // dragon == project in current data model
-    const skillId = req.params.skillId;
+    const param = req.params.skillId;
+    const skill = getSkillById(param) ?? getSkillByName(param);
+    if (!skill) { res.status(404).json({ error: 'Skill not found' }); return; }
     if (scope === 'global') {
-      res.status(201).json(addGlobalRule(skillId, rule_text));
+      res.status(201).json(addGlobalRule(skill.id, rule_text));
     } else {
-      res.status(201).json(addProjectRule(dragonId, skillId, req.params.id, rule_text, examples));
+      res.status(201).json(addProjectRule(dragonId, skill.id, req.params.id, rule_text, examples));
     }
   } catch {
     res.status(500).json({ error: 'Failed to add rule' });

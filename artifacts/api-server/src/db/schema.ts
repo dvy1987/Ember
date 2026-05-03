@@ -236,6 +236,7 @@ export function initializeSchema(db: Database.Database): void {
       project_id TEXT NOT NULL,
       global_rule_id TEXT NOT NULL,
       excluded INTEGER NOT NULL DEFAULT 1,
+      reason TEXT,
       created_at TEXT NOT NULL,
       UNIQUE (project_id, global_rule_id),
       FOREIGN KEY (project_id) REFERENCES projects(id),
@@ -306,4 +307,14 @@ export function initializeSchema(db: Database.Database): void {
        END
      WHERE locked_band IN ('novice','apprentice','adept','trusted');
   `);
+
+  // Idempotent migration: `reason` column was added to rule_overrides after
+  // some Phase-0 dev DBs were created. SQLite has no `ADD COLUMN IF NOT
+  // EXISTS`, so probe pragma and add only when missing.
+  const ruleOverrideCols = db
+    .prepare(`PRAGMA table_info(rule_overrides)`)
+    .all() as Array<{ name: string }>;
+  if (!ruleOverrideCols.some((c) => c.name === 'reason')) {
+    db.exec(`ALTER TABLE rule_overrides ADD COLUMN reason TEXT;`);
+  }
 }
