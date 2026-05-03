@@ -73,7 +73,7 @@ export default function HomePage() {
       <div className="relative z-10 max-w-5xl mx-auto px-6 pb-24 pt-12">
         <header className="flex flex-col items-center text-center mb-12 animate-enter">
           <div className="font-mono-caps text-[11px] text-ember-text-muted opacity-80 mb-2">
-            Ember Keep <span className="mx-2">·</span> {dateLabel} <span className="mx-2">·</span> {timeOfDay}
+            Roost <span className="mx-2">·</span> {dateLabel} <span className="mx-2">·</span> {timeOfDay}
           </div>
           <div className="font-mono-caps text-[10px] text-ember-text-muted flex items-center gap-1.5">
             <ClockIcon size={12} />
@@ -83,7 +83,7 @@ export default function HomePage() {
 
         <section className="flex flex-col items-center text-center mb-10">
           <h1 className="font-display text-[44px] sm:text-[52px] text-ember-text leading-tight mb-3">
-            The Roost
+            Ember Keep
           </h1>
           <p className="font-serif-body italic text-[16px] text-ember-text-muted max-w-md">
             Your dragons are waiting. Some guard a single endeavor; others tend a piece of your life. Pick the one that calls loudest tonight.
@@ -122,7 +122,7 @@ export default function HomePage() {
           </div>
         ) : projects.length === 0 ? (
           <div className="flex flex-col items-center justify-center text-center py-12 max-w-md mx-auto">
-            <div className="font-mono-caps text-[10px] text-ember-text-muted mb-3">An empty roost</div>
+            <div className="font-mono-caps text-[10px] text-ember-text-muted mb-3">An empty keep</div>
             <h2 className="font-display text-[32px] text-ember-text mb-3">No dragons yet.</h2>
             <p className="font-serif-body italic text-[15px] text-ember-text-muted mb-8">
               Bring your first dragon to the keep. Some guard a single endeavor; others tend a piece of life. Each one grows from what you tend.

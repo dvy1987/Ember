@@ -174,7 +174,7 @@ export default function AnalyticsPage() {
           href="/"
           className="inline-flex items-center gap-2 font-mono-caps text-[11px] text-ember-text-muted hover:text-ember-text transition-colors mb-6"
         >
-          <ArrowLeftIcon size={14} /> The Roost
+          <ArrowLeftIcon size={14} /> Ember Keep
         </Link>
         <header className="mb-10">
           <p className="font-mono-caps text-[10px] text-ember-text-muted mb-1">The keeper's ledger</p>

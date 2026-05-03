@@ -31,7 +31,7 @@ export default function MenageriePage() {
       <div className="relative z-10 max-w-6xl mx-auto px-6 pb-24 pt-12">
         <header className="flex flex-col items-center text-center mb-10">
           <div className="font-mono-caps text-[10px] text-ember-text-muted opacity-80 mb-2">
-            Ember Keep <span className="mx-2">·</span> Developer <span className="mx-2">·</span> Menagerie
+            Roost <span className="mx-2">·</span> Developer <span className="mx-2">·</span> Menagerie
           </div>
           <h1 className="font-display text-[40px] text-ember-text mb-3">The Menagerie</h1>
           <p className="font-serif-body italic text-ember-text-muted max-w-xl">
@@ -42,7 +42,7 @@ export default function MenageriePage() {
             href="/"
             className="font-mono-caps text-[10px] text-ember-text-muted mt-4 hover:text-ember-text"
           >
-            ← back to the roost
+            ← back to the keep
           </Link>
         </header>
 

@@ -21,7 +21,7 @@ export default function NotFound() {
           href="/"
           className="cta-ember inline-flex items-center gap-2 px-6 py-3 font-mono-caps text-[11px]"
         >
-          <ArrowLeftIcon size={13} /> Back to the Roost
+          <ArrowLeftIcon size={13} /> Back to Ember Keep
         </Link>
       </div>
     </div>

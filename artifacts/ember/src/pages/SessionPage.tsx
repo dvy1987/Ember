@@ -378,7 +378,7 @@ export default function SessionPage() {
                 href="/"
                 className="cta-ember px-6 py-3 font-mono-caps text-[11px]"
               >
-                The Roost
+                Ember Keep
               </Link>
             </div>
           </div>

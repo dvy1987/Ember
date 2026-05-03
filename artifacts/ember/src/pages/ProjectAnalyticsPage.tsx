@@ -223,7 +223,7 @@ export default function ProjectAnalyticsPage() {
       <div className="min-h-screen flex flex-col items-center justify-center gap-4">
         <p className="font-serif-body italic text-ember-text-muted">Dragon not found.</p>
         <Link href="/" className="font-mono-caps text-[11px] text-ember-cinder hover:underline inline-flex items-center gap-2">
-          <ArrowLeftIcon size={13} /> The Roost
+          <ArrowLeftIcon size={13} /> Ember Keep
         </Link>
       </div>
     );

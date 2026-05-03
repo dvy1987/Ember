@@ -194,7 +194,7 @@ export default function ProjectPage() {
             href="/"
             className="inline-flex items-center gap-2 font-mono-caps text-[11px] text-ember-text-muted hover:text-ember-text transition-colors"
           >
-            <ArrowLeftIcon size={14} /> The Roost
+            <ArrowLeftIcon size={14} /> Ember Keep
           </Link>
           <Link
             href={`/analytics/${project.id}`}
