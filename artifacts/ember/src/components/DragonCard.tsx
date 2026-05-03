@@ -1,6 +1,8 @@
 import { Project, DragonType } from '@/lib/types';
-import { getDragonImagePath, hasDragonImage, getDragonAccentVar } from '@/lib/dragonAssets';
+import { getDragonAccentVar } from '@/lib/dragonAssets';
 import { Link } from 'wouter';
+import DragonScene from './DragonScene';
+import { ClockIcon, CircleDotIcon, MoonIcon, AlertIcon } from './Icons';
 
 interface DragonCardProps {
   project: Project;
@@ -8,14 +10,14 @@ interface DragonCardProps {
 }
 
 function formatTimeSince(dateStr: string | null): string {
-  if (!dateStr) return 'Never trained';
+  if (!dateStr) return 'never tended';
   const diff = Date.now() - new Date(dateStr).getTime();
   const hours = Math.floor(diff / (1000 * 60 * 60));
-  if (hours < 1) return 'Just now';
+  if (hours < 1) return 'just now';
   if (hours < 24) return `${hours}h ago`;
   const days = Math.floor(hours / 24);
-  if (days === 1) return 'Yesterday';
-  return `${days} days ago`;
+  if (days === 1) return 'yesterday';
+  return `${days}d quiet`;
 }
 
 function formatMinutes(minutes: number): string {
@@ -27,58 +29,50 @@ function formatMinutes(minutes: number): string {
 
 export default function DragonCard({ project, neglectState = 'active' }: DragonCardProps) {
   const dragonType = project.dragon_type as DragonType;
-  const hasImage = hasDragonImage(dragonType, project.dragon_stage);
-  const imagePath = hasImage ? getDragonImagePath(dragonType, project.dragon_stage) : null;
   const accentColor = getDragonAccentVar(dragonType);
 
-  const neglectBorder = {
-    active: 'border-ember-panel-light',
-    sleepy: 'border-ember-warning/40',
-    restless: 'border-ember-warning/70',
-    decaying: 'border-ember-danger/60',
-  }[neglectState] || 'border-ember-panel-light';
-
-  const neglectLabel = ({
-    sleepy: '💤 Sleepy',
-    restless: '😰 Restless',
-    decaying: '⚠️ Needs training!',
-  } as Record<string, string>)[neglectState];
+  const neglectMeta: Record<string, { label: string; Icon: typeof MoonIcon } | null> = {
+    active: null,
+    sleepy: { label: 'sleepy', Icon: MoonIcon },
+    restless: { label: 'restless', Icon: AlertIcon },
+    decaying: { label: 'needs tending', Icon: AlertIcon },
+  };
+  const neglect = neglectMeta[neglectState] ?? null;
 
   return (
     <Link href={`/project/${project.id}`}>
-      <div
-        className={`relative rounded-2xl border ${neglectBorder} bg-ember-panel p-5 transition-all duration-200 hover:bg-ember-panel-light hover:scale-[1.02] cursor-pointer`}
-        style={{ boxShadow: `0 0 20px ${accentColor}15` }}
-      >
-        <div className="flex justify-center mb-4">
-          {imagePath ? (
-            <img
-              src={imagePath}
-              alt={`${project.dragon_type} dragon - ${project.dragon_stage}`}
-              className="w-28 h-28 object-contain drop-shadow-lg animate-dragon-breathe"
-            />
-          ) : (
-            <div
-              className="w-28 h-28 rounded-full flex items-center justify-center text-4xl animate-glow-pulse"
-              style={{ backgroundColor: `${accentColor}20` }}
-            >
-              🥚
-            </div>
-          )}
+      <div className="parchment-card p-6 transition-colors hover:border-ember-text-muted/60 cursor-pointer relative overflow-hidden group">
+        <div
+          className="absolute inset-0 opacity-30 pointer-events-none transition-opacity group-hover:opacity-60"
+          style={{ background: `radial-gradient(ellipse at 50% 0%, ${accentColor}22, transparent 65%)` }}
+        />
+        <div className="flex justify-center mb-5 relative z-10">
+          <DragonScene type={dragonType} stage={project.dragon_stage} size={140} />
         </div>
 
-        <h3 className="text-lg font-semibold text-center mb-1">{project.name}</h3>
-        <p className="text-sm text-ember-text-muted text-center capitalize mb-3">
+        <h3 className="font-display text-[26px] text-ember-text text-center leading-tight mb-1 relative z-10">
+          {project.name}
+        </h3>
+        <p className="font-mono-caps text-[10px] text-ember-text-muted text-center mb-4 relative z-10">
           {project.dragon_stage} {project.dragon_type}
         </p>
 
-        <div className="flex justify-between text-xs text-ember-text-muted">
-          <span>🔥 {formatMinutes(project.total_focus_minutes)}</span>
-          <span>{formatTimeSince(project.last_session_at)}</span>
+        <div className="flex items-center justify-between font-mono-caps text-[10px] text-ember-text-muted relative z-10">
+          <span className="inline-flex items-center gap-1.5">
+            <ClockIcon size={12} />
+            {formatMinutes(project.total_focus_minutes)}
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <CircleDotIcon size={10} className="text-ember-cinder" />
+            {formatTimeSince(project.last_session_at)}
+          </span>
         </div>
 
-        {neglectLabel && (
-          <div className="mt-2 text-center text-xs text-ember-warning">{neglectLabel}</div>
+        {neglect && (
+          <div className="mt-3 flex items-center justify-center gap-1.5 font-mono-caps text-[9px] text-ember-warning relative z-10">
+            <neglect.Icon size={11} />
+            <span>{neglect.label}</span>
+          </div>
         )}
       </div>
     </Link>

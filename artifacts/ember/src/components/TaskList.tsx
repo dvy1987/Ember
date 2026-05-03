@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Task } from '@/lib/types';
+import { ArrowDownIcon, ArrowUpIcon, CloseIcon, ChevronRightIcon, ChevronDownIcon, PlusIcon } from './Icons';
 
 interface TaskListProps {
   activeTasks: Task[];
@@ -23,7 +24,7 @@ export default function TaskList({
   onMoveToActive,
   onDeleteTask,
   onAddTask,
-  accentColor = 'var(--color-ember-cinder)',
+  accentColor = 'var(--ember-accent)',
   selectable = false,
   selectedTaskIds = [],
   onToggleSelect,
@@ -39,53 +40,57 @@ export default function TaskList({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <div>
-        <h3 className="text-sm font-medium text-ember-text-muted mb-2 uppercase tracking-wider">
-          Active Tasks ({activeTasks.length}/5)
+        <h3 className="font-mono-caps text-[10px] text-ember-text-muted mb-3">
+          Tonight's tasks · {activeTasks.length}/5
         </h3>
         <div className="space-y-2">
           {activeTasks.map((task) => (
             <div
               key={task.id}
-              className="flex items-center gap-3 bg-ember-panel rounded-lg px-3 py-2.5 group"
+              className="flex items-center gap-3 parchment-card px-4 py-3 group transition-colors hover:border-ember-text-muted/50"
             >
               {selectable ? (
                 <input
                   type="checkbox"
                   checked={selectedTaskIds.includes(task.id)}
                   onChange={() => onToggleSelect?.(task.id)}
-                  className="w-4 h-4 rounded accent-current"
+                  className="w-4 h-4"
                   style={{ accentColor }}
                 />
               ) : (
                 <button
                   onClick={() => onCompleteTask(task.id)}
-                  className="w-5 h-5 rounded-full border-2 border-ember-text-muted hover:border-ember-success flex-shrink-0 transition-colors"
+                  className="w-5 h-5 rounded-full border flex-shrink-0 transition-colors hover:border-ember-cinder-glow"
+                  style={{ borderColor: 'var(--border-subtle)' }}
                   title="Complete task"
+                  aria-label="Complete task"
                 />
               )}
-              <span className="flex-1 text-sm">{task.task_text}</span>
-              <div className="hidden group-hover:flex gap-1">
+              <span className="flex-1 font-serif-body text-[15px] text-ember-text">{task.task_text}</span>
+              <div className="hidden group-hover:flex gap-2 items-center">
                 <button
                   onClick={() => onMoveToBacklog(task.id)}
-                  className="text-xs text-ember-text-muted hover:text-ember-text px-1"
+                  className="text-ember-text-muted hover:text-ember-text"
                   title="Move to backlog"
                 >
-                  ↓
+                  <ArrowDownIcon size={14} />
                 </button>
                 <button
                   onClick={() => onDeleteTask(task.id)}
-                  className="text-xs text-ember-text-muted hover:text-ember-danger px-1"
+                  className="text-ember-text-muted hover:text-ember-danger"
                   title="Delete"
                 >
-                  ×
+                  <CloseIcon size={14} />
                 </button>
               </div>
             </div>
           ))}
           {activeTasks.length === 0 && (
-            <p className="text-sm text-ember-text-muted italic px-3">No active tasks yet. Add one below or brain dump your thoughts.</p>
+            <p className="font-serif-body italic text-[14px] text-ember-text-muted px-1">
+              No active tasks. Add one below or brain dump your thoughts.
+            </p>
           )}
         </div>
       </div>
@@ -96,15 +101,14 @@ export default function TaskList({
           value={newTaskText}
           onChange={(e) => setNewTaskText(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleAddTask()}
-          placeholder="Add a task..."
-          className="flex-1 bg-ember-panel border border-ember-border rounded-lg px-3 py-2 text-sm text-ember-text placeholder:text-ember-text-muted/50 focus:outline-none focus:border-ember-cinder"
+          placeholder="add a task…"
+          className="flex-1 input-parchment px-3 py-2.5 text-[14px]"
         />
         <button
           onClick={handleAddTask}
-          className="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-          style={{ backgroundColor: accentColor, color: '#1a1a2e' }}
+          className="cta-ember px-4 py-2.5 font-mono-caps text-[11px] inline-flex items-center gap-1.5"
         >
-          Add
+          <PlusIcon size={12} /> Add
         </button>
       </div>
 
@@ -112,32 +116,34 @@ export default function TaskList({
         <div>
           <button
             onClick={() => setShowBacklog(!showBacklog)}
-            className="text-sm text-ember-text-muted hover:text-ember-text transition-colors"
+            className="font-mono-caps text-[10px] text-ember-text-muted hover:text-ember-text transition-colors inline-flex items-center gap-1.5"
           >
-            {showBacklog ? '▼' : '▶'} Backlog ({backlogTasks.length})
+            {showBacklog ? <ChevronDownIcon size={11} /> : <ChevronRightIcon size={11} />}
+            Backlog · {backlogTasks.length}
           </button>
           {showBacklog && (
-            <div className="mt-2 space-y-2">
+            <div className="mt-3 space-y-2">
               {backlogTasks.map((task) => (
                 <div
                   key={task.id}
-                  className="flex items-center gap-3 bg-ember-bg-light rounded-lg px-3 py-2 group"
+                  className="flex items-center gap-3 px-4 py-2.5 group rounded-none border-l-2"
+                  style={{ borderColor: 'var(--border-subtle)', background: 'transparent' }}
                 >
-                  <span className="flex-1 text-sm text-ember-text-muted">{task.task_text}</span>
-                  <div className="hidden group-hover:flex gap-1">
+                  <span className="flex-1 font-serif-body italic text-[14px] text-ember-text-muted">{task.task_text}</span>
+                  <div className="hidden group-hover:flex gap-2 items-center">
                     <button
                       onClick={() => onMoveToActive(task.id)}
-                      className="text-xs text-ember-text-muted hover:text-ember-text px-1"
+                      className="text-ember-text-muted hover:text-ember-text"
                       title="Move to active"
                     >
-                      ↑
+                      <ArrowUpIcon size={14} />
                     </button>
                     <button
                       onClick={() => onDeleteTask(task.id)}
-                      className="text-xs text-ember-text-muted hover:text-ember-danger px-1"
+                      className="text-ember-text-muted hover:text-ember-danger"
                       title="Delete"
                     >
-                      ×
+                      <CloseIcon size={14} />
                     </button>
                   </div>
                 </div>

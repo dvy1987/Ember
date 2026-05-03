@@ -5,6 +5,7 @@ import { getDragonAccentVar } from '@/lib/dragonAssets';
 import ResumeCard from '@/components/ResumeCard';
 import TaskList from '@/components/TaskList';
 import BrainDumpInput from '@/components/BrainDumpInput';
+import { ArrowLeftIcon, InsightsIcon, CheckIcon } from '@/components/Icons';
 
 type BrainDumpStatus = 'idle' | 'extracting' | 'ai-success' | 'fallback';
 
@@ -49,27 +50,20 @@ export default function ProjectPage() {
     } catch { }
   }, [projectId]);
 
-  // Non-blocking: called independently after core data loads and after AI updates
   const refreshResumeContext = useCallback(async () => {
     try {
       const res = await fetch(`/api/resume?project_id=${projectId}`);
-      if (res.ok) {
-        setResumeContext(await res.json());
-      }
+      if (res.ok) setResumeContext(await res.json());
     } catch { }
   }, [projectId]);
 
   useEffect(() => {
-    // Phase 3: Load core project/task/session data first (fast, no AI),
-    // then refresh resume context in background (may involve AI call).
     Promise.all([fetchProject(), fetchTasks(), fetchSessions()])
       .then(() => setIsLoading(false))
-      .then(() => refreshResumeContext()); // non-blocking background fetch
+      .then(() => refreshResumeContext());
   }, [fetchProject, fetchTasks, fetchSessions, refreshResumeContext]);
 
-  const handleStartSession = () => {
-    navigate(`/session/${projectId}`);
-  };
+  const handleStartSession = () => navigate(`/session/${projectId}`);
 
   const handleCompleteTask = async (taskId: string) => {
     await fetch(`/api/tasks/${taskId}`, {
@@ -123,11 +117,9 @@ export default function ProjectPage() {
 
       if (aiRes.ok) {
         setBrainDumpStatus('ai-success');
-        // Refresh project state and resume context after AI updates
         await Promise.all([fetchTasks(), fetchProject()]);
-        refreshResumeContext(); // non-blocking background refresh
+        refreshResumeContext();
       } else {
-        // AI unavailable — fall back to line-by-line manual task creation
         setBrainDumpStatus('fallback');
         const lines = text.split('\n').filter(l => l.trim());
         for (const line of lines) {
@@ -142,7 +134,6 @@ export default function ProjectPage() {
     } catch {
       setBrainDumpStatus('fallback');
     } finally {
-      // Clear status banner after a brief pause so user can read it
       setTimeout(() => setBrainDumpStatus('idle'), 3000);
     }
   };
@@ -150,7 +141,7 @@ export default function ProjectPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-ember-text-muted">Loading project...</p>
+        <p className="font-serif-body italic text-ember-text-muted">Tending the keep…</p>
       </div>
     );
   }
@@ -158,7 +149,7 @@ export default function ProjectPage() {
   if (!project) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-ember-text-muted">Project not found</p>
+        <p className="font-serif-body italic text-ember-text-muted">Project not found.</p>
       </div>
     );
   }
@@ -167,75 +158,81 @@ export default function ProjectPage() {
   const accentColor = getDragonAccentVar(dragonType);
 
   return (
-    <div className="min-h-screen p-6 max-w-3xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
-        <Link
-          href="/"
-          className="inline-flex items-center gap-1 text-sm text-ember-text-muted hover:text-ember-text transition-colors"
-        >
-          ← Dragon Roost
-        </Link>
-        <Link
-          href={`/analytics/${project.id}`}
-          className="text-sm text-ember-text-muted hover:text-ember-text transition-colors"
-        >
-          📊 Dragon Stats
-        </Link>
-      </div>
-
-      <div className="mb-8">
-        <ResumeCard
-          project={project}
-          lastSession={lastSession}
-          activeTasks={activeTasks}
-          resumeContext={resumeContext}
-          onStartSession={handleStartSession}
-        />
-      </div>
-
-      <div className="mb-8">
-        <h3 className="text-sm font-medium text-ember-text-muted mb-3 uppercase tracking-wider">
-          Brain Dump
-        </h3>
-        <BrainDumpInput
-          onSubmit={handleBrainDump}
-          accentColor={accentColor}
-          placeholder="What's on your mind about this project? Dump your thoughts and AI will extract tasks..."
-          isLoading={brainDumpStatus === 'extracting'}
-        />
-        {/* Phase 3: lightweight brain dump status feedback */}
-        {brainDumpStatus === 'extracting' && (
-          <p className="text-xs text-ember-text-muted mt-2">Extracting tasks…</p>
-        )}
-        {brainDumpStatus === 'ai-success' && (
-          <p className="text-xs text-emerald-400 mt-2">✓ AI extracted tasks</p>
-        )}
-        {brainDumpStatus === 'fallback' && (
-          <p className="text-xs text-ember-text-muted mt-2">Tasks added</p>
-        )}
-      </div>
-
-      <div className="mb-8">
-        <TaskList
-          activeTasks={activeTasks}
-          backlogTasks={backlogTasks}
-          onCompleteTask={handleCompleteTask}
-          onMoveToBacklog={handleMoveToBacklog}
-          onMoveToActive={handleMoveToActive}
-          onDeleteTask={handleDeleteTask}
-          onAddTask={handleAddTask}
-          accentColor={accentColor}
-        />
-      </div>
-
-      {project.project_summary && (
-        <div className="bg-ember-panel rounded-xl p-4">
-          <h3 className="text-sm font-medium text-ember-text-muted mb-2 uppercase tracking-wider">
-            Project Summary
-          </h3>
-          <p className="text-sm">{project.project_summary}</p>
+    <div className="min-h-screen relative">
+      <div className="firelight-overlay" />
+      <div className="relative z-10 max-w-3xl mx-auto px-6 pb-24 pt-10">
+        <div className="flex items-center justify-between mb-8">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 font-mono-caps text-[11px] text-ember-text-muted hover:text-ember-text transition-colors"
+          >
+            <ArrowLeftIcon size={14} /> The Roost
+          </Link>
+          <Link
+            href={`/analytics/${project.id}`}
+            className="inline-flex items-center gap-2 font-mono-caps text-[11px] text-ember-text-muted hover:text-ember-text transition-colors"
+          >
+            <InsightsIcon size={13} /> Dragon stats
+          </Link>
         </div>
-      )}
+
+        <div className="mb-12">
+          <ResumeCard
+            project={project}
+            lastSession={lastSession}
+            activeTasks={activeTasks}
+            resumeContext={resumeContext}
+            onStartSession={handleStartSession}
+          />
+        </div>
+
+        <div className="mb-12">
+          <h3 className="font-mono-caps text-[10px] text-ember-text-muted mb-4">
+            Brain dump
+          </h3>
+          <BrainDumpInput
+            onSubmit={handleBrainDump}
+            accentColor={accentColor}
+            placeholder="What's on your mind about this project? Dump your thoughts and AI will extract tasks…"
+            isLoading={brainDumpStatus === 'extracting'}
+          />
+          {brainDumpStatus === 'extracting' && (
+            <p className="font-mono-caps text-[10px] text-ember-text-muted mt-2">extracting tasks…</p>
+          )}
+          {brainDumpStatus === 'ai-success' && (
+            <p className="font-mono-caps text-[10px] mt-2 inline-flex items-center gap-1.5" style={{ color: 'var(--amber-glow)' }}>
+              <CheckIcon size={12} /> AI extracted tasks
+            </p>
+          )}
+          {brainDumpStatus === 'fallback' && (
+            <p className="font-mono-caps text-[10px] text-ember-text-muted mt-2">tasks added</p>
+          )}
+        </div>
+
+        <div className="mb-12">
+          <TaskList
+            activeTasks={activeTasks}
+            backlogTasks={backlogTasks}
+            onCompleteTask={handleCompleteTask}
+            onMoveToBacklog={handleMoveToBacklog}
+            onMoveToActive={handleMoveToActive}
+            onDeleteTask={handleDeleteTask}
+            onAddTask={handleAddTask}
+            accentColor={accentColor}
+          />
+        </div>
+
+        {project.project_summary && (
+          <div className="parchment-card p-6">
+            <h3 className="font-mono-caps text-[10px] text-ember-text-muted mb-3">
+              Project summary
+            </h3>
+            <p className="font-serif-body italic text-[15px] text-ember-text leading-relaxed">
+              {project.project_summary}
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

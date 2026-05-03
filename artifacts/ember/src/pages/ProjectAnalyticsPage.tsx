@@ -1,6 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useRoute, Link } from 'wouter';
-import { DRAGON_TYPE_COLORS, DRAGON_STAGES, DragonType } from '@/lib/types';
+import { DRAGON_STAGES, DragonType } from '@/lib/types';
+import { ArrowLeftIcon, ArrowRightIcon, FlameIcon, SparkIcon, CheckIcon, InsightsIcon } from '@/components/Icons';
+
+const DRAGON_COLORS: Record<DragonType, string> = {
+  cinder: '#D4421A',
+  moss: '#7A9B5A',
+  drift: '#6B8AA8',
+};
 
 interface ProjectInfo {
   id: string;
@@ -58,32 +65,26 @@ function formatMinutes(minutes: number): string {
 }
 
 function formatDate(dateStr: string): string {
-  return new Date(dateStr + 'T12:00:00').toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-  });
+  return new Date(dateStr + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
-function StatCard({ label, value, emoji }: { label: string; value: string; emoji: string }) {
+function StatCard({ label, value, Icon }: { label: string; value: string; Icon: typeof FlameIcon }) {
   return (
-    <div className="bg-ember-panel rounded-2xl p-4 text-center">
-      <div className="text-xl mb-1">{emoji}</div>
-      <div className="text-xl font-bold">{value}</div>
-      <div className="text-xs text-ember-text-muted mt-1">{label}</div>
+    <div className="parchment-card p-4 text-center">
+      <div className="flex justify-center mb-1.5 text-ember-cinder"><Icon size={14} /></div>
+      <div className="font-display text-[24px] text-ember-text leading-none">{value}</div>
+      <div className="font-mono-caps text-[9px] text-ember-text-muted mt-2">{label}</div>
     </div>
   );
 }
 
 function DailyBarChart({ data, color }: { data: ProjectDailyStat[]; color: string }) {
-  // Show last 14 days
   const recent = data.slice(-14);
   const maxMinutes = Math.max(...recent.map(d => d.focus_minutes), 1);
 
   return (
-    <div className="bg-ember-panel rounded-2xl p-5">
-      <h3 className="text-sm font-medium text-ember-text-muted uppercase tracking-wider mb-4">
-        Focus — Last 14 Days
-      </h3>
+    <div className="parchment-card p-6">
+      <h3 className="font-mono-caps text-[10px] text-ember-text-muted mb-5">Focus · last 14 days</h3>
       <div className="flex items-end gap-1 h-32">
         {recent.map(day => {
           const height = (day.focus_minutes / maxMinutes) * 100;
@@ -92,7 +93,7 @@ function DailyBarChart({ data, color }: { data: ProjectDailyStat[]; color: strin
             <div key={day.date} className="flex-1 flex flex-col items-center gap-1">
               <div className="w-full flex items-end" style={{ height: '90px' }}>
                 <div
-                  className="w-full rounded-t-md transition-all duration-500"
+                  className="w-full transition-all duration-500"
                   style={{
                     height: `${Math.max(height, day.focus_minutes > 0 ? 4 : 0)}%`,
                     backgroundColor: color,
@@ -100,7 +101,7 @@ function DailyBarChart({ data, color }: { data: ProjectDailyStat[]; color: strin
                   }}
                 />
               </div>
-              <span className="text-xs text-ember-text-muted" style={{ fontSize: '9px' }}>{dayLabel}</span>
+              <span className="font-mono-caps text-[9px] text-ember-text-muted">{dayLabel}</span>
             </div>
           );
         })}
@@ -128,26 +129,26 @@ function StageProgress({
   const pct = Math.min(100, rangeMinutes > 0 ? (progressMinutes / rangeMinutes) * 100 : 100);
 
   return (
-    <div className="bg-ember-panel rounded-2xl p-5">
-      <h3 className="text-sm font-medium text-ember-text-muted uppercase tracking-wider mb-3">
-        Dragon Growth
-      </h3>
-      <div className="flex items-center justify-between mb-2">
-        <span className="capitalize font-medium">{currentStage}</span>
+    <div className="parchment-card p-6">
+      <h3 className="font-mono-caps text-[10px] text-ember-text-muted mb-4">Dragon growth</h3>
+      <div className="flex items-center justify-between mb-3">
+        <span className="font-display text-[20px] text-ember-text capitalize">{currentStage}</span>
         {nextStage && (
-          <span className="text-ember-text-muted text-sm capitalize">{nextStage.stage}</span>
+          <span className="font-mono-caps text-[10px] text-ember-text-muted inline-flex items-center gap-1.5">
+            {nextStage.stage} <ArrowRightIcon size={12} />
+          </span>
         )}
       </div>
-      <div className="h-3 bg-ember-bg rounded-full overflow-hidden">
+      <div className="h-2 overflow-hidden" style={{ background: 'var(--bg-base)' }}>
         <div
-          className="h-full rounded-full transition-all duration-700"
-          style={{ width: `${pct}%`, backgroundColor: 'var(--color-ember-cinder)' }}
+          className="h-full transition-all duration-700"
+          style={{ width: `${pct}%`, background: 'linear-gradient(to right, var(--ember-accent), var(--amber-glow))' }}
         />
       </div>
-      <p className="text-xs text-ember-text-muted mt-2">
+      <p className="font-serif-body italic text-[13px] text-ember-text-muted mt-3">
         {minutesToNext !== null
           ? `${formatMinutes(minutesToNext)} until ${nextStage?.stage}`
-          : 'Maximum stage reached 🌟'}
+          : 'Maximum stage reached.'}
       </p>
     </div>
   );
@@ -156,35 +157,31 @@ function StageProgress({
 function RecentSessionList({ sessions }: { sessions: RecentSession[] }) {
   if (sessions.length === 0) {
     return (
-      <div className="bg-ember-panel rounded-2xl p-5">
-        <h3 className="text-sm font-medium text-ember-text-muted uppercase tracking-wider mb-3">
-          Recent Sessions
-        </h3>
-        <p className="text-sm text-ember-text-muted">No completed sessions yet.</p>
+      <div className="parchment-card p-6">
+        <h3 className="font-mono-caps text-[10px] text-ember-text-muted mb-3">Recent sessions</h3>
+        <p className="font-serif-body italic text-ember-text-muted">No completed sessions yet.</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-ember-panel rounded-2xl p-5">
-      <h3 className="text-sm font-medium text-ember-text-muted uppercase tracking-wider mb-4">
-        Recent Sessions
-      </h3>
-      <div className="space-y-3">
+    <div className="parchment-card p-6">
+      <h3 className="font-mono-caps text-[10px] text-ember-text-muted mb-5">Recent sessions</h3>
+      <div className="space-y-4">
         {sessions.map(s => (
-          <div key={s.id} className="border-b border-ember-bg last:border-0 pb-3 last:pb-0">
-            <div className="flex items-center justify-between mb-0.5">
-              <span className="text-sm font-medium">{formatDate(s.start_time)}</span>
-              <span className="text-sm text-ember-text-muted">{formatMinutes(s.duration_minutes)}</span>
+          <div key={s.id} className="border-b last:border-0 pb-4 last:pb-0" style={{ borderColor: 'var(--border-subtle)' }}>
+            <div className="flex items-center justify-between mb-1">
+              <span className="font-mono-caps text-[10px] text-ember-text-muted">{formatDate(s.start_time)}</span>
+              <span className="font-mono-caps text-[10px] text-ember-text-muted">{formatMinutes(s.duration_minutes)}</span>
             </div>
             {(s.ai_summary || s.reflection) && (
-              <p className="text-xs text-ember-text-muted line-clamp-2">
-                {s.ai_summary || s.reflection}
+              <p className="font-serif-body italic text-[14px] text-ember-text leading-relaxed line-clamp-2">
+                "{s.ai_summary || s.reflection}"
               </p>
             )}
             {s.tasks_completed_count > 0 && (
-              <p className="text-xs text-emerald-400 mt-0.5">
-                ✓ {s.tasks_completed_count} task{s.tasks_completed_count !== 1 ? 's' : ''} completed
+              <p className="font-mono-caps text-[10px] mt-2 inline-flex items-center gap-1.5" style={{ color: 'var(--amber-glow)' }}>
+                <CheckIcon size={11} /> {s.tasks_completed_count} task{s.tasks_completed_count !== 1 ? 's' : ''} completed
               </p>
             )}
           </div>
@@ -215,7 +212,7 @@ export default function ProjectAnalyticsPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-ember-text-muted">Loading dragon stats…</p>
+        <p className="font-serif-body italic text-ember-text-muted">Tending the ledger…</p>
       </div>
     );
   }
@@ -223,66 +220,71 @@ export default function ProjectAnalyticsPage() {
   if (notFound || !data) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-4">
-        <p className="text-ember-text-muted">Dragon not found.</p>
-        <Link href="/" className="text-sm text-ember-cinder hover:underline">← Dragon Roost</Link>
+        <p className="font-serif-body italic text-ember-text-muted">Dragon not found.</p>
+        <Link href="/" className="font-mono-caps text-[11px] text-ember-cinder hover:underline inline-flex items-center gap-2">
+          <ArrowLeftIcon size={13} /> The Roost
+        </Link>
       </div>
     );
   }
 
-  const dragonColor = DRAGON_TYPE_COLORS[data.project.dragon_type as DragonType] ?? '#ff6b35';
+  const dragonColor = DRAGON_COLORS[data.project.dragon_type as DragonType] ?? 'var(--ember-accent)';
 
   return (
-    <div className="min-h-screen p-6 max-w-3xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
-        <Link
-          href={`/project/${projectId}`}
-          className="inline-flex items-center gap-1 text-sm text-ember-text-muted hover:text-ember-text transition-colors"
-        >
-          ← {data.project.name}
-        </Link>
-        <Link
-          href="/analytics"
-          className="text-sm text-ember-text-muted hover:text-ember-text transition-colors"
-        >
-          All Dragons →
-        </Link>
-      </div>
-
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold tracking-tight">{data.project.name}</h1>
-        <p className="text-ember-text-muted capitalize mt-0.5">
-          {data.project.dragon_type} · {data.project.dragon_stage}
-        </p>
-      </div>
-
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-        <StatCard emoji="🔥" value={formatMinutes(data.overall.totalFocusMinutes)} label="Total Focus" />
-        <StatCard emoji="⚡" value={String(data.overall.sessionsCount)} label="Sessions" />
-        <StatCard emoji="✓" value={String(data.overall.completedTasksCount)} label="Tasks Done" />
-        <StatCard emoji="💡" value={String(data.overall.insightsCount)} label="Insights" />
-      </div>
-
-      {data.overall.avgSessionMinutes > 0 && (
-        <div className="bg-ember-panel rounded-2xl p-4 mb-6 flex items-center justify-between">
-          <span className="text-sm text-ember-text-muted">Avg session length</span>
-          <span className="font-medium">{formatMinutes(data.overall.avgSessionMinutes)}</span>
+    <div className="min-h-screen relative">
+      <div className="firelight-overlay" />
+      <div className="relative z-10 max-w-3xl mx-auto px-6 pb-24 pt-10">
+        <div className="flex items-center justify-between mb-8">
+          <Link
+            href={`/project/${projectId}`}
+            className="inline-flex items-center gap-2 font-mono-caps text-[11px] text-ember-text-muted hover:text-ember-text transition-colors"
+          >
+            <ArrowLeftIcon size={14} /> {data.project.name}
+          </Link>
+          <Link
+            href="/analytics"
+            className="inline-flex items-center gap-2 font-mono-caps text-[11px] text-ember-text-muted hover:text-ember-text transition-colors"
+          >
+            All dragons <ArrowRightIcon size={13} />
+          </Link>
         </div>
-      )}
 
-      <div className="mb-6">
-        <StageProgress
-          currentStage={data.overall.currentStage}
-          totalMinutes={data.overall.totalFocusMinutes}
-          minutesToNext={data.overall.minutesToNextStage}
-        />
-      </div>
+        <header className="mb-8">
+          <p className="font-mono-caps text-[10px] text-ember-text-muted mb-1">
+            {data.project.dragon_stage} {data.project.dragon_type}
+          </p>
+          <h1 className="font-display text-[40px] text-ember-text leading-tight">{data.project.name}</h1>
+        </header>
 
-      <div className="mb-6">
-        <DailyBarChart data={data.daily} color={dragonColor} />
-      </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
+          <StatCard Icon={FlameIcon} value={formatMinutes(data.overall.totalFocusMinutes)} label="Total focus" />
+          <StatCard Icon={SparkIcon} value={String(data.overall.sessionsCount)} label="Sessions" />
+          <StatCard Icon={CheckIcon} value={String(data.overall.completedTasksCount)} label="Tasks done" />
+          <StatCard Icon={InsightsIcon} value={String(data.overall.insightsCount)} label="Insights" />
+        </div>
 
-      <div>
-        <RecentSessionList sessions={data.recentSessions} />
+        {data.overall.avgSessionMinutes > 0 && (
+          <div className="parchment-card p-5 mb-8 flex items-center justify-between">
+            <span className="font-mono-caps text-[10px] text-ember-text-muted">Avg session length</span>
+            <span className="font-display text-[20px] text-ember-text">{formatMinutes(data.overall.avgSessionMinutes)}</span>
+          </div>
+        )}
+
+        <div className="mb-8">
+          <StageProgress
+            currentStage={data.overall.currentStage}
+            totalMinutes={data.overall.totalFocusMinutes}
+            minutesToNext={data.overall.minutesToNextStage}
+          />
+        </div>
+
+        <div className="mb-8">
+          <DailyBarChart data={data.daily} color={dragonColor} />
+        </div>
+
+        <div>
+          <RecentSessionList sessions={data.recentSessions} />
+        </div>
       </div>
     </div>
   );

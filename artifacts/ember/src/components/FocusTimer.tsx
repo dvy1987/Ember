@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { PauseIcon, PlayIcon, PlusIcon } from './Icons';
 
 interface FocusTimerProps {
   initialMinutes?: number;
@@ -11,7 +12,7 @@ export default function FocusTimer({
   initialMinutes = 20,
   onComplete,
   onTick,
-  accentColor = 'var(--color-ember-cinder)',
+  accentColor = 'var(--ember-accent)',
 }: FocusTimerProps) {
   const [totalSeconds, setTotalSeconds] = useState(initialMinutes * 60);
   const [remainingSeconds, setRemainingSeconds] = useState(initialMinutes * 60);
@@ -39,15 +40,8 @@ export default function FocusTimer({
     };
   }, [isRunning, isComplete, tick]);
 
-  useEffect(() => {
-    onTick?.(remainingSeconds);
-  }, [remainingSeconds, onTick]);
-
-  useEffect(() => {
-    if (isComplete) {
-      onComplete();
-    }
-  }, [isComplete, onComplete]);
+  useEffect(() => { onTick?.(remainingSeconds); }, [remainingSeconds, onTick]);
+  useEffect(() => { if (isComplete) onComplete(); }, [isComplete, onComplete]);
 
   const togglePause = () => setIsRunning(!isRunning);
 
@@ -78,21 +72,10 @@ export default function FocusTimer({
     <div className="flex flex-col items-center gap-6">
       <div className="relative w-72 h-72 flex items-center justify-center">
         <svg className="absolute w-full h-full -rotate-90" viewBox="0 0 280 280">
+          <circle cx="140" cy="140" r={radius} fill="none" stroke="var(--border-subtle)" strokeWidth="6" />
           <circle
-            cx="140"
-            cy="140"
-            r={radius}
-            fill="none"
-            stroke="var(--color-ember-panel)"
-            strokeWidth="8"
-          />
-          <circle
-            cx="140"
-            cy="140"
-            r={radius}
-            fill="none"
-            stroke={accentColor}
-            strokeWidth="8"
+            cx="140" cy="140" r={radius}
+            fill="none" stroke={accentColor} strokeWidth="6"
             strokeLinecap="round"
             strokeDasharray={circumference}
             strokeDashoffset={strokeDashoffset}
@@ -102,11 +85,11 @@ export default function FocusTimer({
         </svg>
 
         <div className="text-center z-10">
-          <div className="text-5xl font-light tracking-wider">
-            {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
+          <div className="font-display text-[64px] leading-none text-ember-text">
+            {String(minutes).padStart(2, '0')}<span className="opacity-50">:</span>{String(seconds).padStart(2, '0')}
           </div>
-          <div className="text-sm text-ember-text-muted mt-2">
-            {isComplete ? 'Session complete!' : isRunning ? 'Focusing...' : 'Paused'}
+          <div className="font-mono-caps text-[10px] text-ember-text-muted mt-3">
+            {isComplete ? 'session complete' : isRunning ? 'tending' : 'paused'}
           </div>
         </div>
       </div>
@@ -114,16 +97,10 @@ export default function FocusTimer({
       <div className="flex gap-3">
         {!isComplete && (
           <>
-            <button
-              onClick={togglePause}
-              className="px-6 py-2.5 rounded-xl bg-ember-panel hover:bg-ember-panel-light text-sm font-medium transition-colors"
-            >
-              {isRunning ? '⏸ Pause' : '▶ Resume'}
+            <button onClick={togglePause} className="cta-quiet px-5 py-2 font-mono-caps text-[11px] inline-flex items-center gap-1.5">
+              {isRunning ? <><PauseIcon size={12} /> Pause</> : <><PlayIcon size={12} /> Resume</>}
             </button>
-            <button
-              onClick={endEarly}
-              className="px-6 py-2.5 rounded-xl bg-ember-panel hover:bg-ember-panel-light text-sm font-medium transition-colors text-ember-text-muted"
-            >
+            <button onClick={endEarly} className="cta-quiet px-5 py-2 font-mono-caps text-[11px] text-ember-text-muted">
               End Early
             </button>
           </>
@@ -136,9 +113,10 @@ export default function FocusTimer({
             <button
               key={mins}
               onClick={() => addTime(mins)}
-              className="px-3 py-1.5 rounded-lg bg-ember-bg-light text-xs text-ember-text-muted hover:text-ember-text transition-colors"
+              className="px-3 py-1.5 font-mono-caps text-[10px] text-ember-text-muted hover:text-ember-text transition-colors inline-flex items-center gap-1"
+              style={{ border: '1px solid var(--border-subtle)', borderRadius: '4px' }}
             >
-              +{mins}min
+              <PlusIcon size={10} />{mins} min
             </button>
           ))}
         </div>

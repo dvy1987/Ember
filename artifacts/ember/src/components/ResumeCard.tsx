@@ -1,5 +1,7 @@
 import { Project, Task, Session, DragonType, ResumeContext } from '@/lib/types';
-import { getDragonImagePath, hasDragonImage, getDragonAccentVar } from '@/lib/dragonAssets';
+import { getDragonAccentVar } from '@/lib/dragonAssets';
+import DragonScene from './DragonScene';
+import { BeginIcon, CircleDotIcon } from './Icons';
 
 interface ResumeCardProps {
   project: Project;
@@ -20,91 +22,78 @@ export default function ResumeCard({
 }: ResumeCardProps) {
   const dragonType = project.dragon_type as DragonType;
   const accentColor = getDragonAccentVar(dragonType);
-  const hasImage = hasDragonImage(dragonType, project.dragon_stage);
-  const imagePath = hasImage ? getDragonImagePath(dragonType, project.dragon_stage) : null;
 
   const suggestedTask = resumeContext?.suggested_next_step
     || (activeTasks.length > 0 ? activeTasks[0].task_text : null);
 
   const lastSessionInfo = resumeContext?.last_session_summary
     || (lastSession
-      ? lastSession.ai_summary || lastSession.reflection || `${lastSession.duration_minutes} minute training session`
+      ? lastSession.ai_summary || lastSession.reflection || `${lastSession.duration_minutes} minute training`
       : null);
 
   const lastSessionDate = lastSession
     ? new Date(lastSession.created_at).toLocaleDateString('en-US', {
-        weekday: 'short',
-        month: 'short',
-        day: 'numeric',
+        weekday: 'short', month: 'short', day: 'numeric',
       })
     : null;
 
   return (
-    <div
-      className="rounded-2xl border border-ember-border bg-ember-panel p-6 relative overflow-hidden animate-slide-up"
-      style={{ boxShadow: `0 0 30px ${accentColor}20` }}
-    >
+    <div className="parchment-card relative overflow-hidden animate-slide-up">
       <div
-        className="absolute inset-0 opacity-5 rounded-2xl"
-        style={{
-          background: `radial-gradient(circle at 50% 0%, ${accentColor}, transparent 70%)`,
-        }}
+        className="absolute inset-0 opacity-20 pointer-events-none"
+        style={{ background: `radial-gradient(ellipse at 50% -10%, ${accentColor}, transparent 70%)` }}
       />
 
-      <div className="relative z-10">
-        <div className="flex items-center gap-4 mb-4">
-          {imagePath ? (
-            <img
-              src={imagePath}
-              alt={`${project.dragon_type} dragon`}
-              className="w-16 h-16 object-contain"
-            />
-          ) : (
-            <div
-              className="w-16 h-16 rounded-full flex items-center justify-center text-2xl"
-              style={{ backgroundColor: `${accentColor}20` }}
-            >
-              🐉
-            </div>
-          )}
-          <div>
-            <p className="text-sm text-ember-text-muted">Your dragon remembers…</p>
-            <h2 className="text-lg font-semibold">{project.name}</h2>
-          </div>
+      <div className="relative z-10 p-8">
+        <div className="flex flex-col items-center text-center mb-6">
+          <DragonScene type={dragonType} stage={project.dragon_stage} size={180} intense />
+          <p className="font-mono-caps text-[11px] text-ember-text-muted mt-2 mb-2">
+            Where the keeper left off
+          </p>
+          <h2 className="font-display text-[34px] leading-tight text-ember-text">
+            Tonight, {project.name} calls.
+          </h2>
         </div>
 
         {lastSessionInfo && (
-          <div className="mb-4 bg-ember-bg/50 rounded-lg px-4 py-3">
-            <p className="text-xs text-ember-text-muted mb-1">Last session{lastSessionDate ? ` · ${lastSessionDate}` : ''}</p>
-            <p className="text-sm">{lastSessionInfo}</p>
+          <div className="mb-5 border-l-2 pl-4 py-1" style={{ borderColor: 'var(--border-subtle)' }}>
+            <p className="font-mono-caps text-[10px] text-ember-text-muted mb-1">
+              Last session{lastSessionDate ? ` · ${lastSessionDate}` : ''}
+            </p>
+            <p className="font-serif-body italic text-[15px] text-ember-text leading-relaxed">
+              "{lastSessionInfo}"
+            </p>
           </div>
         )}
 
         {suggestedTask && (
-          <div className="mb-5">
-            <p className="text-xs text-ember-text-muted mb-1">Suggested next move</p>
-            <p className="text-sm font-medium" style={{ color: accentColor }}>{suggestedTask}</p>
+          <div className="mb-7">
+            <div className="font-mono-caps text-[10px] text-ember-text-muted mb-2 flex items-center gap-2">
+              <CircleDotIcon size={9} className="text-ember-cinder" />
+              The move Cinder remembers
+            </div>
+            <p className="font-serif-body text-[18px] leading-snug text-ember-text font-semibold">
+              {suggestedTask}
+            </p>
           </div>
         )}
 
         <button
           onClick={onStartSession}
-          className="w-full py-3.5 rounded-xl text-base font-semibold transition-all hover:scale-[1.02] active:scale-[0.98]"
-          style={{
-            backgroundColor: accentColor,
-            color: '#1a1a2e',
-            boxShadow: `0 4px 20px ${accentColor}40`,
-          }}
+          className="cta-ember w-full py-[18px] px-6 flex items-center justify-between font-serif-body font-semibold text-[16px]"
         >
-          🔥 Start 20-minute training
+          <span className="flex items-center gap-2">
+            <BeginIcon size={18} /> Begin tonight's training — 20 min
+          </span>
+          <span className="font-mono-caps text-[11px] opacity-85" style={{ color: 'var(--amber-glow)' }}>20:00</span>
         </button>
 
         {onChooseDifferentTask && activeTasks.length > 1 && (
           <button
             onClick={onChooseDifferentTask}
-            className="w-full mt-2 py-2 text-sm text-ember-text-muted hover:text-ember-text transition-colors"
+            className="w-full mt-3 font-serif-body italic text-[14px] text-ember-text-muted hover:text-ember-text transition-colors"
           >
-            Choose a different task
+            or tend a different task
           </button>
         )}
       </div>

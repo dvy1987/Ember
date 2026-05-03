@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'wouter';
+import { ArrowLeftIcon, FlameIcon, SparkIcon, ClockIcon, CircleDotIcon } from '@/components/Icons';
 
 interface DailyStat {
   date: string;
@@ -30,9 +31,9 @@ interface AnalyticsData {
 }
 
 const DRAGON_COLORS: Record<string, string> = {
-  cinder: '#ff6b35',
-  moss: '#4a9e6e',
-  drift: '#5b9bd5',
+  cinder: '#D4421A',
+  moss: '#7A9B5A',
+  drift: '#6B8AA8',
 };
 
 function formatMinutes(minutes: number): string {
@@ -46,32 +47,28 @@ function DailyBarChart({ data }: { data: DailyStat[] }) {
   const maxMinutes = Math.max(...data.map((d) => d.focus_minutes), 1);
 
   return (
-    <div className="bg-ember-panel rounded-2xl p-5">
-      <h3 className="text-sm font-medium text-ember-text-muted uppercase tracking-wider mb-4">
-        This Week
-      </h3>
+    <div className="parchment-card p-6">
+      <h3 className="font-mono-caps text-[10px] text-ember-text-muted mb-5">This week</h3>
       <div className="flex items-end gap-2 h-40">
         {data.map((day) => {
           const height = maxMinutes > 0 ? (day.focus_minutes / maxMinutes) * 100 : 0;
-          const dayLabel = new Date(day.date + 'T12:00:00').toLocaleDateString('en-US', {
-            weekday: 'short',
-          });
+          const dayLabel = new Date(day.date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short' });
           return (
             <div key={day.date} className="flex-1 flex flex-col items-center gap-1">
-              <span className="text-xs text-ember-text-muted">
+              <span className="font-mono-caps text-[9px] text-ember-text-muted">
                 {day.focus_minutes > 0 ? formatMinutes(day.focus_minutes) : ''}
               </span>
               <div className="w-full flex items-end" style={{ height: '100px' }}>
                 <div
-                  className="w-full rounded-t-md transition-all duration-500"
+                  className="w-full transition-all duration-500"
                   style={{
                     height: `${Math.max(height, day.focus_minutes > 0 ? 4 : 0)}%`,
-                    backgroundColor: 'var(--color-ember-cinder)',
+                    background: 'linear-gradient(to top, var(--ember-accent), var(--amber-glow))',
                     opacity: day.focus_minutes > 0 ? 1 : 0.15,
                   }}
                 />
               </div>
-              <span className="text-xs text-ember-text-muted">{dayLabel}</span>
+              <span className="font-mono-caps text-[9px] text-ember-text-muted">{dayLabel}</span>
             </div>
           );
         })}
@@ -85,45 +82,41 @@ function ProjectBreakdown({ projects }: { projects: ProjectStat[] }) {
 
   if (projects.length === 0) {
     return (
-      <div className="bg-ember-panel rounded-2xl p-5">
-        <h3 className="text-sm font-medium text-ember-text-muted uppercase tracking-wider mb-4">
-          Focus by Dragon
-        </h3>
-        <p className="text-sm text-ember-text-muted">No projects yet.</p>
+      <div className="parchment-card p-6">
+        <h3 className="font-mono-caps text-[10px] text-ember-text-muted mb-3">Focus by dragon</h3>
+        <p className="font-serif-body italic text-ember-text-muted">No projects yet.</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-ember-panel rounded-2xl p-5">
-      <h3 className="text-sm font-medium text-ember-text-muted uppercase tracking-wider mb-4">
-        Focus by Dragon
-      </h3>
-      <div className="space-y-3">
+    <div className="parchment-card p-6">
+      <h3 className="font-mono-caps text-[10px] text-ember-text-muted mb-5">Focus by dragon</h3>
+      <div className="space-y-4">
         {projects.map((p) => {
           const width = maxMinutes > 0 ? (p.total_minutes / maxMinutes) * 100 : 0;
-          const color = DRAGON_COLORS[p.dragon_type] || '#ff6b35';
+          const color = DRAGON_COLORS[p.dragon_type] || 'var(--ember-accent)';
           return (
             <div key={p.project_id}>
-              <div className="flex justify-between text-sm mb-1">
-                <span>
+              <div className="flex justify-between mb-1.5 items-baseline">
+                <span className="font-display text-[18px] text-ember-text">
                   {p.project_name}{' '}
-                  <span className="text-ember-text-muted text-xs capitalize">
-                    ({p.dragon_stage})
+                  <span className="font-mono-caps text-[10px] text-ember-text-muted ml-1">
+                    {p.dragon_stage}
                   </span>
                 </span>
-                <span className="text-ember-text-muted">{formatMinutes(p.total_minutes)}</span>
+                <span className="font-mono-caps text-[10px] text-ember-text-muted">{formatMinutes(p.total_minutes)}</span>
               </div>
-              <div className="h-2.5 bg-ember-bg rounded-full overflow-hidden">
+              <div className="h-1.5 overflow-hidden" style={{ background: 'var(--bg-base)' }}>
                 <div
-                  className="h-full rounded-full transition-all duration-500"
+                  className="h-full transition-all duration-500"
                   style={{
                     width: `${Math.max(width, p.total_minutes > 0 ? 2 : 0)}%`,
                     backgroundColor: color,
                   }}
                 />
               </div>
-              <div className="text-xs text-ember-text-muted mt-0.5">
+              <div className="font-mono-caps text-[9px] text-ember-text-muted mt-1">
                 {p.sessions_count} session{p.sessions_count !== 1 ? 's' : ''}
               </div>
             </div>
@@ -134,12 +127,12 @@ function ProjectBreakdown({ projects }: { projects: ProjectStat[] }) {
   );
 }
 
-function StatCard({ label, value, emoji }: { label: string; value: string; emoji: string }) {
+function StatCard({ label, value, Icon }: { label: string; value: string; Icon: typeof FlameIcon }) {
   return (
-    <div className="bg-ember-panel rounded-2xl p-5 text-center">
-      <div className="text-2xl mb-1">{emoji}</div>
-      <div className="text-2xl font-bold">{value}</div>
-      <div className="text-xs text-ember-text-muted mt-1">{label}</div>
+    <div className="parchment-card p-5 text-center">
+      <div className="flex justify-center mb-2 text-ember-cinder"><Icon size={16} /></div>
+      <div className="font-display text-[28px] text-ember-text leading-none">{value}</div>
+      <div className="font-mono-caps text-[9px] text-ember-text-muted mt-2">{label}</div>
     </div>
   );
 }
@@ -159,7 +152,7 @@ export default function AnalyticsPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-ember-text-muted">Loading analytics...</p>
+        <p className="font-serif-body italic text-ember-text-muted">Tending the ledger…</p>
       </div>
     );
   }
@@ -167,54 +160,40 @@ export default function AnalyticsPage() {
   if (!data) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-ember-text-muted">Failed to load analytics.</p>
+        <p className="font-serif-body italic text-ember-text-muted">Failed to load insights.</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen p-6 max-w-3xl mx-auto">
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <Link
-            href="/"
-            className="inline-flex items-center gap-1 text-sm text-ember-text-muted hover:text-ember-text mb-2 transition-colors"
-          >
-            ← Dragon Roost
-          </Link>
-          <h1 className="text-2xl font-bold tracking-tight">Training Insights</h1>
+    <div className="min-h-screen relative">
+      <div className="firelight-overlay" />
+      <div className="relative z-10 max-w-3xl mx-auto px-6 pb-24 pt-10">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-2 font-mono-caps text-[11px] text-ember-text-muted hover:text-ember-text transition-colors mb-6"
+        >
+          <ArrowLeftIcon size={14} /> The Roost
+        </Link>
+        <header className="mb-10">
+          <p className="font-mono-caps text-[10px] text-ember-text-muted mb-1">The keeper's ledger</p>
+          <h1 className="font-display text-[40px] text-ember-text leading-tight">Training insights</h1>
+        </header>
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
+          <StatCard Icon={FlameIcon} value={formatMinutes(data.overall.totalFocusMinutes)} label="Total focus" />
+          <StatCard Icon={SparkIcon} value={String(data.overall.totalSessions)} label="Sessions" />
+          <StatCard Icon={CircleDotIcon} value={String(data.overall.totalProjects)} label="Dragons" />
+          <StatCard Icon={ClockIcon} value={`${data.overall.currentStreak}d`} label="Streak" />
         </div>
-      </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-        <StatCard
-          emoji="🔥"
-          value={formatMinutes(data.overall.totalFocusMinutes)}
-          label="Total Focus"
-        />
-        <StatCard
-          emoji="⚡"
-          value={String(data.overall.totalSessions)}
-          label="Sessions"
-        />
-        <StatCard
-          emoji="🐉"
-          value={String(data.overall.totalProjects)}
-          label="Dragons"
-        />
-        <StatCard
-          emoji="🔗"
-          value={`${data.overall.currentStreak}d`}
-          label="Streak"
-        />
-      </div>
+        <div className="mb-8">
+          <DailyBarChart data={data.weekly} />
+        </div>
 
-      <div className="mb-6">
-        <DailyBarChart data={data.weekly} />
-      </div>
-
-      <div>
-        <ProjectBreakdown projects={data.byProject} />
+        <div>
+          <ProjectBreakdown projects={data.byProject} />
+        </div>
       </div>
     </div>
   );

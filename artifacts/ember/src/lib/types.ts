@@ -117,9 +117,9 @@ export const DRAGON_STAGES: { stage: DragonStage; minMinutes: number }[] = [
 ];
 
 export const DRAGON_TYPE_COLORS: Record<DragonType, string> = {
-  cinder: '#ff6b35',
-  moss: '#4a9e6e',
-  drift: '#5b9bd5',
+  cinder: '#D4421A',
+  moss: '#7A9B5A',
+  drift: '#6B8AA8',
 };
 
 export const MAX_ACTIVE_TASKS = 5;
