@@ -6,9 +6,12 @@ interface RitualListProps {
   projectId: string;
   accentColor: string;
   onRitualLogged?: () => void;
+  // Bump from the parent to force a re-fetch — used after a suggested
+  // ritual is added so the new row appears without a page reload.
+  refreshKey?: number;
 }
 
-export default function RitualList({ projectId, accentColor, onRitualLogged }: RitualListProps) {
+export default function RitualList({ projectId, accentColor, onRitualLogged, refreshKey = 0 }: RitualListProps) {
   const [rituals, setRituals] = useState<Ritual[]>([]);
   const [newRitual, setNewRitual] = useState('');
   const [newCadence, setNewCadence] = useState<RitualCadence>('daily');
@@ -30,7 +33,7 @@ export default function RitualList({ projectId, accentColor, onRitualLogged }: R
     } catch { }
   }, [projectId]);
 
-  useEffect(() => { fetchData(); }, [fetchData]);
+  useEffect(() => { fetchData(); }, [fetchData, refreshKey]);
 
   const handleLog = async (id: string) => {
     setBusyId(id);

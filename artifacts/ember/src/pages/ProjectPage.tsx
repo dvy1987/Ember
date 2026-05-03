@@ -1,12 +1,13 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRoute, useLocation, Link } from 'wouter';
-import { Project, Task, Session, DragonType, ResumeContext } from '@/lib/types';
+import { Project, Task, Session, DragonType, ResumeContext, RitualSuggestion } from '@/lib/types';
 import { getDragonAccentVar } from '@/lib/dragonAssets';
 import ResumeCard from '@/components/ResumeCard';
 import TaskList from '@/components/TaskList';
 import RitualList from '@/components/RitualList';
 import SagaTeaser from '@/components/SagaTeaser';
 import BrainDumpInput from '@/components/BrainDumpInput';
+import SuggestedRitualsPanel from '@/components/SuggestedRitualsPanel';
 import SettingsModal from '@/components/SettingsModal';
 import ChatPanel from '@/components/ChatPanel';
 import InboxRail from '@/components/InboxRail';
@@ -43,6 +44,14 @@ export default function ProjectPage() {
   // Seed text routed into chat / hand-off when the keeper accepts the banner.
   const [chatSeed, setChatSeed] = useState<string | undefined>(undefined);
   const [triggerSeed, setTriggerSeed] = useState<string | undefined>(undefined);
+  // Task #30 — AI-proposed rituals from the brain dump.
+  // `ritualSuggestions === null` means the panel is hidden. A non-null value
+  // (even an empty array while loading) means the panel is rendered.
+  const [ritualSuggestions, setRitualSuggestions] = useState<RitualSuggestion[] | null>(null);
+  const [suggestionsLoading, setSuggestionsLoading] = useState(false);
+  // Bumped after a ritual is added (suggested or manually) so RitualList
+  // re-fetches and the new ritual appears immediately.
+  const [ritualsTick, setRitualsTick] = useState(0);
 
   const openSkillsTrust = () => {
     setSettingsFocus('skills');
@@ -54,6 +63,17 @@ export default function ProjectPage() {
   };
 
   const refreshAiStatus = useCallback(async () => {
+    // Authoritative source: server-side `isAiAvailable()` covers generic
+    // settings, legacy provider-specific keys, and env-var fallbacks.
+    // Falling back to /api/settings only if /ai/status is unreachable.
+    try {
+      const res = await fetch('/api/ai/status');
+      if (res.ok) {
+        const data = await res.json() as { available?: boolean };
+        setAiKeyConnected(Boolean(data.available));
+        return;
+      }
+    } catch { }
     try {
       const res = await fetch('/api/settings');
       if (res.ok) {
@@ -223,6 +243,70 @@ export default function ProjectPage() {
     }
   };
 
+  // Task #30 — add a single suggested ritual to the dragon. The AI never
+  // proposes "custom" cadence, so the days-per-week field stays null.
+  // Returns true only on a successful POST so the panel can avoid marking
+  // a row "Added" when the create call actually failed.
+  const addSuggestedRitual = async (s: RitualSuggestion): Promise<boolean> => {
+    try {
+      const res = await fetch('/api/rituals', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          project_id: projectId,
+          ritual_text: s.name,
+          cadence: s.cadence,
+        }),
+      });
+      if (res.ok) {
+        setRitualsTick(t => t + 1);
+        return true;
+      }
+    } catch { /* fall through to false */ }
+    return false;
+  };
+
+  // Returns true only when EVERY ritual was added successfully; the panel
+  // uses this to decide whether to mark the whole batch as "Added".
+  const addAllSuggestedRituals = async (): Promise<boolean> => {
+    if (!ritualSuggestions) return false;
+    let allOk = true;
+    for (const s of ritualSuggestions) {
+      const ok = await addSuggestedRitual(s);
+      if (!ok) allOk = false;
+    }
+    return allOk;
+  };
+
+  // Manual "Suggest more rituals" trigger — always available when an AI
+  // key is connected, regardless of the auto-fire flag.
+  const requestRitualSuggestions = async () => {
+    if (suggestionsLoading) return;
+    setSuggestionsLoading(true);
+    setRitualSuggestions([]);
+    try {
+      const res = await fetch('/api/ai/propose-rituals', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ project_id: projectId }),
+      });
+      if (res.ok) {
+        const data = await res.json() as { ritual_suggestions?: RitualSuggestion[] };
+        if (data.ritual_suggestions && data.ritual_suggestions.length > 0) {
+          setRitualSuggestions(data.ritual_suggestions);
+        } else {
+          setRitualSuggestions(null);
+        }
+      } else {
+        setRitualSuggestions(null);
+      }
+    } catch {
+      setRitualSuggestions(null);
+    } finally {
+      setSuggestionsLoading(false);
+    }
+  };
+
   const handleBrainDump = async (text: string) => {
     setBrainDumpStatus('extracting');
     try {
@@ -234,6 +318,10 @@ export default function ProjectPage() {
 
       if (aiRes.ok) {
         setBrainDumpStatus('ai-success');
+        const data = await aiRes.json().catch(() => null) as { ritual_suggestions?: RitualSuggestion[] } | null;
+        if (data?.ritual_suggestions && data.ritual_suggestions.length > 0) {
+          setRitualSuggestions(data.ritual_suggestions);
+        }
         await Promise.all([fetchTasks(), fetchProject()]);
         refreshResumeContext();
       } else {
@@ -424,13 +512,38 @@ export default function ProjectPage() {
         </div>
 
         <div id="rituals-section" className="mb-12 scroll-mt-20">
-          <h3 className="font-mono-caps text-ember-text-muted mb-4">
-            Rituals
-          </h3>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-mono-caps text-ember-text-muted">
+              Rituals
+            </h3>
+            {aiKeyConnected && (
+              <button
+                type="button"
+                onClick={requestRitualSuggestions}
+                disabled={suggestionsLoading}
+                className="font-mono-caps text-ember-text-muted hover:text-ember-text transition-colors inline-flex items-center gap-1.5"
+                title="Ask the dragon for ritual ideas"
+              >
+                <FeatherIcon size={12} />
+                {suggestionsLoading ? 'Drawing rituals out…' : 'Suggest rituals'}
+              </button>
+            )}
+          </div>
+          {ritualSuggestions !== null && (
+            <SuggestedRitualsPanel
+              suggestions={ritualSuggestions}
+              accentColor={accentColor}
+              onAdd={addSuggestedRitual}
+              onAddAll={addAllSuggestedRituals}
+              onDismiss={() => setRitualSuggestions(null)}
+              isLoading={suggestionsLoading && ritualSuggestions.length === 0}
+            />
+          )}
           <RitualList
             projectId={projectId}
             accentColor={accentColor}
             onRitualLogged={() => setSagaTick(t => t + 1)}
+            refreshKey={ritualsTick}
           />
         </div>
 

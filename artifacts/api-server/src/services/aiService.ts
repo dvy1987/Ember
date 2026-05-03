@@ -16,6 +16,7 @@ interface AiExtractionResult {
   insights: string[];
   blockers: string[];
   summary_update: string;
+  ritual_suggestions?: RitualSuggestion[];
 }
 
 /**
@@ -195,6 +196,137 @@ function applyReflectionCompletions(projectId: string, completedTaskDescriptions
   return markedCount;
 }
 
+export interface RitualSuggestion {
+  name: string;
+  rationale: string;
+  cadence: 'daily' | 'weekdays' | 'weekly';
+}
+
+const RITUAL_SUGGESTION_PROMPT_RULES = `RITUAL SUGGESTION RULES
+- Propose 3 to 5 rituals tailored to this dragon's topic AND its temperament
+  (cinder = bursty/intense; moss = patient, slow, perennial; drift = exploratory,
+  loose; frost = precise, structured). Match the dragon, do not generalise.
+- Each "name" is a short verb-led phrase, 3 to 6 words, no period.
+- Each "rationale" is one short clause, 12 words or fewer, explaining why this
+  ritual fits THIS dragon and THIS context. No generic platitudes.
+- Mirror the user's own vocabulary from the input. Do not stylise or rename
+  what they care about. Do not invent topics they didn't mention.
+- Cadence is one of: "daily", "weekdays", "weekly". Pick what's actually
+  sustainable for this kind of work, not what sounds impressive.
+- Voice rules from above apply: no emoji, no "Let's", no coach tone, no forced
+  metaphor. Plain, concrete, like a thoughtful note.`;
+
+function buildRitualSuggestionPrompt(projectId: string, userInput: string | null): string | null {
+  const ctx = buildProjectContext(projectId);
+  if (!ctx) return null;
+  const promptContext = formatPromptContext(ctx);
+  const dragonType = ctx.project.dragon_type;
+  const inputBlock = userInput?.trim()
+    ? `RECENT USER INPUT\n${userInput.trim()}\n\n`
+    : '';
+  return `${promptContext}
+
+${inputBlock}DRAGON TYPE: ${dragonType}
+
+INSTRUCTIONS
+Propose a small set of rituals this user might keep for this dragon, given
+the project context above and (if present) the recent input.
+
+${RITUAL_SUGGESTION_PROMPT_RULES}
+
+Return JSON in this exact format:
+{
+  "ritual_suggestions": [
+    { "name": "...", "rationale": "...", "cadence": "daily" }
+  ]
+}`;
+}
+
+function sanitizeRitualSuggestions(raw: unknown): RitualSuggestion[] {
+  if (!Array.isArray(raw)) return [];
+  const out: RitualSuggestion[] = [];
+  for (const item of raw) {
+    if (!item || typeof item !== 'object') continue;
+    const r = item as Record<string, unknown>;
+    const name = typeof r['name'] === 'string' ? r['name'].trim() : '';
+    const rationale = typeof r['rationale'] === 'string' ? r['rationale'].trim() : '';
+    let cadence = typeof r['cadence'] === 'string' ? r['cadence'].trim().toLowerCase() : 'daily';
+    if (cadence !== 'daily' && cadence !== 'weekdays' && cadence !== 'weekly') cadence = 'daily';
+    if (!name || !rationale) continue;
+    out.push({ name, rationale, cadence: cadence as RitualSuggestion['cadence'] });
+    if (out.length >= 5) break;
+  }
+  return out;
+}
+
+const RITUALS_PROPOSED_KEY_PREFIX = 'rituals_proposed:';
+
+function ritualsProposedKey(projectId: string): string {
+  return `${RITUALS_PROPOSED_KEY_PREFIX}${projectId}`;
+}
+
+export function hasProposedRituals(projectId: string): boolean {
+  const db = getDb();
+  const row = db
+    .prepare('SELECT value FROM settings WHERE key = ?')
+    .get(ritualsProposedKey(projectId)) as { value: string } | undefined;
+  return Boolean(row);
+}
+
+/**
+ * Atomic claim — returns true exactly once per dragon. Concurrent brain
+ * dumps both pass `hasProposedRituals === false` in the pre-check, but
+ * only the writer whose INSERT actually changed a row gets to fire the
+ * auto-suggestion. The loser silently skips. Mirrors the pattern used by
+ * `ensureDefaultHealthDragon` for the Health seed sentinel.
+ */
+function claimRitualsProposedSlot(projectId: string): boolean {
+  const db = getDb();
+  const result = db
+    .prepare(`INSERT OR IGNORE INTO settings (key, value, updated_at) VALUES (?, '1', ?)`)
+    .run(ritualsProposedKey(projectId), new Date().toISOString());
+  return result.changes > 0;
+}
+
+function countActiveRituals(projectId: string): number {
+  const db = getDb();
+  const row = db
+    .prepare("SELECT COUNT(*) as c FROM rituals WHERE project_id = ? AND is_archived = 0")
+    .get(projectId) as { c: number };
+  return row.c;
+}
+
+/**
+ * Propose rituals tailored to this dragon. Used by both:
+ *   - the brain-dump auto-fire (extractTasks route, once per dragon while
+ *     the dragon still has zero rituals)
+ *   - the manual "Suggest more rituals" trigger (always available when an
+ *     AI key is connected)
+ *
+ * Returns null when no AI key is configured or the LLM call fails / returns
+ * unparseable JSON. Never throws.
+ */
+export async function proposeRituals(
+  projectId: string,
+  userInput: string | null
+): Promise<RitualSuggestion[] | null> {
+  if (!isAiAvailable()) return null;
+  const prompt = buildRitualSuggestionPrompt(projectId, userInput);
+  if (!prompt) return null;
+
+  const response = await callLlm([
+    { role: 'system', content: SYSTEM_PROMPT },
+    { role: 'user', content: prompt },
+  ]);
+  logAiInteraction(projectId, 'ritual_suggestion', userInput ?? '(manual)', response);
+  if (!response) return null;
+
+  const parsed = parseJsonResponse<{ ritual_suggestions?: unknown }>(response);
+  if (!parsed) return null;
+  const suggestions = sanitizeRitualSuggestions(parsed.ritual_suggestions);
+  return suggestions;
+}
+
 export async function extractTasks(projectId: string, userInput: string): Promise<AiExtractionResult | null> {
   const ctx = buildProjectContext(projectId);
   if (!ctx) return null;
@@ -230,6 +362,27 @@ Return JSON in this exact format:
   if (!result) return null;
 
   await applyExtractionResult(projectId, result);
+
+  // Auto-fire ritual suggestions ONCE per dragon: only when this dragon has
+  // never been offered a set AND currently has zero active rituals. This
+  // protects the Health dragon (which has hardcoded starter rituals) and
+  // avoids surprising users who have already shaped their own ritual list.
+  // Claim the slot atomically BEFORE the LLM call so two concurrent brain
+  // dumps cannot both fire. The slot stays claimed even on AI failure, so
+  // auto-fire stays one-shot regardless of outcome.
+  try {
+    if (!hasProposedRituals(projectId) && countActiveRituals(projectId) === 0) {
+      if (claimRitualsProposedSlot(projectId)) {
+        const suggestions = await proposeRituals(projectId, userInput);
+        if (suggestions && suggestions.length > 0) {
+          result.ritual_suggestions = suggestions;
+        }
+      }
+    }
+  } catch {
+    // Suggestion failure must never break task extraction.
+  }
+
   return result;
 }
 

@@ -92,6 +92,12 @@ export interface ProjectMemory {
   last_updated: string;
 }
 
+export interface RitualSuggestion {
+  name: string;
+  rationale: string;
+  cadence: 'daily' | 'weekdays' | 'weekly';
+}
+
 export interface AiExtractionResult {
   new_active_tasks: string[];
   new_backlog_tasks: string[];
@@ -99,6 +105,7 @@ export interface AiExtractionResult {
   insights: string[];
   blockers: string[];
   summary_update: string;
+  ritual_suggestions?: RitualSuggestion[];
 }
 
 export interface ResumeContext {
