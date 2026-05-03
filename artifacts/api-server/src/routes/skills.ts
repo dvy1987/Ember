@@ -422,9 +422,10 @@ router.patch('/dragons/:id/budget', (req, res) => {
 
 router.get('/dragons/:id/suggestion', (req, res) => {
   try {
-    // dragon_id == project_id today; accept project_id as an explicit
-    // forward-compatible override per the F4 endpoint contract.
-    const dragonId = (req.query.project_id as string) || req.params.id;
+    // The path param is the canonical dragon id. project_id is accepted as
+    // an optional scope hint only (dragon_id == project_id in this model);
+    // it is never allowed to override identity.
+    const dragonId = req.params.id;
     const project = getProject(dragonId);
     if (!project) { res.status(404).json({ error: 'Dragon not found' }); return; }
     const suggestion = evaluateForDragon(dragonId);
