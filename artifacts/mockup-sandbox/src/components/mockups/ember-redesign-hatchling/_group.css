@@ -1,0 +1,241 @@
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Quicksand:wght@500;600;700&display=swap');
+
+.hatchling-theme {
+  --bg-0: #FFF4E6;
+  --bg-1: #FFFFFF;
+  --bg-shadow: #2D1B4E;
+  --ink: #2D1B4E;
+  --ink-soft: #6B5B8C;
+  --pink: #FF7AB6;
+  --pink-deep: #E94B95;
+  --mint: #4FD1C5;
+  --mint-deep: #2BAF9F;
+  --sky: #7C9EFF;
+  --sky-deep: #5470FF;
+  --sun: #FFC940;
+  --candy-rule: rgba(45,27,78,0.08);
+
+  background-color: var(--bg-0);
+  color: var(--ink);
+  font-family: 'Quicksand', sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 1.5;
+  min-height: 100dvh;
+  background-image:
+    radial-gradient(circle at 15% 12%, rgba(255,122,182,0.18), transparent 38%),
+    radial-gradient(circle at 88% 22%, rgba(79,209,197,0.16), transparent 42%),
+    radial-gradient(circle at 50% 92%, rgba(124,158,255,0.14), transparent 45%);
+}
+
+.hatchling-theme .display {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.05;
+}
+
+.hatchling-theme .blob-card {
+  background: var(--bg-1);
+  border-radius: 28px;
+  padding: 24px;
+  box-shadow:
+    0 1px 0 rgba(45,27,78,0.04),
+    0 8px 0 -2px rgba(45,27,78,0.04),
+    0 24px 48px -16px rgba(45,27,78,0.18);
+  border: 2px solid rgba(45,27,78,0.06);
+}
+
+.hatchling-theme .chunk-btn {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-weight: 800;
+  font-size: 18px;
+  letter-spacing: -0.01em;
+  padding: 16px 28px;
+  border-radius: 999px;
+  border: 3px solid var(--ink);
+  background: var(--pink);
+  color: var(--ink);
+  box-shadow: 0 6px 0 0 var(--ink);
+  cursor: pointer;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+.hatchling-theme .chunk-btn:hover {
+  transform: translateY(2px);
+  box-shadow: 0 4px 0 0 var(--ink);
+}
+
+.hatchling-theme .chunk-btn:active {
+  transform: translateY(6px);
+  box-shadow: 0 0 0 0 var(--ink);
+}
+
+.hatchling-theme .chunk-btn.mint { background: var(--mint); }
+.hatchling-theme .chunk-btn.sky { background: var(--sky); color: white; }
+.hatchling-theme .chunk-btn.sun { background: var(--sun); }
+.hatchling-theme .chunk-btn.ghost {
+  background: transparent;
+  box-shadow: 0 4px 0 0 var(--ink);
+}
+
+.hatchling-theme .pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  background: var(--bg-1);
+  border: 2px solid var(--ink);
+  color: var(--ink);
+}
+
+.hatchling-theme .pill.pink { background: var(--pink); }
+.hatchling-theme .pill.mint { background: var(--mint); }
+.hatchling-theme .pill.sky { background: var(--sky); color: white; }
+.hatchling-theme .pill.sun { background: var(--sun); }
+
+.hatchling-theme .xp-bar {
+  height: 18px;
+  border-radius: 999px;
+  border: 2px solid var(--ink);
+  background: white;
+  overflow: hidden;
+  position: relative;
+}
+
+.hatchling-theme .xp-bar > i {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--mint) 0%, var(--sky) 100%);
+  border-right: 2px solid var(--ink);
+  position: relative;
+  animation: hatchPulse 2.4s ease-in-out infinite;
+}
+
+.hatchling-theme .xp-bar > i::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    -45deg,
+    rgba(255,255,255,0.35) 0 6px,
+    transparent 6px 12px
+  );
+  animation: hatchStripe 1.2s linear infinite;
+}
+
+@keyframes hatchPulse {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.12); }
+}
+
+@keyframes hatchStripe {
+  to { transform: translateX(12px); }
+}
+
+.hatchling-theme .dragon-sticker {
+  position: relative;
+  display: inline-block;
+}
+
+.hatchling-theme .dragon-sticker img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 0 var(--ink)) drop-shadow(0 8px 16px rgba(45,27,78,0.25));
+  animation: hatchBob 3.2s ease-in-out infinite;
+}
+
+.hatchling-theme .dragon-sticker.delay-1 img { animation-delay: -0.6s; }
+.hatchling-theme .dragon-sticker.delay-2 img { animation-delay: -1.4s; }
+
+@keyframes hatchBob {
+  0%, 100% { transform: translateY(0) rotate(-1deg); }
+  50% { transform: translateY(-6px) rotate(1deg); }
+}
+
+.hatchling-theme .sparkle {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  background: var(--sun);
+  border: 2px solid var(--ink);
+  border-radius: 4px;
+  transform: rotate(45deg);
+  animation: hatchSparkle 1.8s ease-in-out infinite;
+}
+
+@keyframes hatchSparkle {
+  0%, 100% { transform: rotate(45deg) scale(0.8); opacity: 0.7; }
+  50% { transform: rotate(135deg) scale(1.1); opacity: 1; }
+}
+
+.hatchling-theme .check-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 3px solid var(--ink);
+  background: white;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.hatchling-theme .check-circle:hover {
+  background: var(--mint);
+  transform: scale(1.08);
+}
+
+.hatchling-theme .task-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 18px;
+  background: white;
+  border: 2px solid var(--ink);
+  border-radius: 18px;
+  box-shadow: 0 4px 0 0 var(--ink);
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.hatchling-theme input,
+.hatchling-theme textarea {
+  background: white;
+  border: 2px solid var(--ink);
+  border-radius: 18px;
+  font-family: 'Quicksand', sans-serif;
+  font-weight: 600;
+  color: var(--ink);
+  padding: 12px 18px;
+  box-shadow: 0 4px 0 0 var(--ink);
+}
+
+.hatchling-theme input:focus,
+.hatchling-theme textarea:focus {
+  outline: none;
+  border-color: var(--pink-deep);
+}
+
+.hatchling-theme .streak-flame {
+  font-size: 0;
+}
+
+.hatchling-theme .confetti-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hatchling-theme .dragon-sticker img,
+  .hatchling-theme .sparkle,
+  .hatchling-theme .xp-bar > i,
+  .hatchling-theme .xp-bar > i::after { animation: none; }
+}
