@@ -34,7 +34,7 @@ export function Hatchling() {
             </div>
             <h1 className="display text-6xl">Hi keeper —<br />your nest is <span style={{ color: 'var(--pink-deep)' }}>buzzing</span></h1>
           </div>
-          <button className="chunk-btn ghost text-sm py-3 px-5">⚙ settings</button>
+          <button className="chunk-btn ghost text-sm py-3 px-5">settings</button>
         </div>
 
         {/* DRAGON ROW */}
@@ -52,7 +52,7 @@ export function Hatchling() {
               <span>Adolescent</span>
               <span style={{ color: 'var(--pink-deep)' }}>71/100 XP</span>
             </div>
-            <button className="chunk-btn mt-5 w-full text-base py-3">Tend now ✦</button>
+            <button className="chunk-btn mt-5 w-full text-base py-3">Tend now</button>
           </div>
 
           {/* Moss */}
@@ -68,7 +68,7 @@ export function Hatchling() {
               <span>Hatchling</span>
               <span style={{ color: 'var(--mint-deep)' }}>32/100 XP</span>
             </div>
-            <button className="chunk-btn mint mt-5 w-full text-base py-3">Tend now ✦</button>
+            <button className="chunk-btn mint mt-5 w-full text-base py-3">Tend now</button>
           </div>
 
           {/* Drift — sad */}
@@ -84,7 +84,7 @@ export function Hatchling() {
               <span style={{ color: 'var(--pink-deep)' }}>Missing you!</span>
               <span>11 days</span>
             </div>
-            <button className="chunk-btn sky mt-5 w-full text-base py-3">Visit ✦</button>
+            <button className="chunk-btn sky mt-5 w-full text-base py-3">Visit</button>
           </div>
         </div>
 
@@ -131,7 +131,7 @@ export function Hatchling() {
               Cinder remembers your last visit — you wrapped pricing copy and left a note about a Notion draft. Want to keep going?
             </p>
             <div className="flex gap-3 mt-5">
-              <button className="chunk-btn">▶ Start 20-min quest</button>
+              <button className="chunk-btn">Start 20-min quest</button>
               <button className="chunk-btn ghost text-base py-3 px-5">Just 5 minutes</button>
             </div>
           </div>
@@ -163,7 +163,7 @@ export function Hatchling() {
           </div>
 
           <div className="mt-4 flex gap-3">
-            <input type="text" placeholder="✦ Add a new quest..." className="flex-1" />
+            <input type="text" placeholder="Add a new quest..." className="flex-1" />
             <button className="chunk-btn sky text-base py-3">+ Add</button>
           </div>
         </div>
@@ -175,11 +175,11 @@ export function Hatchling() {
             <span className="pill mint"><Bolt className="w-4 h-4" /> Auto-distill</span>
           </div>
           <textarea
-            placeholder="Spill it all here — Cinder will sort it for you ✦"
+            placeholder="Spill it all here — Cinder will sort it for you"
             className="w-full h-32 resize-none"
           />
           <div className="flex justify-end mt-3">
-            <button className="chunk-btn mint">✨ Distill thoughts</button>
+            <button className="chunk-btn mint">Distill thoughts</button>
           </div>
         </div>
 
