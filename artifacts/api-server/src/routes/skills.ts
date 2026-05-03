@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { z } from 'zod';
 import { listSkills, getSkillById, getSkillByName } from '../services/skillRegistry.js';
 import {
   invokeSkill,
@@ -54,14 +55,35 @@ router.get('/dragons/:id/skills', (req, res) => {
 
 // ---- Invoke a skill -------------------------------------------------------
 
+// Zod payload schemas — strict enum validation so a bad `mode` is rejected
+// before it ever lands in the DB.
+const runBodySchema = z.object({
+  user_prompt: z.string().min(1).max(20_000),
+  mode: z.enum(['paired', 'autonomous']).optional(),
+  confirm_high_cost: z.boolean().optional(),
+});
+const verdictBodySchema = z.object({
+  verdict: z.enum(['approve', 'edit', 'reject']).optional(),
+  status: z.enum(['approved', 'edited', 'rejected']).optional(),
+  user_edit: z.string().max(20_000).optional(),
+}).refine((v: { verdict?: string; status?: string }) => v.verdict || v.status, {
+  message: 'verdict or status is required',
+});
+const ruleBodySchema = z.object({
+  rule_text: z.string().min(1).max(2_000),
+  scope: z.enum(['project', 'global']),
+  examples: z.array(z.unknown()).optional(),
+});
+
 router.post('/dragons/:id/skills/:skillId/run', async (req, res) => {
   try {
-    const { user_prompt, mode, confirm_high_cost } = req.body as {
-      user_prompt: string;
-      mode?: SkillMode;
-      confirm_high_cost?: boolean;
-    };
-    if (!user_prompt || typeof user_prompt !== 'string' || !user_prompt.trim()) {
+    const parsed = runBodySchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: 'invalid_body', details: parsed.error.issues });
+      return;
+    }
+    const { user_prompt, mode, confirm_high_cost } = parsed.data;
+    if (!user_prompt.trim()) {
       res.status(400).json({ error: 'user_prompt is required' });
       return;
     }
@@ -101,6 +123,12 @@ router.post('/dragons/:id/skills/:skillId/run', async (req, res) => {
 // ---- Verdict on a run -----------------------------------------------------
 
 router.post('/skill-runs/:id/verdict', (req, res) => {
+  // Zod-validated below; old shape kept inline for clarity.
+  const _check = verdictBodySchema.safeParse(req.body);
+  if (!_check.success) {
+    res.status(400).json({ error: 'invalid_body', details: _check.error.issues });
+    return;
+  }
   try {
     // Accept both shapes:
     //   { verdict: 'approve'|'edit'|'reject', user_edit? }
@@ -172,12 +200,13 @@ router.get('/projects/:id/skills/:skillId/rules', (req, res) => {
 
 router.post('/projects/:id/skills/:skillId/rules', (req, res) => {
   try {
-    const { rule_text, scope, examples } = req.body as {
-      rule_text: string;
-      scope: 'project' | 'global';
-      examples?: unknown[];
-    };
-    if (!rule_text || !rule_text.trim()) { res.status(400).json({ error: 'rule_text required' }); return; }
+    const parsed = ruleBodySchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: 'invalid_body', details: parsed.error.issues });
+      return;
+    }
+    const { rule_text, scope, examples } = parsed.data;
+    if (!rule_text.trim()) { res.status(400).json({ error: 'rule_text required' }); return; }
     const dragonId = req.params.id; // dragon == project in current data model
     const param = req.params.skillId;
     const skill = getSkillById(param) ?? getSkillByName(param);

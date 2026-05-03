@@ -14,7 +14,7 @@
  * specific drizzle-zod ↔ zod major-version pairing in the workspace catalog.
  */
 
-import { pgTable, text, integer, real } from 'drizzle-orm/pg-core';
+import { pgTable, text, integer, real, primaryKey, uniqueIndex } from 'drizzle-orm/pg-core';
 import { z } from 'zod';
 
 // ---- skills ---------------------------------------------------------------
@@ -42,21 +42,27 @@ export type Skill = typeof skillsTable.$inferSelect;
 
 // ---- dragon_skill_maturity ------------------------------------------------
 // Per (dragon, skill) track record: counters, current trust band, pause flag.
-export const dragonSkillMaturityTable = pgTable('dragon_skill_maturity', {
-  dragonId: text('dragon_id').notNull(),
-  skillId: text('skill_id').notNull(),
-  runs: integer('runs').notNull().default(0),
-  approvals: integer('approvals').notNull().default(0),
-  edits: integer('edits').notNull().default(0),
-  rejections: integer('rejections').notNull().default(0),
-  currentTrust: text('current_trust').notNull().default('paired'),
-  lockedBand: text('locked_band'),
-  paused: integer('paused').notNull().default(0),
-  lastUsedAt: text('last_used_at'),
-  lastPairedAt: text('last_paired_at'),
-  lastAutonomousAt: text('last_autonomous_at'),
-  createdAt: text('created_at').notNull(),
-});
+export const dragonSkillMaturityTable = pgTable(
+  'dragon_skill_maturity',
+  {
+    dragonId: text('dragon_id').notNull(),
+    skillId: text('skill_id').notNull(),
+    runs: integer('runs').notNull().default(0),
+    approvals: integer('approvals').notNull().default(0),
+    edits: integer('edits').notNull().default(0),
+    rejections: integer('rejections').notNull().default(0),
+    currentTrust: text('current_trust').notNull().default('paired'),
+    lockedBand: text('locked_band'),
+    paused: integer('paused').notNull().default(0),
+    lastUsedAt: text('last_used_at'),
+    lastPairedAt: text('last_paired_at'),
+    lastAutonomousAt: text('last_autonomous_at'),
+    createdAt: text('created_at').notNull(),
+  },
+  // Composite primary key — mirrors the SQLite UNIQUE(dragon_id, skill_id)
+  // constraint so the portable contract matches the live engine 1:1.
+  (t) => ({ pk: primaryKey({ columns: [t.dragonId, t.skillId] }) }),
+);
 export const insertDragonSkillMaturitySchema = z.object({
   dragonId: z.string(),
   skillId: z.string(),
@@ -182,14 +188,22 @@ export type SkillRuleProject = typeof skillRulesProjectTable.$inferSelect;
 
 // ---- rule_overrides -------------------------------------------------------
 // Spec D demotion / scoping — global rule excluded for a specific project.
-export const ruleOverridesTable = pgTable('rule_overrides', {
-  id: text('id').primaryKey(),
-  globalRuleId: text('global_rule_id').notNull(),
-  projectId: text('project_id').notNull(),
-  excluded: integer('excluded').notNull().default(1),
-  reason: text('reason'),
-  createdAt: text('created_at').notNull(),
-});
+export const ruleOverridesTable = pgTable(
+  'rule_overrides',
+  {
+    id: text('id').primaryKey(),
+    globalRuleId: text('global_rule_id').notNull(),
+    projectId: text('project_id').notNull(),
+    excluded: integer('excluded').notNull().default(1),
+    reason: text('reason'),
+    createdAt: text('created_at').notNull(),
+  },
+  // Mirrors SQLite UNIQUE (project_id, global_rule_id).
+  (t) => ({
+    projectGlobalUnique: uniqueIndex('rule_overrides_project_global_unique')
+      .on(t.projectId, t.globalRuleId),
+  }),
+);
 export const insertRuleOverrideSchema = z.object({
   id: z.string(),
   globalRuleId: z.string(),
