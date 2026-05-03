@@ -422,12 +422,18 @@ router.patch('/dragons/:id/budget', (req, res) => {
 
 router.get('/dragons/:id/suggestion', (req, res) => {
   try {
-    // The path param is the canonical dragon id. project_id is accepted as
-    // an optional scope hint only (dragon_id == project_id in this model);
-    // it is never allowed to override identity.
+    // The path param is the canonical dragon id. `project_id` is accepted
+    // as an optional query hint and validated to match — dragon_id ==
+    // project_id in this model, so a mismatch is a client bug we surface
+    // explicitly rather than silently ignoring.
     const dragonId = req.params.id;
     const project = getProject(dragonId);
     if (!project) { res.status(404).json({ error: 'Dragon not found' }); return; }
+    const projectId = typeof req.query.project_id === 'string' ? req.query.project_id : undefined;
+    if (projectId && projectId !== dragonId) {
+      res.status(400).json({ error: 'project_id_mismatch' });
+      return;
+    }
     const suggestion = evaluateForDragon(dragonId);
     res.json({ suggestion });
   } catch {
