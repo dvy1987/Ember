@@ -100,7 +100,7 @@ function ProjectBreakdown({ projects }: { projects: ProjectStat[] }) {
           return (
             <div key={p.project_id}>
               <div className="flex justify-between mb-1.5 items-baseline">
-                <span className="font-display text-[18px] text-ember-text">
+                <span className="data-value text-[17px] text-ember-text">
                   {p.project_name}{' '}
                   <span className="body-sm text-ember-text-muted ml-1 capitalize">
                     {p.dragon_stage}
@@ -132,7 +132,7 @@ function StatCard({ label, value, Icon }: { label: string; value: string; Icon: 
   return (
     <div className="parchment-card p-5 text-center">
       <div className="flex justify-center mb-2 text-ember-cinder"><Icon size={16} /></div>
-      <div className="font-display text-[28px] text-ember-text leading-none">{value}</div>
+      <div className="stat-numeral text-[28px] text-ember-text">{value}</div>
       <div className="caption mt-2">{label}</div>
     </div>
   );

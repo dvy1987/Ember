@@ -104,6 +104,28 @@ html, body {
   color: var(--text-parchment);
 }
 
+/* Upright, tabular numerals for stat-card values and inline data values on
+   the insights pages. Italic display serif is illegible at glanceable sizes;
+   this keeps numerals aligned and short labels (e.g. "1m", "2d") readable. */
+.stat-numeral {
+  font-family: 'Source Serif 4', serif;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+/* Upright readable display for short data labels and project names on the
+   insights pages — keeps the serif character without italic display swash. */
+.data-value {
+  font-family: 'Source Serif 4', serif;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.005em;
+}
+
 /* Caption — small upright label used under stat tiles, weekday axis, and
    short metadata rows. Brighter than --text-muted so it reads at arm's
    length while still feeling secondary. */

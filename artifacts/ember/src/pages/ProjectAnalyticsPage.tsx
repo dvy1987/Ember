@@ -73,7 +73,7 @@ function StatCard({ label, value, Icon }: { label: string; value: string; Icon: 
   return (
     <div className="parchment-card p-4 text-center">
       <div className="flex justify-center mb-1.5 text-ember-cinder"><Icon size={14} /></div>
-      <div className="font-display text-[24px] text-ember-text leading-none">{value}</div>
+      <div className="stat-numeral text-[24px] text-ember-text">{value}</div>
       <div className="caption mt-2">{label}</div>
     </div>
   );
@@ -133,7 +133,7 @@ function StageProgress({
     <div className="parchment-card p-6">
       <h3 className="section-heading mb-4">Dragon growth</h3>
       <div className="flex items-center justify-between mb-3">
-        <span className="font-display text-[20px] text-ember-text capitalize">{currentStage}</span>
+        <span className="data-value text-[20px] text-ember-text capitalize">{currentStage}</span>
         {nextStage && (
           <span className="body-sm text-ember-text-muted inline-flex items-center gap-1.5 capitalize">
             {nextStage.stage} <ArrowRightIcon size={13} />
@@ -254,7 +254,17 @@ export default function ProjectAnalyticsPage() {
           <p className="font-mono-caps text-ember-text mb-1 capitalize">
             {data.project.dragon_stage} {data.project.dragon_type}
           </p>
-          <h1 className="font-display text-[40px] text-ember-text leading-tight">{data.project.name}</h1>
+          <h1
+            className="text-[40px] text-ember-text leading-tight"
+            style={{
+              fontFamily: "'Source Serif 4', serif",
+              fontStyle: 'normal',
+              fontWeight: 600,
+              letterSpacing: '-0.015em',
+            }}
+          >
+            {data.project.name}
+          </h1>
         </header>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
@@ -267,7 +277,7 @@ export default function ProjectAnalyticsPage() {
         {data.overall.avgSessionMinutes > 0 && (
           <div className="parchment-card p-5 mb-8 flex items-center justify-between">
             <span className="body-sm text-ember-text-muted">Avg session length</span>
-            <span className="font-display text-[20px] text-ember-text">{formatMinutes(data.overall.avgSessionMinutes)}</span>
+            <span className="stat-numeral text-[20px] text-ember-text">{formatMinutes(data.overall.avgSessionMinutes)}</span>
           </div>
         )}
 
