@@ -299,21 +299,21 @@ html, body {
 }
 
 .moss-spore-emitter {
-  position: absolute; left: 50%; bottom: 0; width: 60%; height: 70%;
+  position: absolute; left: 50%; top: 0; width: 70%; height: 95%;
   transform: translateX(-50%); z-index: 8; pointer-events: none;
 }
 .moss-spore {
-  position: absolute; bottom: 0; width: 3.5px; height: 3.5px; border-radius: 50%;
+  position: absolute; top: 0; width: 3.5px; height: 3.5px; border-radius: 50%;
   background: radial-gradient(circle, #D8E8AE 0%, #9BB868 55%, #7A9B5A 100%);
   filter: blur(0.4px) drop-shadow(0 0 4px rgba(155,184,104,0.7));
   opacity: 0; animation: moss-spore-rise linear infinite;
   will-change: transform, opacity;
 }
 @keyframes moss-spore-rise {
-  0%   { opacity: 0;   transform: translate(0, 0)        scale(0.5); }
-  15%  { opacity: 0.9; transform: translate(-3px, -10px) scale(0.95); }
-  60%  { opacity: 0.5; transform: translate(4px, -42px)  scale(1); }
-  100% { opacity: 0;   transform: translate(-2px, -78px) scale(0.4); }
+  0%   { opacity: 0;   transform: translate(0, 0)       rotate(0deg)   scale(0.55); }
+  15%  { opacity: 0.9; transform: translate(-4px, 12px) rotate(40deg)  scale(1); }
+  55%  { opacity: 0.7; transform: translate(5px, 48px)  rotate(150deg) scale(1); }
+  100% { opacity: 0;   transform: translate(-3px, 90px) rotate(280deg) scale(0.5); }
 }
 .moss-spore.s1 { left: 28%; animation-delay: 0s;   animation-duration: 6.2s; }
 .moss-spore.s2 { left: 52%; animation-delay: 1.1s; animation-duration: 5.4s; }
@@ -694,10 +694,10 @@ html, body {
 [data-stage="adolescent"].scene-moss .moss-aura-radial { opacity: 0.65; }
 /* Denser, longer-travel spore field — wider emitter + bigger, brighter motes */
 @keyframes moss-spore-rise-long {
-  0%   { opacity: 0;   transform: translate(0, 0)         scale(0.5); }
-  12%  { opacity: 1;   transform: translate(-3px, -12px)  scale(1.05); }
-  60%  { opacity: 0.6; transform: translate(5px, -58px)   scale(1.1); }
-  100% { opacity: 0;   transform: translate(-3px, -110px) scale(0.4); }
+  0%   { opacity: 0;   transform: translate(0, 0)        rotate(0deg)   scale(0.5); }
+  12%  { opacity: 1;   transform: translate(-4px, 14px)  rotate(50deg)  scale(1.05); }
+  60%  { opacity: 0.7; transform: translate(6px, 70px)   rotate(180deg) scale(1.1); }
+  100% { opacity: 0;   transform: translate(-4px, 130px) rotate(330deg) scale(0.45); }
 }
 [data-stage="hatchling"].scene-moss .moss-spore-emitter,
 [data-stage="adolescent"].scene-moss .moss-spore-emitter {
