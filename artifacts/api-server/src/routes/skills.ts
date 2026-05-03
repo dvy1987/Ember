@@ -10,6 +10,7 @@ import {
   ensureMaturity,
   getRun,
   listRecentRuns,
+  getChatThread,
   type SkillMode,
   type Verdict,
 } from '../services/skillRuntime.js';
@@ -212,6 +213,33 @@ router.get('/dragons/:id/skill-runs', (req, res) => {
     res.json(listRecentRuns(req.params.id, limit));
   } catch {
     res.status(500).json({ error: 'Failed to list runs' });
+  }
+});
+
+// F2 — paired chat thread for a (dragon, project, skill) triple.
+// Returns the skill, the per-dragon maturity (for the trust-band chip),
+// the budget (for the spend chip), and the run history oldest-first.
+router.get('/dragons/:id/chat-thread', (req, res) => {
+  try {
+    const project = getProject(req.params.id);
+    if (!project) { res.status(404).json({ error: 'Dragon not found' }); return; }
+    const skillParam = (req.query.skill as string) || 'general-assistance';
+    const skill = getSkillById(skillParam) ?? getSkillByName(skillParam);
+    if (!skill) { res.status(404).json({ error: 'no_skill' }); return; }
+    // The current data model treats dragon and project as the same id.
+    // Accept project_id explicitly so the contract is forward-compatible
+    // when dragons span projects.
+    const projectId = (req.query.project_id as string) || req.params.id;
+    const limit = parseInt((req.query.limit as string) || '100', 10);
+    const maturity = ensureMaturity(req.params.id, skill.id, skill.default_trust_band);
+    res.json({
+      skill,
+      maturity,
+      budget: getBudget(req.params.id),
+      runs: getChatThread(req.params.id, projectId, skill.id, limit),
+    });
+  } catch {
+    res.status(500).json({ error: 'Failed to fetch chat thread' });
   }
 });
 

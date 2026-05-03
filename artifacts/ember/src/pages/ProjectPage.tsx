@@ -8,7 +8,8 @@ import RitualList from '@/components/RitualList';
 import SagaTeaser from '@/components/SagaTeaser';
 import BrainDumpInput from '@/components/BrainDumpInput';
 import SettingsModal from '@/components/SettingsModal';
-import { ArrowLeftIcon, InsightsIcon, CheckIcon, ArchiveIcon } from '@/components/Icons';
+import ChatPanel from '@/components/ChatPanel';
+import { ArrowLeftIcon, InsightsIcon, CheckIcon, ArchiveIcon, FeatherIcon } from '@/components/Icons';
 
 type BrainDumpStatus = 'idle' | 'extracting' | 'ai-success' | 'fallback';
 type ArchiveState = 'idle' | 'confirming' | 'archiving';
@@ -29,6 +30,7 @@ export default function ProjectPage() {
   const [sagaTick, setSagaTick] = useState(0);
   const [aiKeyConnected, setAiKeyConnected] = useState<boolean>(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [showChat, setShowChat] = useState(false);
 
   const refreshAiStatus = useCallback(async () => {
     try {
@@ -274,6 +276,19 @@ export default function ProjectPage() {
               to have tasks drawn out automatically.
             </p>
           )}
+
+          {/* F2 — quiet entry to the paired co-work chat. Lives directly under
+              the brain dump so the conversational option sits next to the
+              capture option, not buried in a menu. */}
+          <div className="mt-4">
+            <button
+              type="button"
+              onClick={() => setShowChat(true)}
+              className="inline-flex items-center gap-2 font-mono-caps text-ember-text-muted hover:text-ember-text transition-colors"
+            >
+              <FeatherIcon size={13} /> Co-work with your dragon
+            </button>
+          </div>
         </div>
 
         {/* Quiet shortcuts to the structured tending below. These no longer
@@ -377,6 +392,16 @@ export default function ProjectPage() {
         </div>
       </div>
       <SettingsModal isOpen={showSettings} onClose={() => setShowSettings(false)} />
+      {project && (
+        <ChatPanel
+          isOpen={showChat}
+          onClose={() => setShowChat(false)}
+          dragonId={project.id}
+          projectId={project.id}
+          dragonName={project.name}
+          dragonType={project.dragon_type as DragonType}
+        />
+      )}
     </div>
   );
 }

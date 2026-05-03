@@ -511,6 +511,14 @@ export async function invokeSkill(opts: InvokeOptions): Promise<InvokeResult> {
     : null;
   if (!skill) return { ok: false, error: 'no_skill' };
 
+  // F2 auto-finalize: in a chat thread, the act of sending a new turn is
+  // an implicit "kept" on the prior dragon reply. We approve any pending
+  // paired runs on the same (dragon, skill, project) triple before invoking.
+  // Idempotent — no-op when there are no pending runs.
+  if ((opts.mode ?? 'paired') === 'paired') {
+    autoFinalizePendingPaired(opts.dragonId, skill.id, project.id);
+  }
+
   const apiConfig = getApiConfig();
   if (!apiConfig) return { ok: false, error: 'no_ai_config' };
 
@@ -759,4 +767,44 @@ export function listRecentRuns(dragonId: string, limit = 20): SkillRun[] {
   return db
     .prepare('SELECT * FROM skill_runs WHERE dragon_id = ? ORDER BY ran_at DESC LIMIT ?')
     .all(dragonId, limit) as SkillRun[];
+}
+
+// F2 — paired chat thread for a (dragon, project, skill) triple, oldest first
+// so the UI can render top-to-bottom and scroll to the newest reply.
+export function getChatThread(
+  dragonId: string,
+  projectId: string,
+  skillId: string,
+  limit = 100
+): SkillRun[] {
+  const db = getDb();
+  return db
+    .prepare(
+      `SELECT * FROM skill_runs
+         WHERE dragon_id = ? AND project_id = ? AND skill_id = ? AND mode = 'paired'
+         ORDER BY ran_at ASC LIMIT ?`
+    )
+    .all(dragonId, projectId, skillId, limit) as SkillRun[];
+}
+
+// F2 — implicitly approve any pending paired turn on this triple.
+// Used when a new turn arrives in the same chat (auto-finalize-on-next-send).
+// Idempotent: returns 0 when nothing is pending.
+export function autoFinalizePendingPaired(
+  dragonId: string,
+  skillId: string,
+  projectId: string
+): number {
+  const db = getDb();
+  const pending = db
+    .prepare(
+      `SELECT id FROM skill_runs
+         WHERE dragon_id = ? AND skill_id = ? AND project_id = ?
+           AND mode = 'paired' AND status = 'pending'`
+    )
+    .all(dragonId, skillId, projectId) as Array<{ id: string }>;
+  for (const row of pending) {
+    recordVerdict({ runId: row.id, verdict: 'approve' });
+  }
+  return pending.length;
 }

@@ -202,6 +202,27 @@ html, body {
 }
 .animate-fade-in { animation: fade-in 250ms ease-out; }
 
+/* F2 chat panel — slide in from the right with a calm easing curve.
+   Reduced-motion users get the panel without translation. */
+@keyframes chat-panel-slide-in {
+  0%   { opacity: 0; transform: translateX(24px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+.chat-panel-slide {
+  animation: chat-panel-slide-in 260ms ease-out;
+}
+@keyframes chat-listening-pulse {
+  0%, 100% { opacity: 0.55; }
+  50%      { opacity: 0.95; }
+}
+.chat-listening-pulse {
+  animation: chat-listening-pulse 1.6s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .chat-panel-slide      { animation: fade-in 200ms ease-out; }
+  .chat-listening-pulse  { animation: none; opacity: 0.85; }
+}
+
 @keyframes slide-up-fade {
   0%   { opacity: 0; transform: translateY(12px); }
   100% { opacity: 1; transform: translateY(0); }

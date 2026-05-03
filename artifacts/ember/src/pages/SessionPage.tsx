@@ -4,8 +4,9 @@ import { Project, Task, DragonType, DragonStage } from '@/lib/types';
 import { getDragonAccentVar } from '@/lib/dragonAssets';
 import FocusTimer from '@/components/FocusTimer';
 import DragonScene from '@/components/DragonScene';
+import ChatPanel from '@/components/ChatPanel';
 import { Link } from 'wouter';
-import { ArrowLeftIcon, BeginIcon, SparkIcon } from '@/components/Icons';
+import { ArrowLeftIcon, BeginIcon, SparkIcon, FeatherIcon } from '@/components/Icons';
 
 type SessionPhase = 'select-tasks' | 'focusing' | 'reflect' | 'complete';
 
@@ -31,6 +32,7 @@ export default function SessionPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [evolvedToStage, setEvolvedToStage] = useState<DragonStage | null>(null);
   const [isEvolving, setIsEvolving] = useState(false);
+  const [showChat, setShowChat] = useState(false);
   const evolutionTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const fetchData = useCallback(async () => {
@@ -230,6 +232,17 @@ export default function SessionPage() {
               accentColor={accentColor}
             />
 
+            {/* F2 — paired co-work is reachable mid-session without leaving
+                the focus surface. The button is intentionally quiet so the
+                timer keeps the visual centre. */}
+            <button
+              type="button"
+              onClick={() => setShowChat(true)}
+              className="mt-6 inline-flex items-center gap-2 font-mono-caps text-ember-text-muted hover:text-ember-text transition-colors"
+            >
+              <FeatherIcon size={13} /> Speak to your dragon
+            </button>
+
             {selectedTaskIds.length > 0 && (
               <div className="mt-10 w-full max-w-sm">
                 <h3 className="font-mono-caps text-ember-text-muted mb-2">Session tasks</h3>
@@ -317,6 +330,17 @@ export default function SessionPage() {
               </button>
             </div>
           </div>
+        )}
+
+        {project && (
+          <ChatPanel
+            isOpen={showChat}
+            onClose={() => setShowChat(false)}
+            dragonId={project.id}
+            projectId={project.id}
+            dragonName={project.name}
+            dragonType={dragonType}
+          />
         )}
 
         {phase === 'complete' && (

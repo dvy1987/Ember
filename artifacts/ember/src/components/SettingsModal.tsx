@@ -191,12 +191,6 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
               >
                 View the dragon menagerie →
               </Link>
-              <Link
-                href="/dev/skills"
-                className="body-sm text-ember-text-muted hover:text-ember-text"
-              >
-                Skill runtime test page →
-              </Link>
             </div>
           </div>
         )}
