@@ -133,8 +133,16 @@ router.post('/dragons/:id/skills/:skillId/run', async (req, res) => {
         : result.error === 'over_budget' ? 402
         : result.error === 'requires_confirmation' ? 428
         : result.error === 'paused' ? 409
+        : result.error === 'trust_insufficient' ? 403
+        : result.error === 'llm_failed' ? 502
         : 500;
-      res.status(code).json({ error: result.error, budget: result.budget, estimated_cost_usd: result.estimated_cost_usd });
+      res.status(code).json({
+        error: result.error,
+        budget: result.budget,
+        estimated_cost_usd: result.estimated_cost_usd,
+        required_trust: result.required_trust,
+        current_trust: result.current_trust,
+      });
       return;
     }
     res.status(201).json(result);

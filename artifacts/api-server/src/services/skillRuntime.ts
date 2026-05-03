@@ -492,7 +492,10 @@ export interface InvokeResult {
     | 'over_budget'
     | 'llm_failed'
     | 'paused'
+    | 'trust_insufficient'
     | 'requires_confirmation';
+  required_trust?: TrustBand;
+  current_trust?: TrustBand;
   budget?: DragonBudget;
   estimated_cost_usd?: number;
 }
@@ -515,6 +518,20 @@ export async function invokeSkill(opts: InvokeOptions): Promise<InvokeResult> {
   if (maturity.paused) return { ok: false, error: 'paused' };
 
   const mode: SkillMode = opts.mode ?? 'paired';
+
+  // Trust ladder enforcement: a keeper-locked band always wins; otherwise
+  // the dragon's earned `current_trust` decides. Autonomous-mode runs are
+  // only allowed once the dragon has actually reached the autonomous band.
+  const effectiveTrust: TrustBand = maturity.locked_band ?? maturity.current_trust;
+  if (mode === 'autonomous' && effectiveTrust !== 'autonomous') {
+    return {
+      ok: false,
+      error: 'trust_insufficient',
+      required_trust: 'autonomous',
+      current_trust: effectiveTrust,
+    };
+  }
+
   const complexity = classifyPrompt(opts.userPrompt);
   const rules = getEffectiveRuleTexts(opts.dragonId, skill.id, project.id);
   const { system, user } = buildPrompts(skill, project, rules, opts.userPrompt, complexity);
