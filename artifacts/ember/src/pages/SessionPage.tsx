@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { useRoute, useLocation } from 'wouter';
+import { useRoute } from 'wouter';
 import { Project, Task, DragonType, DragonStage } from '@/lib/types';
 import { getDragonAccentVar } from '@/lib/dragonAssets';
 import FocusTimer from '@/components/FocusTimer';
@@ -20,7 +20,6 @@ const STAGE_DISPLAY_NAMES: Record<DragonStage, string> = {
 export default function SessionPage() {
   const [, params] = useRoute('/session/:projectId');
   const projectId = params?.projectId ?? '';
-  const [,] = useLocation();
 
   const [project, setProject] = useState<Project | null>(null);
   const [activeTasks, setActiveTasks] = useState<Task[]>([]);
