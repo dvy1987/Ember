@@ -77,6 +77,9 @@ export default function ProjectPage() {
       body: JSON.stringify({ action: 'complete' }),
     });
     fetchTasks();
+    // Task completion writes a saga entry on the server — bump the teaser
+    // so the user sees it immediately without a page reload.
+    setSagaTick(t => t + 1);
   };
 
   const handleMoveToBacklog = async (taskId: string) => {
