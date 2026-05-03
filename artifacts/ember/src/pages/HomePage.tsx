@@ -86,7 +86,7 @@ export default function HomePage() {
             Ember Keep
           </h1>
           <p className="body-lg text-ember-text-muted max-w-md">
-            Your dragons are waiting. Some guard a single endeavor; others tend a piece of your life. Pick the one that calls loudest tonight.
+            Your dragons are waiting. Some guard a single endeavor; others tend a piece of your life. Pick the one that calls loudest today.
           </p>
           <p className="font-mono-caps text-ember-text-muted mt-3 opacity-90">
             {seasonBlurb}

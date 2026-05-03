@@ -43,7 +43,7 @@ export default function TaskList({
     <div className="space-y-5">
       <div>
         <h3 className="font-mono-caps text-ember-text-muted mb-3">
-          Tonight's tasks · {activeTasks.length}/5
+          Today's tasks · {activeTasks.length}/5
         </h3>
         <div className="space-y-2">
           {activeTasks.map((task) => (

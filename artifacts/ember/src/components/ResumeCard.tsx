@@ -52,7 +52,7 @@ export default function ResumeCard({
             Where the keeper left off
           </p>
           <h2 className="font-display text-[34px] leading-tight text-ember-text">
-            Tonight, {project.name} calls.
+            Today, {project.name} calls.
           </h2>
         </div>
 
@@ -84,7 +84,7 @@ export default function ResumeCard({
           className="cta-ember w-full py-[18px] px-6 flex items-center justify-between font-serif-body font-semibold text-[16px]"
         >
           <span className="flex items-center gap-2">
-            <BeginIcon size={18} /> Begin tonight's focus session — 20 min
+            <BeginIcon size={18} /> Begin today's focus session — 20 min
           </span>
           <span className="font-mono-caps opacity-85" style={{ color: 'var(--amber-glow)' }}>20:00</span>
         </button>

@@ -165,12 +165,12 @@ export default function SessionPage() {
               <div className="flex justify-center mb-4">
                 <DragonScene type={dragonType} stage={project.dragon_stage} size={140} />
               </div>
-              <p className="font-mono-caps text-ember-text-muted mb-2">Tonight · 20 minutes</p>
+              <p className="font-mono-caps text-ember-text-muted mb-2">Today · 20 minutes</p>
               <h1 className="font-display text-[40px] text-ember-text leading-tight mb-2">
                 Prepare the tending.
               </h1>
               <p className="body text-ember-text-muted">
-                Choose what {project.name} will tend tonight.
+                Choose what {project.name} will tend today.
               </p>
             </div>
 
@@ -206,7 +206,7 @@ export default function SessionPage() {
               className="cta-ember w-full py-[18px] px-6 flex items-center justify-between font-serif-body font-semibold text-[16px]"
             >
               <span className="inline-flex items-center gap-2">
-                <BeginIcon size={18} /> Begin tonight's focus session — 20 min
+                <BeginIcon size={18} /> Begin today's focus session — 20 min
               </span>
               <span className="font-mono-caps opacity-85" style={{ color: 'var(--amber-glow)' }}>20:00</span>
             </button>
