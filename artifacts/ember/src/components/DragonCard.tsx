@@ -26,6 +26,10 @@ interface DragonCardProps {
   neglectState?: string;
   /** F3 — items waiting in this dragon's autonomous inbox. */
   readyCount?: number;
+  /** F4 — true when the dragon has a mode-fluid suggestion or a pending
+   *  autonomous run. Surfaces a soft pulse on the top-LEFT of the card to
+   *  signal "I have something to say" — distinct from F3's count chip. */
+  wantsToTalk?: boolean;
 }
 
 function formatTimeSince(dateStr: string | null): string {
@@ -46,7 +50,7 @@ function formatMinutes(minutes: number): string {
   return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
 }
 
-export default function DragonCard({ project, neglectState = 'active', readyCount = 0 }: DragonCardProps) {
+export default function DragonCard({ project, neglectState = 'active', readyCount = 0, wantsToTalk = false }: DragonCardProps) {
   const dragonType = project.dragon_type as DragonType;
   const accentColor = getDragonAccentVar(dragonType);
 
@@ -69,6 +73,20 @@ export default function DragonCard({ project, neglectState = 'active', readyCoun
             never overlaps the dragon scene or the kind/stage label below.
             Source Serif 4 numeral on parchment with a faint accent ring,
             visually distinct from the future neglect-stage chip. */}
+        {/* F4 — wants-to-talk soft pulse. Top-LEFT so it never collides with
+            F3's "N ready" chip on the top-RIGHT. The dot has a tooltip and
+            a sr-only label so it's not just decorative. Reduced-motion users
+            see a static dot via the index.css fallback. */}
+        {wantsToTalk && (
+          <div
+            className="absolute top-3 left-3 z-20 inline-flex items-center"
+            title={`${project.name} has something to say`}
+            aria-label={`${project.name} wants to talk`}
+          >
+            <span className="wants-to-talk-dot" />
+          </div>
+        )}
+
         {readyCount > 0 && (
           <div
             className="absolute top-3 right-3 z-20 px-2.5 py-1 inline-flex items-baseline gap-1.5"

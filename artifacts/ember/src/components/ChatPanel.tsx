@@ -66,6 +66,21 @@ interface ChatPanelProps {
   projectId: string;
   dragonName: string;
   dragonType: DragonType;
+  /** F4 — optional starter text to seed the composer when chat opens.
+   *  Used by mode-fluid suggestions (e.g. brainstorm_offer, wandering_check_in)
+   *  so the keeper lands with the dragon's-voice opener already drafted. */
+  seedPrompt?: string;
+}
+
+interface EscalationOffer {
+  ready: true;
+  skill_id: string;
+  skill_name: string;
+  evidence_count: number;
+  headline: string;
+  body: string;
+  accept_cta: string;
+  decline_cta: string;
 }
 
 // Dragon-voice mapping for the API's machine-readable error codes. Spoken
@@ -124,6 +139,7 @@ export default function ChatPanel({
   projectId,
   dragonName,
   dragonType,
+  seedPrompt,
 }: ChatPanelProps) {
   const accent = getDragonAccentVar(dragonType);
   const [thread, setThread] = useState<ThreadResponse | null>(null);
@@ -132,6 +148,10 @@ export default function ChatPanel({
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState('');
+  // F4 — chat-internal escalate-to-autonomous offer. Fetched once when chat
+  // opens; suppressed after accept or decline for the rest of the session.
+  const [escalation, setEscalation] = useState<EscalationOffer | null>(null);
+  const [escalationActed, setEscalationActed] = useState(false);
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const composerRef = useRef<HTMLTextAreaElement | null>(null);
 
@@ -153,16 +173,69 @@ export default function ChatPanel({
   useEffect(() => {
     if (isOpen) {
       refresh();
+      // Seed the composer if a parent surface routed us here with starter
+      // text (F4 mode-fluid suggestions). The keeper can still edit before
+      // sending. We only seed when the draft is empty so we never clobber
+      // in-flight typing if a parent re-renders with a new seed mid-session.
+      if (seedPrompt && !draft) setDraft(seedPrompt);
       // Focus the composer once the panel paints in.
       setTimeout(() => composerRef.current?.focus(), 60);
+      // F4 — fetch the escalate-to-autonomous offer for general-assistance.
+      // The server records that we showed it (7-day cap), so we only fire
+      // once per panel-open and suppress the card after any verdict.
+      setEscalationActed(false);
+      setEscalation(null);
+      fetch(`/api/dragons/${dragonId}/skills/general-assistance/escalation`)
+        .then((r) => r.ok ? r.json() : null)
+        .then((data) => {
+          if (data && data.ready) setEscalation(data as EscalationOffer);
+        })
+        .catch(() => { /* escalation card is best-effort */ });
     } else {
       // Reset transient UI state when closing — keep the cached thread
       // so re-opening feels instantaneous.
       setErrorMsg(null);
       setEditingId(null);
       setEditText('');
+      setEscalation(null);
     }
-  }, [isOpen, refresh]);
+    // We deliberately exclude `draft` from deps; it would re-fire on every
+    // keystroke. seedPrompt only matters at open-time.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, refresh, dragonId, seedPrompt]);
+
+  const handleEscalationAccept = async () => {
+    if (!escalation) return;
+    setEscalationActed(true);
+    try {
+      await fetch(
+        `/api/dragons/${dragonId}/skills/${escalation.skill_id}/escalation/verdict`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ decision: 'accept' }),
+        },
+      );
+    } catch { /* surface nothing — keeper still sees chat */ }
+    setEscalation(null);
+    refresh();
+  };
+
+  const handleEscalationDecline = async () => {
+    if (!escalation) return;
+    setEscalationActed(true);
+    try {
+      await fetch(
+        `/api/dragons/${dragonId}/skills/${escalation.skill_id}/escalation/verdict`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ decision: 'decline' }),
+        },
+      );
+    } catch { /* dismissal is best-effort */ }
+    setEscalation(null);
+  };
 
   // Pin scroll to the newest turn whenever the thread or sending state changes.
   useEffect(() => {
@@ -454,6 +527,47 @@ export default function ChatPanel({
             </div>
           )}
         </div>
+
+        {/* F4 — escalate-to-autonomous card. Sits between the thread and the
+            composer so the keeper sees it after reading the latest exchange,
+            never before. Hidden once the keeper accepts or declines. */}
+        {escalation && !escalationActed && (
+          <div
+            className="parchment-card mx-5 mb-3 p-4"
+            style={{ background: 'var(--bg-base)', borderLeft: `3px solid ${accent}` }}
+            role="status"
+            aria-label="The dragon is offering to take this kind of work on its own"
+          >
+            <p className="font-mono-caps mb-1.5" style={{ color: accent }}>
+              {dragonName}
+            </p>
+            <p
+              className="font-display text-ember-text leading-snug mb-1.5"
+              style={{ fontSize: 19 }}
+            >
+              {escalation.headline}
+            </p>
+            <p className="body-sm text-ember-text-muted leading-relaxed mb-3">
+              {escalation.body}
+            </p>
+            <div className="flex flex-wrap items-center gap-3">
+              <button
+                type="button"
+                onClick={handleEscalationAccept}
+                className="cta-ember px-4 py-1.5 font-mono-caps"
+              >
+                {escalation.accept_cta}
+              </button>
+              <button
+                type="button"
+                onClick={handleEscalationDecline}
+                className="font-mono-caps text-ember-text-muted hover:text-ember-text transition-colors"
+              >
+                {escalation.decline_cta}
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Composer */}
         <div

@@ -11,6 +11,7 @@ import SettingsModal from '@/components/SettingsModal';
 import ChatPanel from '@/components/ChatPanel';
 import InboxRail from '@/components/InboxRail';
 import AutonomousTriggerModal from '@/components/AutonomousTriggerModal';
+import SuggestionBanner, { Suggestion } from '@/components/SuggestionBanner';
 import { ArrowLeftIcon, InsightsIcon, CheckIcon, ArchiveIcon, FeatherIcon, SparkIcon } from '@/components/Icons';
 
 type BrainDumpStatus = 'idle' | 'extracting' | 'ai-success' | 'fallback';
@@ -37,6 +38,11 @@ export default function ProjectPage() {
   const [showTrigger, setShowTrigger] = useState(false);
   // Bumped after a trigger fires or a verdict lands so the InboxRail refetches.
   const [inboxTick, setInboxTick] = useState(0);
+  // F4 — mode-fluid suggestion shown at the top of the page (max one).
+  const [suggestion, setSuggestion] = useState<Suggestion | null>(null);
+  // Seed text routed into chat / hand-off when the keeper accepts the banner.
+  const [chatSeed, setChatSeed] = useState<string | undefined>(undefined);
+  const [triggerSeed, setTriggerSeed] = useState<string | undefined>(undefined);
 
   const openSkillsTrust = () => {
     setSettingsFocus('skills');
@@ -96,11 +102,58 @@ export default function ProjectPage() {
     } catch { }
   }, [projectId]);
 
+  // F4 — fetch the highest-priority unblocked suggestion for this dragon.
+  // Best-effort: any failure leaves the banner hidden.
+  const refreshSuggestion = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/dragons/${projectId}/suggestion`);
+      if (res.ok) {
+        const data = await res.json();
+        setSuggestion(data.suggestion ?? null);
+      }
+    } catch { /* leave previous suggestion */ }
+  }, [projectId]);
+
+  const dismissSuggestion = useCallback(
+    async (s: Suggestion, snoozeDays?: number) => {
+      try {
+        await fetch(`/api/dragons/${projectId}/suggestion/dismiss`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            dismissal_key: s.dismissal_key,
+            ...(snoozeDays ? { snooze_days: snoozeDays } : {}),
+          }),
+        });
+      } catch { /* dismissal is best-effort */ }
+      setSuggestion(null);
+    },
+    [projectId],
+  );
+
+  const handleSuggestionAccept = useCallback(
+    (s: Suggestion) => {
+      // Route based on kind: take_first_pass opens the hand-off modal so the
+      // keeper authors the actual ask; the talk-style kinds open chat with a
+      // dragon's-voice opener already drafted in the composer.
+      if (s.kind === 'take_first_pass') {
+        setTriggerSeed(s.seed_prompt);
+        setShowTrigger(true);
+      } else {
+        setChatSeed(s.seed_prompt);
+        setShowChat(true);
+      }
+      // Same-key 24h cooldown so the banner doesn't reappear right after.
+      dismissSuggestion(s);
+    },
+    [dismissSuggestion],
+  );
+
   useEffect(() => {
     Promise.all([fetchProject(), fetchTasks(), fetchSessions()])
       .then(() => setIsLoading(false))
-      .then(() => refreshResumeContext());
-  }, [fetchProject, fetchTasks, fetchSessions, refreshResumeContext]);
+      .then(() => { refreshResumeContext(); refreshSuggestion(); });
+  }, [fetchProject, fetchTasks, fetchSessions, refreshResumeContext, refreshSuggestion]);
 
   const handleStartSession = () => navigate(`/session/${projectId}`);
 
@@ -247,6 +300,22 @@ export default function ProjectPage() {
             onStartSession={handleStartSession}
           />
         </div>
+
+        {/* F4 — mode-fluid recommendation. One quiet banner, max. Sits
+            below the resume card and above the brain dump so the keeper
+            sees it before deciding what to type. */}
+        {suggestion && (
+          <div className="mb-8">
+            <SuggestionBanner
+              suggestion={suggestion}
+              dragonName={project.name}
+              dragonType={dragonType}
+              onAccept={handleSuggestionAccept}
+              onSnooze={(s) => dismissSuggestion(s, 7)}
+              onDismiss={(s) => dismissSuggestion(s)}
+            />
+          </div>
+        )}
 
         {/* Brain dump — the hero input, sits directly under the dragon.
             Lowest-friction way to give the dragon context; with an AI key
@@ -434,23 +503,25 @@ export default function ProjectPage() {
       {project && (
         <ChatPanel
           isOpen={showChat}
-          onClose={() => setShowChat(false)}
+          onClose={() => { setShowChat(false); setChatSeed(undefined); }}
           dragonId={project.id}
           projectId={project.id}
           dragonName={project.name}
           dragonType={project.dragon_type as DragonType}
+          seedPrompt={chatSeed}
         />
       )}
       {project && (
         <AutonomousTriggerModal
           isOpen={showTrigger}
-          onClose={() => setShowTrigger(false)}
+          onClose={() => { setShowTrigger(false); setTriggerSeed(undefined); }}
           dragonId={project.id}
           dragonName={project.name}
           dragonType={project.dragon_type as DragonType}
           onSubmitted={() => setInboxTick(t => t + 1)}
           onOpenSkillsTrust={openSkillsTrust}
           onOpenSettings={openAiSettings}
+          seedPrompt={triggerSeed}
         />
       )}
     </div>

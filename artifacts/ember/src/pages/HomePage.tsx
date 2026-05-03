@@ -16,6 +16,10 @@ export default function HomePage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [readyCounts, setReadyCounts] = useState<Record<string, number>>({});
+  // F4 — wants-to-talk per dragon. Fetched once per project list refresh
+  // (low-volume per-dragon GET; no aggregate endpoint exists yet because
+  // F4 is the first surface that needs one). Keyed by project id.
+  const [wantsToTalk, setWantsToTalk] = useState<Record<string, boolean>>({});
 
   const fetchProjects = useCallback(async () => {
     try {
@@ -74,6 +78,30 @@ export default function HomePage() {
   };
 
   useEffect(() => { fetchProjects(); }, [fetchProjects]);
+
+  // F4 — refresh the wants-to-talk map whenever the active project list
+  // changes. Best-effort and parallel; any individual failure leaves that
+  // dragon's pulse off rather than spamming the keeper with retries.
+  useEffect(() => {
+    if (projects.length === 0) { setWantsToTalk({}); return; }
+    let cancelled = false;
+    Promise.all(
+      projects.map(async (p) => {
+        try {
+          const r = await fetch(`/api/dragons/${p.id}/wants-to-talk`);
+          if (!r.ok) return [p.id, false] as const;
+          const data = await r.json();
+          return [p.id, Boolean(data?.wants_to_talk)] as const;
+        } catch {
+          return [p.id, false] as const;
+        }
+      }),
+    ).then((entries) => {
+      if (cancelled) return;
+      setWantsToTalk(Object.fromEntries(entries));
+    });
+    return () => { cancelled = true; };
+  }, [projects]);
 
   const now = new Date();
   const dateLabel = useMemo(() => now.toLocaleDateString('en-US', { weekday: 'long' }), [now]);
@@ -165,6 +193,7 @@ export default function HomePage() {
                 key={project.id}
                 project={project}
                 readyCount={readyCounts[project.id] ?? 0}
+                wantsToTalk={wantsToTalk[project.id] ?? false}
               />
             ))}
           </div>

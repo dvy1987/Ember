@@ -258,6 +258,41 @@ export const insertMessagingChannelSchema = z.object({
 export type InsertMessagingChannel = z.infer<typeof insertMessagingChannelSchema>;
 export type MessagingChannel = typeof messagingChannelsTable.$inferSelect;
 
+// ---- mode_fluid_dismissals ------------------------------------------------
+// F4 — Mode-fluid recommendations. One row per (dragon, suggestion_kind)
+// when the keeper dismisses, snoozes, or (for escalate_to_autonomous) is
+// offered the suggestion. The composite kind key encodes the skill_id where
+// relevant so the table can enforce per-(dragon, skill) cooldowns without
+// a second column. See SQLite DDL for the kind vocabulary.
+export const modeFluidDismissalsTable = pgTable(
+  'mode_fluid_dismissals',
+  {
+    dragonId: text('dragon_id').notNull(),
+    suggestionKind: text('suggestion_kind').notNull(),
+    dismissedAt: text('dismissed_at').notNull(),
+    snoozeUntil: text('snooze_until'),
+  },
+  (t) => ({ pk: primaryKey({ columns: [t.dragonId, t.suggestionKind] }) }),
+);
+export const insertModeFluidDismissalSchema = z.object({
+  dragonId: z.string(),
+  suggestionKind: z.string(),
+  dismissedAt: z.string(),
+  snoozeUntil: z.string().nullable().optional(),
+});
+export type InsertModeFluidDismissal = z.infer<typeof insertModeFluidDismissalSchema>;
+export type ModeFluidDismissal = typeof modeFluidDismissalsTable.$inferSelect;
+
+/** F4 — vocabulary of suggestion kinds the evaluator may emit. The
+ *  escalate_to_autonomous variant is chat-internal; the rest are page
+ *  banners. take_first_pass and escalate_to_autonomous always carry a
+ *  skill_id when used as a dismissal key (e.g. "take_first_pass:<id>"). */
+export type ModeFluidSuggestionKind =
+  | 'brainstorm_offer'
+  | 'take_first_pass'
+  | 'wandering_check_in'
+  | 'escalate_to_autonomous';
+
 /** Spec E — trust ladder vocabulary. */
 export type TrustBand = 'paired' | 'solo' | 'autonomous';
 

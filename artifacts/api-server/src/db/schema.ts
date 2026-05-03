@@ -263,6 +263,26 @@ export function initializeSchema(db: Database.Database): void {
       created_at TEXT NOT NULL
     );
 
+    -- F4 — Mode-fluid recommendations.
+    -- One row per (dragon, suggestion_kind) when the keeper dismisses or
+    -- snoozes a suggestion. Also serves as the "last offered" ledger for
+    -- escalate_to_autonomous (where the kind key includes the skill_id),
+    -- so the evaluator can enforce per-week-per-(dragon, skill) caps.
+    -- suggestion_kind values:
+    --   brainstorm_offer
+    --   take_first_pass:<skill_id>
+    --   wandering_check_in
+    --   escalate_to_autonomous:<skill_id>      (record set at offer time)
+    --   escalate_to_autonomous_dismiss:<skill_id>  (record set at dismiss time)
+    CREATE TABLE IF NOT EXISTS mode_fluid_dismissals (
+      dragon_id TEXT NOT NULL,
+      suggestion_kind TEXT NOT NULL,
+      dismissed_at TEXT NOT NULL,
+      snooze_until TEXT,
+      PRIMARY KEY (dragon_id, suggestion_kind),
+      FOREIGN KEY (dragon_id) REFERENCES projects(id)
+    );
+
     CREATE INDEX IF NOT EXISTS idx_skill_runs_dragon_skill
       ON skill_runs(dragon_id, skill_id, ran_at DESC);
     CREATE INDEX IF NOT EXISTS idx_skill_runs_status

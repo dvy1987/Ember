@@ -25,6 +25,13 @@ import {
   setRuleOverride,
 } from '../services/skillRules.js';
 import { getProject } from '../services/projectService.js';
+import {
+  evaluateForDragon,
+  wantsToTalk,
+  recordDismissal,
+  evaluateEscalation,
+  recordEscalationShown,
+} from '../services/suggestionEvaluator.js';
 
 const router = Router();
 
@@ -408,6 +415,99 @@ router.patch('/dragons/:id/budget', (req, res) => {
     res.json(setBudgetCap(req.params.id, parsed.data.monthly_cap_usd));
   } catch {
     res.status(500).json({ error: 'Failed to update budget' });
+  }
+});
+
+// ---- F4 — Mode-fluid recommendations -------------------------------------
+
+router.get('/dragons/:id/suggestion', (req, res) => {
+  try {
+    const project = getProject(req.params.id);
+    if (!project) { res.status(404).json({ error: 'Dragon not found' }); return; }
+    const suggestion = evaluateForDragon(req.params.id);
+    res.json({ suggestion });
+  } catch {
+    res.status(500).json({ error: 'Failed to evaluate suggestion' });
+  }
+});
+
+router.get('/dragons/:id/wants-to-talk', (req, res) => {
+  try {
+    const project = getProject(req.params.id);
+    if (!project) { res.status(404).json({ error: 'Dragon not found' }); return; }
+    res.json({ wants_to_talk: wantsToTalk(req.params.id) });
+  } catch {
+    res.status(500).json({ error: 'Failed to evaluate wants-to-talk' });
+  }
+});
+
+const dismissBodySchema = z.object({
+  // The composite key returned by the evaluator (e.g. "take_first_pass:<id>").
+  dismissal_key: z.string().min(1).max(200),
+  // Optional snooze in days; omit for the default 24h cooldown.
+  snooze_days: z.number().int().min(1).max(90).optional(),
+});
+
+router.post('/dragons/:id/suggestion/dismiss', (req, res) => {
+  try {
+    const project = getProject(req.params.id);
+    if (!project) { res.status(404).json({ error: 'Dragon not found' }); return; }
+    const parsed = dismissBodySchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: 'invalid_body', details: parsed.error.issues });
+      return;
+    }
+    recordDismissal(req.params.id, parsed.data.dismissal_key, parsed.data.snooze_days);
+    res.json({ ok: true });
+  } catch {
+    res.status(500).json({ error: 'Failed to dismiss suggestion' });
+  }
+});
+
+router.get('/dragons/:id/skills/:skillId/escalation', (req, res) => {
+  try {
+    const project = getProject(req.params.id);
+    if (!project) { res.status(404).json({ error: 'Dragon not found' }); return; }
+    const skill = getSkillById(req.params.skillId) ?? getSkillByName(req.params.skillId);
+    if (!skill) { res.status(404).json({ error: 'no_skill' }); return; }
+    const offer = evaluateEscalation(req.params.id, skill.id);
+    if (offer.ready) recordEscalationShown(req.params.id, skill.id);
+    res.json(offer);
+  } catch {
+    res.status(500).json({ error: 'Failed to evaluate escalation' });
+  }
+});
+
+const escalationVerdictBodySchema = z.object({
+  decision: z.enum(['accept', 'decline']),
+});
+
+router.post('/dragons/:id/skills/:skillId/escalation/verdict', (req, res) => {
+  try {
+    const project = getProject(req.params.id);
+    if (!project) { res.status(404).json({ error: 'Dragon not found' }); return; }
+    const skill = getSkillById(req.params.skillId) ?? getSkillByName(req.params.skillId);
+    if (!skill) { res.status(404).json({ error: 'no_skill' }); return; }
+    const parsed = escalationVerdictBodySchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: 'invalid_body', details: parsed.error.issues });
+      return;
+    }
+    if (parsed.data.decision === 'accept') {
+      // Lock the trust band so subsequent invocations route autonomously by
+      // default. The keeper can still hand the next one off in paired-mode
+      // explicitly; we just stop suggesting otherwise.
+      ensureMaturity(req.params.id, skill.id, skill.default_trust_band);
+      const updated = setLockedBand(req.params.id, skill.id, 'autonomous');
+      res.json({ ok: true, maturity: updated });
+    } else {
+      // Decline writes a 7-day snooze on the dismiss key so the chat doesn't
+      // re-offer next session. The 7-day "shown" cap is independent.
+      recordDismissal(req.params.id, `escalate_to_autonomous_dismiss:${skill.id}`, 7);
+      res.json({ ok: true });
+    }
+  } catch {
+    res.status(500).json({ error: 'Failed to record escalation verdict' });
   }
 });
 

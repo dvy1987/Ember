@@ -27,6 +27,10 @@ interface AutonomousTriggerModalProps {
   onOpenSkillsTrust?: () => void;
   /** Open AI Settings (used by over_budget). */
   onOpenSettings?: () => void;
+  /** F4 — optional starter text the modal seeds the composer with on open.
+   *  Used by mode-fluid suggestions that route here (e.g. take_first_pass)
+   *  so the keeper lands with the dragon's-voice context already drafted. */
+  seedPrompt?: string;
 }
 
 interface CostPreview {
@@ -69,6 +73,7 @@ export default function AutonomousTriggerModal({
   onSubmitted,
   onOpenSkillsTrust,
   onOpenSettings,
+  seedPrompt,
 }: AutonomousTriggerModalProps) {
   const accent = getDragonAccentVar(dragonType);
   const [prompt, setPrompt] = useState('');
@@ -85,16 +90,19 @@ export default function AutonomousTriggerModal({
   const composerRef = useRef<HTMLTextAreaElement | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Reset everything when reopened.
+  // Reset everything when reopened. seedPrompt (F4) lets a parent surface
+  // pre-fill the composer with starter text — the keeper can edit it before
+  // sending. Including it in the dep array means re-opening with a new seed
+  // refreshes the draft instead of stale-bouncing.
   useEffect(() => {
     if (isOpen) {
-      setPrompt('');
+      setPrompt(seedPrompt ?? '');
       setPreview(null);
       setError(null);
       setConfirmingHigh(false);
       setTimeout(() => composerRef.current?.focus(), 60);
     }
-  }, [isOpen]);
+  }, [isOpen, seedPrompt]);
 
   // Esc closes.
   useEffect(() => {

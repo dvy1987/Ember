@@ -5,6 +5,7 @@ import { getDragonAccentVar } from '@/lib/dragonAssets';
 import FocusTimer from '@/components/FocusTimer';
 import DragonScene from '@/components/DragonScene';
 import ChatPanel from '@/components/ChatPanel';
+import SuggestionBanner, { Suggestion } from '@/components/SuggestionBanner';
 import { Link } from 'wouter';
 import { ArrowLeftIcon, BeginIcon, SparkIcon, FeatherIcon } from '@/components/Icons';
 
@@ -33,6 +34,9 @@ export default function SessionPage() {
   const [evolvedToStage, setEvolvedToStage] = useState<DragonStage | null>(null);
   const [isEvolving, setIsEvolving] = useState(false);
   const [showChat, setShowChat] = useState(false);
+  // F4 — mode-fluid suggestion (one banner, before task selection).
+  const [suggestion, setSuggestion] = useState<Suggestion | null>(null);
+  const [chatSeed, setChatSeed] = useState<string | undefined>(undefined);
   const evolutionTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const fetchData = useCallback(async () => {
@@ -52,6 +56,44 @@ export default function SessionPage() {
   }, [projectId]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
+
+  // F4 — fetch the highest-priority unblocked suggestion for this dragon.
+  useEffect(() => {
+    if (!projectId) return;
+    fetch(`/api/dragons/${projectId}/suggestion`)
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => { if (data) setSuggestion(data.suggestion ?? null); })
+      .catch(() => { /* best-effort */ });
+  }, [projectId]);
+
+  const dismissSuggestion = useCallback(
+    async (s: Suggestion, snoozeDays?: number) => {
+      try {
+        await fetch(`/api/dragons/${projectId}/suggestion/dismiss`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            dismissal_key: s.dismissal_key,
+            ...(snoozeDays ? { snooze_days: snoozeDays } : {}),
+          }),
+        });
+      } catch { /* best-effort */ }
+      setSuggestion(null);
+    },
+    [projectId],
+  );
+
+  const handleSuggestionAccept = useCallback(
+    (s: Suggestion) => {
+      // The session page only opens chat — task hand-off lives on the
+      // project page. take_first_pass shouldn't normally reach this surface,
+      // but if it does we route to chat with a "talk first" seed.
+      setChatSeed(s.seed_prompt);
+      setShowChat(true);
+      dismissSuggestion(s);
+    },
+    [dismissSuggestion],
+  );
 
   useEffect(() => {
     return () => {
@@ -175,6 +217,22 @@ export default function SessionPage() {
                 Choose what {project.name} will work on today.
               </p>
             </div>
+
+            {/* F4 — mode-fluid recommendation, sits above the task picker
+                so the dragon can offer to talk things through before the
+                keeper commits to a focus session. */}
+            {suggestion && (
+              <div className="mb-8">
+                <SuggestionBanner
+                  suggestion={suggestion}
+                  dragonName={project.name}
+                  dragonType={dragonType}
+                  onAccept={handleSuggestionAccept}
+                  onSnooze={(s) => dismissSuggestion(s, 7)}
+                  onDismiss={(s) => dismissSuggestion(s)}
+                />
+              </div>
+            )}
 
             <div className="space-y-2 mb-10">
               {activeTasks.map((task) => (
@@ -337,11 +395,12 @@ export default function SessionPage() {
         {project && (
           <ChatPanel
             isOpen={showChat}
-            onClose={() => setShowChat(false)}
+            onClose={() => { setShowChat(false); setChatSeed(undefined); }}
             dragonId={project.id}
             projectId={project.id}
             dragonName={project.name}
             dragonType={dragonType}
+            seedPrompt={chatSeed}
           />
         )}
 
