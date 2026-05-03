@@ -2,6 +2,8 @@ import { randomUUID } from 'crypto';
 import { getDb } from '../db/db.js';
 import { getProject } from './projectService.js';
 import { buildProjectContext, formatPromptContext } from './contextBuilder.js';
+import { getRecentSaga } from './sagaService.js';
+import { getRitualsByProject, getRitualStreakSummary } from './ritualService.js';
 import { callLlm, getApiConfig } from './aiService.js';
 import { getSkillById, getSkillByName, type Skill, type TrustBand } from './skillRegistry.js';
 import { getEffectiveRuleTexts } from './skillRules.js';
@@ -267,7 +269,26 @@ function classifyPrompt(prompt: string): Complexity {
 
 const SIMPLE_SYSTEM = `You are a dragon companion. Respond directly, in first person as the dragon, in 2-4 short paragraphs. No preamble, no meta-commentary, no lists unless the keeper asked for them.`;
 
-const COMPLEX_SYSTEM = `You are a dragon companion. The keeper has brought you a layered ask. Respond in first person as the dragon. Internally decompose the request into its parts, then answer each part in turn with clear structure (short headed sections or numbered steps). Stay grounded in the project context the keeper provided. No preamble.`;
+/**
+ * Complex-path system prompt. Phase 0 ships a single-call composition that
+ * follows the process-decomposer pattern explicitly (see
+ * `.agents/skills/process-decomposer/SKILL.md`):
+ *   1. Restate the keeper's ask in your own words.
+ *   2. Decompose it into 2–5 ordered sub-steps.
+ *   3. Address each sub-step in turn (heading + 1-3 sentences).
+ *   4. Close with the next concrete action the keeper can take.
+ * Spawning sub-agents per sub-step is deferred to a later phase (see
+ * Steps section of task #16); here we keep it single-call so cost and
+ * latency stay predictable.
+ */
+const COMPLEX_SYSTEM = `You are a dragon companion. The keeper has brought you a layered ask. Respond in first person as the dragon, following the process-decomposer pattern:
+
+1. RESTATE — open with one sentence rephrasing what the keeper is really asking, so they can correct you if you've misread it.
+2. DECOMPOSE — break the ask into 2–5 ordered sub-steps. Number them.
+3. ADDRESS each sub-step in its own short headed section (the heading is the sub-step). 1–3 sentences per section, grounded in the project context the keeper provided.
+4. NEXT — close with one concrete action the keeper can take in the next 30 minutes.
+
+No preamble before step 1.`;
 
 /** Pull recent verdicted runs so the dragon has continuity across calls.
  *  Edited runs surface what the keeper *changed* — the strongest learning signal. */
@@ -299,6 +320,66 @@ function truncate(s: string | null | undefined, n: number): string {
   return s.length > n ? s.slice(0, n) + '…' : s;
 }
 
+/**
+ * Pull the dragon's recent saga lines — these are the seasonal narrative
+ * entries that capture the project's lived history. Feeding them back in is
+ * what makes the dragon sound like it actually remembers.
+ */
+function getSagaBlock(projectId: string): string {
+  try {
+    const entries = getRecentSaga(projectId, 5);
+    if (!entries.length) return '';
+    return `RECENT SAGA (most recent first)\n${entries
+      .map((e) => `- [${e.season_at_time ?? 'unspoken'}] ${truncate(e.entry_text, 200)}`)
+      .join('\n')}`;
+  } catch {
+    return '';
+  }
+}
+
+/**
+ * Active rituals + their streak — the cadence the keeper has committed to.
+ * The dragon should know when a daily ritual is mid-streak vs broken.
+ */
+function getRitualsBlock(projectId: string): string {
+  try {
+    const rituals = getRitualsByProject(projectId, false);
+    if (!rituals.length) return '';
+    let streakLine = '';
+    try {
+      const s = getRitualStreakSummary(projectId);
+      streakLine = ` (${s.distinct_days} distinct days logged, ${s.total_logs} total)`;
+    } catch {
+      streakLine = '';
+    }
+    return `ACTIVE RITUALS${streakLine}\n${rituals
+      .map((r) => `- ${truncate(r.ritual_text, 120)} (${r.cadence})`)
+      .join('\n')}`;
+  } catch {
+    return '';
+  }
+}
+
+/**
+ * Maturity counters for THIS (dragon, skill) pair — the dragon's track
+ * record on this kind of work, fed in so it can self-reference its growth.
+ */
+function getMaturityBlock(dragonId: string, skillId: string, skillName: string): string {
+  const db = getDb();
+  const m = db
+    .prepare('SELECT * FROM dragon_skill_maturity WHERE dragon_id = ? AND skill_id = ?')
+    .get(dragonId, skillId) as DragonSkillMaturity | undefined;
+  if (!m || m.runs === 0) {
+    return `YOUR TRACK RECORD ON "${skillName}"\nThis is a new skill for you — no prior runs yet.`;
+  }
+  return `YOUR TRACK RECORD ON "${skillName}"
+- runs: ${m.runs}
+- approved without edits: ${m.approvals}
+- approved with edits: ${m.edits}
+- rejected: ${m.rejections}
+- current trust band: ${m.current_trust}${m.locked_band ? ` (locked by keeper to ${m.locked_band})` : ''}`;
+}
+
 function buildPrompts(
   skill: Skill,
   project: { id: string; name: string; dragon_type: string; dragon_stage: string },
@@ -309,6 +390,12 @@ function buildPrompts(
   const persona = DRAGON_KIND_PERSONA[project.dragon_type] ?? 'a dragon companion';
   const ctx = buildProjectContext(project.id);
   const projectContext = ctx ? formatPromptContext(ctx) : `PROJECT\n${project.name}`;
+
+  // Spec deliverable: assembled context = project + recent saga + active
+  // rituals + dragon maturity counters + rules + recent exchanges + prompt.
+  const sagaBlock = getSagaBlock(project.id);
+  const ritualsBlock = getRitualsBlock(project.id);
+  const maturityBlock = getMaturityBlock(project.id, skill.id, skill.name);
 
   const rulesBlock = rules.length
     ? `RULES YOUR KEEPER HAS TAUGHT YOU\n${rules.map((r) => `- ${r}`).join('\n')}`
@@ -336,7 +423,15 @@ function buildPrompts(
 You are ${persona}, bonded to the project "${project.name}". You are at the ${project.dragon_stage} stage of growth.
 You serve the skill "${skill.name}": ${skill.description}`;
 
-  const user = [projectContext, rulesBlock, recentBlock, `KEEPER'S MESSAGE\n${userPrompt}`]
+  const user = [
+    projectContext,
+    sagaBlock,
+    ritualsBlock,
+    maturityBlock,
+    rulesBlock,
+    recentBlock,
+    `KEEPER'S MESSAGE\n${userPrompt}`,
+  ]
     .filter(Boolean)
     .join('\n\n')
     .trim();
