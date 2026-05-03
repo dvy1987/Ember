@@ -74,6 +74,13 @@ const ruleBodySchema = z.object({
   scope: z.enum(['project', 'global']),
   examples: z.array(z.unknown()).optional(),
 });
+const ruleOverrideBodySchema = z.object({
+  global_rule_id: z.string().min(1),
+  excluded: z.boolean().optional(),
+});
+const budgetPatchBodySchema = z.object({
+  monthly_cap_usd: z.number().nonnegative(),
+});
 
 router.post('/dragons/:id/skills/:skillId/run', async (req, res) => {
   try {
@@ -223,9 +230,13 @@ router.post('/projects/:id/skills/:skillId/rules', (req, res) => {
 
 router.post('/projects/:id/rule-overrides', (req, res) => {
   try {
-    const { global_rule_id, excluded } = req.body as { global_rule_id: string; excluded: boolean };
-    if (!global_rule_id) { res.status(400).json({ error: 'global_rule_id required' }); return; }
-    setRuleOverride(req.params.id, global_rule_id, !!excluded);
+    const parsed = ruleOverrideBodySchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: 'invalid_body', details: parsed.error.issues });
+      return;
+    }
+    const { global_rule_id, excluded } = parsed.data;
+    setRuleOverride(req.params.id, global_rule_id, excluded ?? true);
     res.json({ ok: true });
   } catch {
     res.status(500).json({ error: 'Failed to set override' });
@@ -246,12 +257,12 @@ router.get('/dragons/:id/budget', (req, res) => {
 
 router.patch('/dragons/:id/budget', (req, res) => {
   try {
-    const { monthly_cap_usd } = req.body as { monthly_cap_usd: number };
-    if (typeof monthly_cap_usd !== 'number' || monthly_cap_usd < 0) {
-      res.status(400).json({ error: 'monthly_cap_usd must be a non-negative number' });
+    const parsed = budgetPatchBodySchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: 'invalid_body', details: parsed.error.issues });
       return;
     }
-    res.json(setBudgetCap(req.params.id, monthly_cap_usd));
+    res.json(setBudgetCap(req.params.id, parsed.data.monthly_cap_usd));
   } catch {
     res.status(500).json({ error: 'Failed to update budget' });
   }

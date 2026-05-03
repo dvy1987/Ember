@@ -176,7 +176,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
         )}
 
         <div className="mt-6 pt-5" style={{ borderTop: '1px solid var(--border-subtle)' }}>
-          <p className="font-mono-caps text-[10px] text-ember-text-muted mb-2">External messaging</p>
+          <p className="font-mono-caps text-[10px] text-ember-text-muted mb-2">External messaging — coming soon</p>
           <p className="font-serif-body italic text-[12px] text-ember-text-muted">
             Letting your dragons reach you on WhatsApp — coming soon.
           </p>
