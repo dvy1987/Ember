@@ -255,7 +255,7 @@ export default function ChatPanel({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex justify-end animate-fade-in"
+      className="fixed inset-0 z-50 flex justify-end animate-fade-in chat-panel-overlay"
       style={{ backgroundColor: 'rgba(10, 6, 4, 0.62)' }}
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
       role="dialog"
@@ -390,7 +390,11 @@ export default function ChatPanel({
 
                   {/* Affordances under the dragon turn — only shown when
                       not editing and the run still has output to act on. */}
-                  {editingId !== run.id && run.status !== 'failed' && run.output_text && (
+                  {/* Verdict actions are only meaningful while the run is
+                      still 'pending' — the backend rejects verdict writes on
+                      already-finalized runs, so we hide the controls rather
+                      than offer a dead path. */}
+                  {editingId !== run.id && run.status === 'pending' && run.output_text && (
                     <div className="flex gap-4 mt-1.5 px-1">
                       <button
                         onClick={() => {
@@ -401,14 +405,12 @@ export default function ChatPanel({
                       >
                         edit
                       </button>
-                      {run.status === 'pending' && (
-                        <button
-                          onClick={() => handleReject(run.id)}
-                          className="font-mono-caps text-ember-text-muted hover:text-ember-text transition-colors"
-                        >
-                          didn't help
-                        </button>
-                      )}
+                      <button
+                        onClick={() => handleReject(run.id)}
+                        className="font-mono-caps text-ember-text-muted hover:text-ember-text transition-colors"
+                      >
+                        didn't help
+                      </button>
                     </div>
                   )}
                 </div>

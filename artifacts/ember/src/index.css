@@ -219,8 +219,9 @@ html, body {
   animation: chat-listening-pulse 1.6s ease-in-out infinite;
 }
 @media (prefers-reduced-motion: reduce) {
-  .chat-panel-slide      { animation: fade-in 200ms ease-out; }
-  .chat-listening-pulse  { animation: none; opacity: 0.85; }
+  .chat-panel-slide          { animation: none; }
+  .chat-panel-overlay        { animation: none; }
+  .chat-listening-pulse      { animation: none; opacity: 0.85; }
 }
 
 @keyframes slide-up-fade {
