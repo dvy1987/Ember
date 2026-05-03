@@ -244,6 +244,11 @@ html, body {
   .chat-panel-slide          { animation: none; }
   .chat-panel-overlay        { animation: none; }
   .chat-listening-pulse      { animation: none; opacity: 0.85; }
+  /* F3 — kill the fade-in on overlays and the chevron rotations on the
+     inbox rail / settings expanders for keepers who asked for less motion. */
+  .animate-fade-in           { animation: none; }
+  .animate-slide-up          { animation: none; }
+  .stagger-children > *      { animation: none; }
 }
 
 @keyframes slide-up-fade {

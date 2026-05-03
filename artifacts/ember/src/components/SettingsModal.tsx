@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'wouter';
 import { CloseIcon } from './Icons';
+import SkillsTrustSection from './SkillsTrustSection';
 
 interface Settings {
   ai_api_key: string;
@@ -18,9 +19,13 @@ const PROVIDER_PRESETS = [
 interface SettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
+  /** When opened from a project page, that dragon is expanded in Skills & trust. */
+  defaultDragonId?: string | null;
+  /** When 'skills', the modal scrolls Skills & trust into view on open. */
+  initialFocus?: 'ai' | 'skills';
 }
 
-export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
+export default function SettingsModal({ isOpen, onClose, defaultDragonId = null, initialFocus = 'ai' }: SettingsModalProps) {
   const [settings, setSettings] = useState<Settings>({ ai_api_key: '', ai_base_url: '', ai_model: '' });
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -77,11 +82,11 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in"
+      className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-12 animate-fade-in overflow-y-auto"
       style={{ backgroundColor: 'rgba(10, 6, 4, 0.78)' }}
       onClick={e => { if (e.target === e.currentTarget) onClose(); }}
     >
-      <div className="parchment-card w-full max-w-md p-8 relative">
+      <div className="parchment-card w-full max-w-md p-8 relative my-4">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-ember-text-muted hover:text-ember-text"
@@ -173,6 +178,20 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
             </div>
           </div>
         )}
+
+        <div
+          id="skills-trust-section"
+          className="mt-8 pt-6 scroll-mt-12"
+          style={{ borderTop: '1px solid var(--border-subtle)' }}
+          ref={el => {
+            if (el && initialFocus === 'skills' && isOpen) {
+              setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
+            }
+          }}
+        >
+          <h3 className="font-display text-[22px] text-ember-text mb-1">Skills &amp; trust</h3>
+          <SkillsTrustSection defaultDragonId={defaultDragonId} />
+        </div>
 
         <div className="mt-6 pt-5" style={{ borderTop: '1px solid var(--border-subtle)' }}>
           <p className="font-mono-caps text-ember-text-muted mb-2">External messaging — coming soon</p>

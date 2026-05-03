@@ -24,6 +24,8 @@ const STAGE_PHRASE: Record<DragonStage, string> = {
 interface DragonCardProps {
   project: Project;
   neglectState?: string;
+  /** F3 — items waiting in this dragon's autonomous inbox. */
+  readyCount?: number;
 }
 
 function formatTimeSince(dateStr: string | null): string {
@@ -44,7 +46,7 @@ function formatMinutes(minutes: number): string {
   return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
 }
 
-export default function DragonCard({ project, neglectState = 'active' }: DragonCardProps) {
+export default function DragonCard({ project, neglectState = 'active', readyCount = 0 }: DragonCardProps) {
   const dragonType = project.dragon_type as DragonType;
   const accentColor = getDragonAccentVar(dragonType);
 
@@ -63,6 +65,32 @@ export default function DragonCard({ project, neglectState = 'active' }: DragonC
           className="absolute inset-0 opacity-30 pointer-events-none transition-opacity group-hover:opacity-60"
           style={{ background: `radial-gradient(ellipse at 50% 0%, ${accentColor}22, transparent 65%)` }}
         />
+        {/* F3 — ready-count breadcrumb. Sits in the upper-right corner so it
+            never overlaps the dragon scene or the kind/stage label below.
+            Source Serif 4 numeral on parchment with a faint accent ring,
+            visually distinct from the future neglect-stage chip. */}
+        {readyCount > 0 && (
+          <div
+            className="absolute top-3 right-3 z-20 px-2.5 py-1 inline-flex items-baseline gap-1.5"
+            style={{
+              background: 'var(--bg-base)',
+              border: `1px solid ${accentColor}`,
+              borderRadius: '3px',
+            }}
+            title={`${readyCount} waiting in this dragon's inbox`}
+          >
+            <span
+              className="font-display text-ember-text leading-none"
+              style={{ fontSize: 15 }}
+            >
+              {readyCount}
+            </span>
+            <span className="font-mono-caps text-ember-text-muted" style={{ fontSize: 10 }}>
+              ready
+            </span>
+          </div>
+        )}
+
         <div className="flex justify-center mb-5 relative z-10">
           <DragonScene type={dragonType} stage={project.dragon_stage} size={140} />
         </div>

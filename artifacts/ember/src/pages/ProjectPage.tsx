@@ -9,7 +9,9 @@ import SagaTeaser from '@/components/SagaTeaser';
 import BrainDumpInput from '@/components/BrainDumpInput';
 import SettingsModal from '@/components/SettingsModal';
 import ChatPanel from '@/components/ChatPanel';
-import { ArrowLeftIcon, InsightsIcon, CheckIcon, ArchiveIcon, FeatherIcon } from '@/components/Icons';
+import InboxRail from '@/components/InboxRail';
+import AutonomousTriggerModal from '@/components/AutonomousTriggerModal';
+import { ArrowLeftIcon, InsightsIcon, CheckIcon, ArchiveIcon, FeatherIcon, SparkIcon } from '@/components/Icons';
 
 type BrainDumpStatus = 'idle' | 'extracting' | 'ai-success' | 'fallback';
 type ArchiveState = 'idle' | 'confirming' | 'archiving';
@@ -30,7 +32,20 @@ export default function ProjectPage() {
   const [sagaTick, setSagaTick] = useState(0);
   const [aiKeyConnected, setAiKeyConnected] = useState<boolean>(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [settingsFocus, setSettingsFocus] = useState<'ai' | 'skills'>('ai');
   const [showChat, setShowChat] = useState(false);
+  const [showTrigger, setShowTrigger] = useState(false);
+  // Bumped after a trigger fires or a verdict lands so the InboxRail refetches.
+  const [inboxTick, setInboxTick] = useState(0);
+
+  const openSkillsTrust = () => {
+    setSettingsFocus('skills');
+    setShowSettings(true);
+  };
+  const openAiSettings = () => {
+    setSettingsFocus('ai');
+    setShowSettings(true);
+  };
 
   const refreshAiStatus = useCallback(async () => {
     try {
@@ -277,10 +292,11 @@ export default function ProjectPage() {
             </p>
           )}
 
-          {/* F2 — quiet entry to the paired co-work chat. Lives directly under
-              the brain dump so the conversational option sits next to the
-              capture option, not buried in a menu. */}
-          <div className="mt-4">
+          {/* F2 + F3 — two quiet entry points sit side-by-side under the
+              brain dump. "Talk to your dragon" stays in paired chat (F2);
+              "Hand it off" hands a task to the dragon to take on alone (F3).
+              Same visual weight so neither competes with the brain dump. */}
+          <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2">
             <button
               type="button"
               onClick={() => setShowChat(true)}
@@ -288,8 +304,26 @@ export default function ProjectPage() {
             >
               <FeatherIcon size={13} /> Talk to your dragon
             </button>
+            <button
+              type="button"
+              onClick={() => setShowTrigger(true)}
+              className="inline-flex items-center gap-2 font-mono-caps text-ember-text-muted hover:text-ember-text transition-colors"
+            >
+              <SparkIcon size={13} /> Hand it off
+            </button>
           </div>
         </div>
+
+        {/* F3 — autonomous inbox. Renders nothing when empty. */}
+        <InboxRail
+          dragonId={project.id}
+          projectId={project.id}
+          dragonName={project.name}
+          dragonType={project.dragon_type as DragonType}
+          refreshKey={inboxTick}
+          onActed={() => setInboxTick(t => t + 1)}
+          onOpenSkillsTrust={openSkillsTrust}
+        />
 
         {/* Quiet shortcuts to the structured tending below. These no longer
             compete with the brain dump — they just scroll-link and focus. */}
@@ -391,7 +425,12 @@ export default function ProjectPage() {
           )}
         </div>
       </div>
-      <SettingsModal isOpen={showSettings} onClose={() => setShowSettings(false)} />
+      <SettingsModal
+        isOpen={showSettings}
+        onClose={() => setShowSettings(false)}
+        defaultDragonId={project?.id ?? null}
+        initialFocus={settingsFocus}
+      />
       {project && (
         <ChatPanel
           isOpen={showChat}
@@ -400,6 +439,18 @@ export default function ProjectPage() {
           projectId={project.id}
           dragonName={project.name}
           dragonType={project.dragon_type as DragonType}
+        />
+      )}
+      {project && (
+        <AutonomousTriggerModal
+          isOpen={showTrigger}
+          onClose={() => setShowTrigger(false)}
+          dragonId={project.id}
+          dragonName={project.name}
+          dragonType={project.dragon_type as DragonType}
+          onSubmitted={() => setInboxTick(t => t + 1)}
+          onOpenSkillsTrust={openSkillsTrust}
+          onOpenSettings={openAiSettings}
         />
       )}
     </div>

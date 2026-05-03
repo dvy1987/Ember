@@ -11,7 +11,11 @@ import {
   getRun,
   listRecentRuns,
   getChatThread,
-  type SkillMode,
+  getInbox,
+  getReadyCountsPerDragon,
+  setLockedBand,
+  resumeSkill,
+  previewInvocationCost,
   type Verdict,
 } from '../services/skillRuntime.js';
 import {
@@ -240,6 +244,91 @@ router.get('/dragons/:id/chat-thread', (req, res) => {
     });
   } catch {
     res.status(500).json({ error: 'Failed to fetch chat thread' });
+  }
+});
+
+// ---- F3 Inbox + ready-counts + trust override + resume --------------------
+
+// Cross-project: must come BEFORE /dragons/:id/inbox so Express doesn't
+// treat "ready-counts" as the :id slug.
+router.get('/dragons/ready-counts', (_req, res) => {
+  try {
+    res.json(getReadyCountsPerDragon());
+  } catch {
+    res.status(500).json({ error: 'Failed to fetch ready counts' });
+  }
+});
+
+router.get('/dragons/:id/inbox', (req, res) => {
+  try {
+    const project = getProject(req.params.id);
+    if (!project) { res.status(404).json({ error: 'Dragon not found' }); return; }
+    const projectId = (req.query.project_id as string) || req.params.id;
+    res.json(getInbox(req.params.id, projectId));
+  } catch {
+    res.status(500).json({ error: 'Failed to fetch inbox' });
+  }
+});
+
+const trustPatchBodySchema = z.object({
+  locked_band: z.enum(['paired', 'solo', 'autonomous']).nullable(),
+});
+
+router.patch('/dragons/:id/skills/:skillId/trust', (req, res) => {
+  try {
+    const project = getProject(req.params.id);
+    if (!project) { res.status(404).json({ error: 'Dragon not found' }); return; }
+    const skill = getSkillById(req.params.skillId) ?? getSkillByName(req.params.skillId);
+    if (!skill) { res.status(404).json({ error: 'no_skill' }); return; }
+    const parsed = trustPatchBodySchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: 'invalid_body', details: parsed.error.issues });
+      return;
+    }
+    // Ensure the maturity row exists before attempting to lock.
+    ensureMaturity(req.params.id, skill.id, skill.default_trust_band);
+    const updated = setLockedBand(req.params.id, skill.id, parsed.data.locked_band);
+    if (!updated) { res.status(404).json({ error: 'no_maturity' }); return; }
+    res.json(updated);
+  } catch {
+    res.status(500).json({ error: 'Failed to update trust' });
+  }
+});
+
+router.post('/dragons/:id/skills/:skillId/resume', (req, res) => {
+  try {
+    const project = getProject(req.params.id);
+    if (!project) { res.status(404).json({ error: 'Dragon not found' }); return; }
+    const skill = getSkillById(req.params.skillId) ?? getSkillByName(req.params.skillId);
+    if (!skill) { res.status(404).json({ error: 'no_skill' }); return; }
+    const updated = resumeSkill(req.params.id, skill.id);
+    if (!updated) { res.status(404).json({ error: 'no_maturity' }); return; }
+    res.json(updated);
+  } catch {
+    res.status(500).json({ error: 'Failed to resume skill' });
+  }
+});
+
+const estimateBodySchema = z.object({
+  user_prompt: z.string().min(1).max(20_000),
+});
+
+router.post('/dragons/:id/skills/:skillId/estimate', (req, res) => {
+  try {
+    const project = getProject(req.params.id);
+    if (!project) { res.status(404).json({ error: 'Dragon not found' }); return; }
+    const skill = getSkillById(req.params.skillId) ?? getSkillByName(req.params.skillId);
+    if (!skill) { res.status(404).json({ error: 'no_skill' }); return; }
+    const parsed = estimateBodySchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: 'invalid_body', details: parsed.error.issues });
+      return;
+    }
+    const preview = previewInvocationCost(req.params.id, skill.id, parsed.data.user_prompt);
+    if (!preview) { res.status(404).json({ error: 'no_project_or_skill' }); return; }
+    res.json(preview);
+  } catch {
+    res.status(500).json({ error: 'Failed to estimate cost' });
   }
 });
 

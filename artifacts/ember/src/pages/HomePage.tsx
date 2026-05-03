@@ -15,6 +15,7 @@ export default function HomePage() {
   const [isLoadingArchived, setIsLoadingArchived] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [readyCounts, setReadyCounts] = useState<Record<string, number>>({});
 
   const fetchProjects = useCallback(async () => {
     try {
@@ -28,6 +29,29 @@ export default function HomePage() {
       setIsLoading(false);
     }
   }, []);
+
+  const fetchReadyCounts = useCallback(async () => {
+    try {
+      const res = await fetch('/api/dragons/ready-counts');
+      if (res.ok) setReadyCounts(await res.json());
+    } catch { /* leave last */ }
+  }, []);
+
+  // F3 — refresh the cross-project breadcrumb whenever Ember Keep regains
+  // focus. This is what makes the dot feel live without polling: the user
+  // returning from a project tab is the strongest signal that something
+  // may have changed.
+  useEffect(() => {
+    fetchReadyCounts();
+    const onFocus = () => fetchReadyCounts();
+    const onVisibility = () => { if (document.visibilityState === 'visible') fetchReadyCounts(); };
+    window.addEventListener('focus', onFocus);
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => {
+      window.removeEventListener('focus', onFocus);
+      document.removeEventListener('visibilitychange', onVisibility);
+    };
+  }, [fetchReadyCounts]);
 
   const fetchArchivedProjects = useCallback(async () => {
     setIsLoadingArchived(true);
@@ -137,7 +161,11 @@ export default function HomePage() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 stagger-children">
             {projects.map((project) => (
-              <DragonCard key={project.id} project={project} />
+              <DragonCard
+                key={project.id}
+                project={project}
+                readyCount={readyCounts[project.id] ?? 0}
+              />
             ))}
           </div>
         )}

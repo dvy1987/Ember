@@ -787,6 +787,176 @@ export function getChatThread(
     .all(dragonId, projectId, skillId, limit) as SkillRun[];
 }
 
+// ---------------------------------------------------------------------------
+// F3 — Inbox + trust override + resume
+// ---------------------------------------------------------------------------
+
+export interface InboxItem {
+  run: SkillRun;
+  skill_name: string;
+  pause_state: boolean;
+}
+
+export interface InboxResponse {
+  pending: InboxItem[];
+  recently_handled: InboxItem[];
+  paused_skills: Array<{ skill_id: string; skill_name: string }>;
+  high_cost_pending: InboxItem[];
+}
+
+/**
+ * F3 inbox fetch — autonomous-mode runs only, scoped to one (dragon, project).
+ * Pending = mode=autonomous AND status='pending' (the keeper still owes a verdict).
+ * Recently handled = the same dragon+project, verdicted within the last 7 days,
+ * so the keeper can see what they just did and undo a misclick if needed.
+ * High-cost-pending is a separate bucket the rail renders as a confirm card —
+ * Phase 0 doesn't persist these (the runtime returns 428 before insert), so
+ * this slot stays empty until F3.5 introduces a queued-run table.
+ */
+export function getInbox(dragonId: string, projectId: string): InboxResponse {
+  const db = getDb();
+  const skillsById = new Map(
+    (db.prepare('SELECT id, name FROM skills').all() as Array<{ id: string; name: string }>)
+      .map((s) => [s.id, s.name])
+  );
+  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+
+  const pendingRows = db
+    .prepare(
+      `SELECT * FROM skill_runs
+         WHERE dragon_id = ? AND project_id = ?
+           AND mode = 'autonomous' AND status = 'pending'
+         ORDER BY ran_at DESC`
+    )
+    .all(dragonId, projectId) as SkillRun[];
+
+  const handledRows = db
+    .prepare(
+      `SELECT * FROM skill_runs
+         WHERE dragon_id = ? AND project_id = ?
+           AND mode = 'autonomous'
+           AND status IN ('approved','edited','rejected','failed')
+           AND verdicted_at IS NOT NULL
+           AND verdicted_at >= ?
+         ORDER BY verdicted_at DESC
+         LIMIT 50`
+    )
+    .all(dragonId, projectId, sevenDaysAgo) as SkillRun[];
+
+  const pausedRows = db
+    .prepare(
+      `SELECT skill_id FROM dragon_skill_maturity WHERE dragon_id = ? AND paused = 1`
+    )
+    .all(dragonId) as Array<{ skill_id: string }>;
+  const pausedSet = new Set(pausedRows.map((r) => r.skill_id));
+
+  const wrap = (r: SkillRun): InboxItem => ({
+    run: r,
+    skill_name: skillsById.get(r.skill_id) ?? 'unknown',
+    pause_state: pausedSet.has(r.skill_id),
+  });
+
+  return {
+    pending: pendingRows.map(wrap),
+    recently_handled: handledRows.map(wrap),
+    paused_skills: pausedRows.map((r) => ({
+      skill_id: r.skill_id,
+      skill_name: skillsById.get(r.skill_id) ?? 'unknown',
+    })),
+    high_cost_pending: [],
+  };
+}
+
+/** Map of dragon_id -> count of autonomous-mode runs awaiting verdict.
+ *  Used by Ember Keep to draw the "N ready" breadcrumb on each dragon card. */
+export function getReadyCountsPerDragon(): Record<string, number> {
+  const db = getDb();
+  const rows = db
+    .prepare(
+      `SELECT dragon_id, COUNT(*) AS n FROM skill_runs
+         WHERE mode = 'autonomous' AND status = 'pending'
+         GROUP BY dragon_id`
+    )
+    .all() as Array<{ dragon_id: string; n: number }>;
+  const out: Record<string, number> = {};
+  for (const r of rows) out[r.dragon_id] = Number(r.n);
+  return out;
+}
+
+/** F3 — keeper override of the trust band on a (dragon, skill) pair. */
+export function setLockedBand(
+  dragonId: string,
+  skillId: string,
+  band: TrustBand | null
+): DragonSkillMaturity | null {
+  const db = getDb();
+  const m = db
+    .prepare('SELECT * FROM dragon_skill_maturity WHERE dragon_id = ? AND skill_id = ?')
+    .get(dragonId, skillId) as DragonSkillMaturity | undefined;
+  if (!m) return null;
+  db.prepare(
+    'UPDATE dragon_skill_maturity SET locked_band = ? WHERE dragon_id = ? AND skill_id = ?'
+  ).run(band, dragonId, skillId);
+  // Re-derive current_trust honouring the new lock — locked wins over earned.
+  const newTrust = band ?? deriveTrust(m);
+  if (newTrust !== m.current_trust) {
+    db.prepare(
+      'UPDATE dragon_skill_maturity SET current_trust = ? WHERE dragon_id = ? AND skill_id = ?'
+    ).run(newTrust, dragonId, skillId);
+  }
+  return db
+    .prepare('SELECT * FROM dragon_skill_maturity WHERE dragon_id = ? AND skill_id = ?')
+    .get(dragonId, skillId) as DragonSkillMaturity;
+}
+
+/** F3 — clear the auto-pause flag set by 3 consecutive rejections. */
+export function resumeSkill(
+  dragonId: string,
+  skillId: string
+): DragonSkillMaturity | null {
+  const db = getDb();
+  const m = db
+    .prepare('SELECT * FROM dragon_skill_maturity WHERE dragon_id = ? AND skill_id = ?')
+    .get(dragonId, skillId) as DragonSkillMaturity | undefined;
+  if (!m) return null;
+  db.prepare(
+    'UPDATE dragon_skill_maturity SET paused = 0 WHERE dragon_id = ? AND skill_id = ?'
+  ).run(dragonId, skillId);
+  return db
+    .prepare('SELECT * FROM dragon_skill_maturity WHERE dragon_id = ? AND skill_id = ?')
+    .get(dragonId, skillId) as DragonSkillMaturity;
+}
+
+/** F3 — pre-flight cost preview for the trigger modal.
+ *  Returns the worst-case reservation a real invocation would charge,
+ *  so the modal can render "$0.07 of $4.88 remaining this month" before
+ *  the keeper commits. Mirrors the maxCost path used inside invokeSkill. */
+export function previewInvocationCost(
+  dragonId: string,
+  skillId: string,
+  userPrompt: string
+): { estimated_cost_usd: number; high_cost: boolean; budget: DragonBudget; model: string } | null {
+  const project = getProject(dragonId);
+  if (!project) return null;
+  const skill = getSkillById(skillId);
+  if (!skill) return null;
+  const apiConfig = getApiConfig();
+  // Without a key we still want the modal to do its work — fall back to the
+  // default rate so the budget context is at least directionally correct.
+  const model = apiConfig?.model ?? 'gpt-4o-mini';
+  const complexity = classifyPrompt(userPrompt);
+  const rules = getEffectiveRuleTexts(dragonId, skill.id, project.id);
+  const { system, user } = buildPrompts(skill, project, rules, userPrompt, complexity);
+  const promptText = `${system}\n${user}`;
+  const cost = maxCost(promptText, model);
+  return {
+    estimated_cost_usd: cost,
+    high_cost: cost > HIGH_COST_THRESHOLD_USD,
+    budget: getBudget(dragonId),
+    model,
+  };
+}
+
 // F2 — implicitly approve any pending paired turn on this triple.
 // Used when a new turn arrives in the same chat (auto-finalize-on-next-send).
 // Idempotent: returns 0 when nothing is pending.
