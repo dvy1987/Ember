@@ -5,9 +5,10 @@ import { getDragonAccentVar } from '@/lib/dragonAssets';
 import ResumeCard from '@/components/ResumeCard';
 import TaskList from '@/components/TaskList';
 import BrainDumpInput from '@/components/BrainDumpInput';
-import { ArrowLeftIcon, InsightsIcon, CheckIcon } from '@/components/Icons';
+import { ArrowLeftIcon, InsightsIcon, CheckIcon, ArchiveIcon } from '@/components/Icons';
 
 type BrainDumpStatus = 'idle' | 'extracting' | 'ai-success' | 'fallback';
+type ArchiveState = 'idle' | 'confirming' | 'archiving';
 
 export default function ProjectPage() {
   const [, params] = useRoute('/project/:id');
@@ -21,6 +22,7 @@ export default function ProjectPage() {
   const [resumeContext, setResumeContext] = useState<ResumeContext | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [brainDumpStatus, setBrainDumpStatus] = useState<BrainDumpStatus>('idle');
+  const [archiveState, setArchiveState] = useState<ArchiveState>('idle');
 
   const fetchProject = useCallback(async () => {
     try {
@@ -104,6 +106,26 @@ export default function ProjectPage() {
       body: JSON.stringify({ project_id: projectId, task_text: text }),
     });
     fetchTasks();
+  };
+
+  const handleArchive = async () => {
+    if (archiveState === 'idle') {
+      setArchiveState('confirming');
+      return;
+    }
+    if (archiveState === 'confirming') {
+      setArchiveState('archiving');
+      try {
+        const res = await fetch(`/api/projects/${projectId}`, { method: 'DELETE' });
+        if (res.ok) {
+          navigate('/');
+        } else {
+          setArchiveState('idle');
+        }
+      } catch {
+        setArchiveState('idle');
+      }
+    }
   };
 
   const handleBrainDump = async (text: string) => {
@@ -222,7 +244,7 @@ export default function ProjectPage() {
         </div>
 
         {project.project_summary && (
-          <div className="parchment-card p-6">
+          <div className="parchment-card p-6 mb-12">
             <h3 className="font-mono-caps text-[10px] text-ember-text-muted mb-3">
               Project summary
             </h3>
@@ -231,6 +253,40 @@ export default function ProjectPage() {
             </p>
           </div>
         )}
+
+        <div className="flex justify-center pt-4">
+          {archiveState === 'idle' && (
+            <button
+              onClick={handleArchive}
+              className="inline-flex items-center gap-2 font-mono-caps text-[10px] text-ember-text-muted hover:text-ember-text transition-colors px-3 py-2"
+            >
+              <ArchiveIcon size={13} /> Archive this dragon
+            </button>
+          )}
+          {archiveState === 'confirming' && (
+            <div className="flex items-center gap-3">
+              <span className="font-mono-caps text-[10px] text-ember-text-muted">
+                Retire this dragon to the archive?
+              </span>
+              <button
+                onClick={handleArchive}
+                className="font-mono-caps text-[10px] px-3 py-1.5 transition-colors"
+                style={{ color: 'var(--ember-accent)', border: '1px solid var(--ember-accent)', borderRadius: '3px' }}
+              >
+                Archive
+              </button>
+              <button
+                onClick={() => setArchiveState('idle')}
+                className="font-mono-caps text-[10px] text-ember-text-muted hover:text-ember-text transition-colors px-3 py-1.5"
+              >
+                Cancel
+              </button>
+            </div>
+          )}
+          {archiveState === 'archiving' && (
+            <span className="font-mono-caps text-[10px] text-ember-text-muted">Sending to the archive…</span>
+          )}
+        </div>
       </div>
     </div>
   );

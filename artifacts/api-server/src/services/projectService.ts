@@ -42,6 +42,11 @@ export function getAllProjects(): Project[] {
   return db.prepare('SELECT * FROM projects WHERE is_archived = 0 ORDER BY updated_at DESC').all() as Project[];
 }
 
+export function getArchivedProjects(): Project[] {
+  const db = getDb();
+  return db.prepare('SELECT * FROM projects WHERE is_archived = 1 ORDER BY updated_at DESC').all() as Project[];
+}
+
 /** Columns that callers are permitted to update. Keys are validated against this set before being interpolated into SQL. */
 const ALLOWED_PROJECT_UPDATE_COLUMNS = new Set([
   'name',

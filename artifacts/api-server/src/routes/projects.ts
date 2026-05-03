@@ -1,12 +1,13 @@
 import { Router } from 'express';
-import { createProject, getAllProjects, getProject, updateProject, archiveProject, DragonType } from '../services/projectService.js';
+import { createProject, getAllProjects, getArchivedProjects, getProject, updateProject, archiveProject, DragonType } from '../services/projectService.js';
 import { updateDragonState } from '../services/dragonEngine.js';
 
 const router = Router();
 
-router.get('/projects', (_req, res) => {
+router.get('/projects', (req, res) => {
   try {
-    const projects = getAllProjects();
+    const archived = req.query.archived === 'true';
+    const projects = archived ? getArchivedProjects() : getAllProjects();
     res.json(projects);
   } catch {
     res.status(500).json({ error: 'Failed to fetch projects' });

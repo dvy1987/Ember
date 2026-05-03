@@ -206,3 +206,13 @@ export function WindIcon({ size = 14, ...rest }: IconProps) {
     </svg>
   );
 }
+
+export function ArchiveIcon({ size = 14, ...rest }: IconProps) {
+  return (
+    <svg {...base(size)} {...rest}>
+      <rect x="2" y="4" width="16" height="4" rx="1" />
+      <path d="M3 8V16C3 16.5523 3.44772 17 4 17H16C16.5523 17 17 16.5523 17 16V8" />
+      <path d="M8 12H12" />
+    </svg>
+  );
+}

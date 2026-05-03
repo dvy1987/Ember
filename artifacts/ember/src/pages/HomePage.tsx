@@ -4,11 +4,14 @@ import DragonCard from '@/components/DragonCard';
 import CreateProjectModal from '@/components/CreateProjectModal';
 import SettingsModal from '@/components/SettingsModal';
 import { Link } from 'wouter';
-import { ClockIcon, InsightsIcon, SettingsIcon, PlusIcon } from '@/components/Icons';
+import { ClockIcon, InsightsIcon, SettingsIcon, PlusIcon, ArchiveIcon, ChevronDownIcon } from '@/components/Icons';
 
 export default function HomePage() {
   const [projects, setProjects] = useState<Project[]>([]);
+  const [archivedProjects, setArchivedProjects] = useState<Project[]>([]);
+  const [showArchived, setShowArchived] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingArchived, setIsLoadingArchived] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
 
@@ -24,6 +27,26 @@ export default function HomePage() {
       setIsLoading(false);
     }
   }, []);
+
+  const fetchArchivedProjects = useCallback(async () => {
+    setIsLoadingArchived(true);
+    try {
+      const res = await fetch('/api/projects?archived=true');
+      if (res.ok) {
+        setArchivedProjects(await res.json());
+      }
+    } catch {
+    } finally {
+      setIsLoadingArchived(false);
+    }
+  }, []);
+
+  const handleToggleArchived = () => {
+    if (!showArchived && archivedProjects.length === 0) {
+      fetchArchivedProjects();
+    }
+    setShowArchived(prev => !prev);
+  };
 
   useEffect(() => { fetchProjects(); }, [fetchProjects]);
 
@@ -111,6 +134,40 @@ export default function HomePage() {
             {projects.map((project) => (
               <DragonCard key={project.id} project={project} />
             ))}
+          </div>
+        )}
+
+        <div className="mt-16 flex justify-center">
+          <button
+            onClick={handleToggleArchived}
+            className="inline-flex items-center gap-2 font-mono-caps text-[10px] text-ember-text-muted hover:text-ember-text transition-colors px-3 py-2"
+          >
+            <ArchiveIcon size={12} />
+            Archived dragons
+            <ChevronDownIcon
+              size={11}
+              style={{ transform: showArchived ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}
+            />
+          </button>
+        </div>
+
+        {showArchived && (
+          <div className="mt-6">
+            {isLoadingArchived ? (
+              <div className="flex justify-center py-8">
+                <p className="font-serif-body italic text-ember-text-muted text-[14px]">Searching the archive…</p>
+              </div>
+            ) : archivedProjects.length === 0 ? (
+              <div className="text-center py-8">
+                <p className="font-mono-caps text-[10px] text-ember-text-muted">No archived dragons yet.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 opacity-60">
+                {archivedProjects.map((project) => (
+                  <DragonCard key={project.id} project={project} />
+                ))}
+              </div>
+            )}
           </div>
         )}
 
