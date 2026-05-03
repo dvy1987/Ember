@@ -91,6 +91,10 @@ export default function DragonScene({ type, stage, size = 160, intense = false }
                   <div className="cinder-aura-radial" aria-hidden />
                   <div className="cinder-aura-pulse" aria-hidden />
                   <img src={imagePath} alt="Cinder" className="dragon-image cinder-painterly-img" />
+                  <div
+                    className="dragon-eyelid"
+                    style={{ left: '50%', top: '32%', width: '13px', height: '9px', transformOrigin: 'top center' }}
+                  />
                   <div className="cinder-mouth-breath" aria-hidden>
                     <span className="cinder-ember e1" />
                     <span className="cinder-ember e2" />
