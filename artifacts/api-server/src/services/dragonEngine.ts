@@ -29,6 +29,18 @@ export function computeDragonStage(totalFocusMinutes: number): DragonStage {
   return stage;
 }
 
+export function computeBlendedStage(minutes: number, ritualDays: number): DragonStage {
+  // Walk highest → lowest; the first stage whose blended fraction hits 1.0 wins.
+  for (let i = DRAGON_STAGES.length - 1; i >= 0; i--) {
+    const m = DRAGON_STAGES[i].minMinutes;
+    const r = RITUAL_STAGE_DAYS[i].minDays;
+    const fM = m === 0 ? 1 : minutes / m;
+    const fR = r === 0 ? 1 : ritualDays / r;
+    if (fM + fR >= 1) return DRAGON_STAGES[i].stage;
+  }
+  return 'egg';
+}
+
 export function computeRitualStage(distinctDays: number): DragonStage {
   let stage: DragonStage = 'egg';
   for (const entry of RITUAL_STAGE_DAYS) {
@@ -89,12 +101,14 @@ export function updateDragonState(projectId: string): Project | null {
 
   const previousStage = project.dragon_stage as DragonStage;
 
-  // Earned stage is the higher of: minutes-shape OR ritual-shape progression.
-  const minutesEarned = computeDragonStage(project.total_focus_minutes);
+  // Blended-shape progression: a stage is earned when the SUM of fractional
+  // progress on each axis (minutes-shape and ritual-shape) reaches 1.0. So
+  // either pure path works exactly as before, AND a half-and-half tender
+  // (e.g. 50% minutes + 50% ritual days) also reaches the next stage. This
+  // honours mixed tending instead of letting one curve over-promote.
   const ritualDays = getRitualDistinctDays(projectId);
-  const ritualEarned = computeRitualStage(ritualDays);
-  const earnedIndex = Math.max(stageIndex(minutesEarned), stageIndex(ritualEarned));
-  const earnedStage = DRAGON_STAGES[earnedIndex].stage;
+  const earnedStage = computeBlendedStage(project.total_focus_minutes, ritualDays);
+  const earnedIndex = stageIndex(earnedStage);
 
   const decayedStage = applyDecay({ ...project, dragon_stage: earnedStage });
   const decayedIndex = stageIndex(decayedStage);

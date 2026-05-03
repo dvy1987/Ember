@@ -111,11 +111,11 @@ export function ensureDefaultHealthDragon(): Project | null {
   const db = getDb();
   const now = new Date().toISOString();
 
-  // Hard gate: only seed for brand-new users (zero non-archived projects).
-  // Existing-DB users — even those upgrading without the sentinel — must NOT
-  // receive a Moss "Health" dragon. This protects the existing-user smoke test.
+  // Hard gate: only seed for brand-new users (zero TOTAL projects, including
+  // archived). Existing-DB users — even those who archived everything, and
+  // upgraders without the sentinel — must NOT receive a Moss "Health" dragon.
   const projectCount = db
-    .prepare('SELECT COUNT(*) as c FROM projects WHERE is_archived = 0')
+    .prepare('SELECT COUNT(*) as c FROM projects')
     .get() as { c: number };
   if (projectCount.c > 0) {
     // Plant the sentinel so we never re-check on subsequent loads.

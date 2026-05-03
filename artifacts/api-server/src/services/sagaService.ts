@@ -32,6 +32,30 @@ function currentSeason(date: Date = new Date()): Season {
   return 'autumn';
 }
 
+const SEASON_BLURBS: Record<Season, string> = {
+  winter: 'the wheel turned — winter has come to the keep.',
+  spring: 'the wheel turned — spring has come to the keep.',
+  summer: 'the wheel turned — summer has come to the keep.',
+  autumn: 'the wheel turned — autumn has come to the keep.',
+};
+
+/** If this project's last saga entry happened in a different season than now,
+ *  insert a `season_turn` entry first so the saga records the wheel turning.
+ *  Idempotent per (project, season) — only fires when the season actually
+ *  changed since the last write. Skipped on the very first write for a
+ *  project (the `hatch` entry already anchors the starting season). */
+function maybeWriteSeasonTurn(projectId: string, nowIso: string, season: Season): void {
+  const db = getDb();
+  const last = db.prepare(
+    'SELECT season_at_time FROM saga_entries WHERE project_id = ? ORDER BY occurred_at DESC LIMIT 1'
+  ).get(projectId) as { season_at_time: Season | null } | undefined;
+  if (!last || !last.season_at_time || last.season_at_time === season) return;
+  db.prepare(`
+    INSERT INTO saga_entries (id, project_id, kind, entry_text, meta, occurred_at, season_at_time, created_at)
+    VALUES (?, ?, 'season_turn', ?, NULL, ?, ?, ?)
+  `).run(randomUUID(), projectId, SEASON_BLURBS[season], nowIso, season, nowIso);
+}
+
 export function writeSagaEntry(
   projectId: string,
   kind: SagaKind,
@@ -44,6 +68,12 @@ export function writeSagaEntry(
   const iso = now.toISOString();
   const season = currentSeason(now);
   const metaJson = meta ? JSON.stringify(meta) : null;
+
+  // Detect a season turn relative to the project's last entry (skip when this
+  // call is itself a season_turn to avoid recursion).
+  if (kind !== 'season_turn') {
+    maybeWriteSeasonTurn(projectId, iso, season);
+  }
 
   db.prepare(`
     INSERT INTO saga_entries (id, project_id, kind, entry_text, meta, occurred_at, season_at_time, created_at)

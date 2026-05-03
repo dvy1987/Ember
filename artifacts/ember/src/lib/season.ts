@@ -23,11 +23,14 @@ export type SongState = 'peak' | 'waxing' | 'waning' | 'quiet' | 'cracking';
  * Per-kind direct mapping guarantees every state is reachable (cracking is
  * never shadowed by another state).
  */
+// Per spec: Cinder + Drift + Frost crack in autumn (Frost = late autumn);
+// Moss cracks in spring. The remaining three seasons split into peak / waxing
+// or waning / quiet, chosen per kind. Direct map → every state is reachable.
 const KIND_SEASONS: Record<DragonType, Record<Season, SongState>> = {
-  cinder: { winter: 'peak',   spring: 'cracking', summer: 'quiet',  autumn: 'waxing' },
-  moss:   { winter: 'quiet',  spring: 'peak',     summer: 'waning', autumn: 'cracking' },
-  drift:  { winter: 'quiet',  spring: 'cracking', summer: 'waxing', autumn: 'peak' },
-  frost:  { winter: 'peak',   spring: 'cracking', summer: 'quiet',  autumn: 'waxing' },
+  cinder: { winter: 'peak',  autumn: 'cracking', spring: 'waning',  summer: 'quiet'  },
+  moss:   { spring: 'cracking', summer: 'peak',  autumn: 'waning',  winter: 'quiet'  },
+  drift:  { autumn: 'cracking', summer: 'peak',  spring: 'waxing',  winter: 'quiet'  },
+  frost:  { winter: 'peak',  autumn: 'cracking', spring: 'waning',  summer: 'quiet'  },
 };
 
 export function currentSeason(date: Date = new Date()): Season {
