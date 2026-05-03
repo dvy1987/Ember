@@ -1,6 +1,6 @@
 import { randomUUID } from 'crypto';
 import { getDb } from '../db/db.js';
-import { writeSagaEntry } from './sagaService.js';
+import { ensureSeasonTurn, writeSagaEntry } from './sagaService.js';
 import { createRitual } from './ritualService.js';
 
 export type DragonType = 'cinder' | 'moss' | 'drift' | 'frost';
@@ -47,7 +47,12 @@ export function getProject(id: string): Project | null {
 
 export function getAllProjects(): Project[] {
   const db = getDb();
-  return db.prepare('SELECT * FROM projects WHERE is_archived = 0 ORDER BY updated_at DESC').all() as Project[];
+  const projects = db.prepare('SELECT * FROM projects WHERE is_archived = 0 ORDER BY updated_at DESC').all() as Project[];
+  // Reading the keep is the natural moment to notice the wheel has turned.
+  // `ensureSeasonTurn` is idempotent per (project, season) so this is a no-op
+  // when the saga's last entry is already in the current season.
+  for (const p of projects) ensureSeasonTurn(p.id);
+  return projects;
 }
 
 export function getArchivedProjects(): Project[] {

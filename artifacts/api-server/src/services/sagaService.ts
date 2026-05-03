@@ -44,6 +44,10 @@ const SEASON_BLURBS: Record<Season, string> = {
  *  Idempotent per (project, season) — only fires when the season actually
  *  changed since the last write. Skipped on the very first write for a
  *  project (the `hatch` entry already anchors the starting season). */
+export function ensureSeasonTurn(projectId: string, now: Date = new Date()): void {
+  maybeWriteSeasonTurn(projectId, now.toISOString(), currentSeason(now));
+}
+
 function maybeWriteSeasonTurn(projectId: string, nowIso: string, season: Season): void {
   const db = getDb();
   const last = db.prepare(
