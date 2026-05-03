@@ -4,9 +4,9 @@ import { DRAGON_STAGES, DragonType } from '@/lib/types';
 import { ArrowLeftIcon, ArrowRightIcon, FlameIcon, SparkIcon, CheckIcon, InsightsIcon } from '@/components/Icons';
 
 const DRAGON_COLORS: Record<DragonType, string> = {
-  cinder: '#D4421A',
-  moss: '#7A9B5A',
-  drift: '#6B8AA8',
+  cinder: 'var(--ember-accent)',
+  moss: 'var(--moss-accent)',
+  drift: 'var(--drift-accent)',
 };
 
 interface ProjectInfo {

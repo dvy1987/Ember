@@ -31,9 +31,9 @@ interface AnalyticsData {
 }
 
 const DRAGON_COLORS: Record<string, string> = {
-  cinder: '#D4421A',
-  moss: '#7A9B5A',
-  drift: '#6B8AA8',
+  cinder: 'var(--ember-accent)',
+  moss: 'var(--moss-accent)',
+  drift: 'var(--drift-accent)',
 };
 
 function formatMinutes(minutes: number): string {

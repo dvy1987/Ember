@@ -36,7 +36,7 @@ export default function DragonScene({ type, stage, size = 160, intense = false }
       duration: 3.5 + Math.random() * 2,
       delay: Math.random() * 5,
       driftX: (Math.random() - 0.5) * 40,
-      color: Math.random() > 0.5 ? '#F0A04A' : '#D4421A',
+      color: Math.random() > 0.5 ? 'var(--amber-glow)' : 'var(--ember-accent)',
     };
   }), [intense]);
 
@@ -129,7 +129,7 @@ export default function DragonScene({ type, stage, size = 160, intense = false }
                 height: '8px',
                 left: `${l.left}%`,
                 top: `${l.top}%`,
-                fill: '#7A9B5A',
+                fill: 'var(--moss-accent)',
                 animationDuration: `${l.duration}s`,
                 animationDelay: `-${l.delay}s`,
                 ['--drift-x' as string]: `${l.driftX}px`,
