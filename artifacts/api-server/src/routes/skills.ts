@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import { listSkills, getSkillById, getSkillByName } from '../services/skillRegistry.js';
+import { listSkills, getSkillById, getSkillByName, ensureSeedSkills } from '../services/skillRegistry.js';
 import {
   invokeSkill,
   recordVerdict,
@@ -24,6 +24,22 @@ import { getProject } from '../services/projectService.js';
 const router = Router();
 
 // ---- Skills catalog -------------------------------------------------------
+
+// DEV-only explicit re-registration endpoint. The seed runs at startup
+// (and is idempotent), so this is here purely for spec contract clarity
+// and dev ergonomics. Disabled outside development.
+router.post('/skills/_register-seed', (_req, res) => {
+  if (process.env['NODE_ENV'] === 'production') {
+    res.status(404).json({ error: 'not_found' });
+    return;
+  }
+  try {
+    ensureSeedSkills();
+    res.json({ ok: true, skills: listSkills() });
+  } catch {
+    res.status(500).json({ error: 'Failed to register seed skills' });
+  }
+});
 
 router.get('/skills', (_req, res) => {
   try {

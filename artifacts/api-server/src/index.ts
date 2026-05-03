@@ -1,6 +1,7 @@
 import app from "./app";
 import { logger } from "./lib/logger";
 import { ensureSeedSkills } from "./services/skillRegistry.js";
+import { sweepMonthlyBudgets } from "./services/skillRuntime.js";
 
 const rawPort = process.env["PORT"];
 
@@ -22,6 +23,15 @@ try {
   ensureSeedSkills();
 } catch (err) {
   logger.error({ err }, "Failed to register seed skills");
+}
+
+// Spec F: monthly budget sweep. Lazy reset in getBudget handles active
+// dragons; this catches dormant ones whose stored reset_month is stale.
+try {
+  const reset = sweepMonthlyBudgets();
+  if (reset > 0) logger.info({ reset }, "Monthly budget sweep reset stale dragons");
+} catch (err) {
+  logger.error({ err }, "Monthly budget sweep failed");
 }
 
 app.listen(port, (err) => {

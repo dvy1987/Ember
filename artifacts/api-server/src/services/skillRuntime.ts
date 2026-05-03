@@ -149,6 +149,26 @@ export function getBudget(dragonId: string): DragonBudget {
   return row;
 }
 
+/**
+ * Spec F monthly sweep — reset spend to 0 for any dragon whose stored
+ * reset_month is not the current month. Idempotent. Safe to run at boot.
+ * The lazy reset in `getBudget` covers per-read access; this one-shot
+ * sweep ensures dormant dragons also start the new month at 0.
+ */
+export function sweepMonthlyBudgets(now: Date = new Date()): number {
+  const db = getDb();
+  const month = currentMonth(now);
+  const ts = now.toISOString();
+  const result = db
+    .prepare(
+      `UPDATE dragon_budgets
+         SET current_spend_usd = 0, reset_month = ?, updated_at = ?
+       WHERE reset_month != ?`
+    )
+    .run(month, ts, month);
+  return Number(result.changes ?? 0);
+}
+
 export function setBudgetCap(dragonId: string, capUsd: number): DragonBudget {
   getBudget(dragonId); // ensure row
   const db = getDb();
