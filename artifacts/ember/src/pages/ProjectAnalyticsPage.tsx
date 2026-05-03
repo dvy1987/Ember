@@ -7,6 +7,7 @@ const DRAGON_COLORS: Record<DragonType, string> = {
   cinder: 'var(--ember-accent)',
   moss: 'var(--moss-accent)',
   drift: 'var(--drift-accent)',
+  frost: 'var(--frost-accent)',
 };
 
 interface ProjectInfo {

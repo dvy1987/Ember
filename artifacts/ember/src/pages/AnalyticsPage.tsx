@@ -34,6 +34,7 @@ const DRAGON_COLORS: Record<string, string> = {
   cinder: 'var(--ember-accent)',
   moss: 'var(--moss-accent)',
   drift: 'var(--drift-accent)',
+  frost: 'var(--frost-accent)',
 };
 
 function formatMinutes(minutes: number): string {

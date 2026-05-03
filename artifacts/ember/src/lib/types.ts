@@ -1,4 +1,4 @@
-export type DragonType = 'cinder' | 'moss' | 'drift';
+export type DragonType = 'cinder' | 'moss' | 'drift' | 'frost';
 
 export type DragonStage = 'egg' | 'hatchling' | 'adolescent' | 'adult' | 'ancient';
 
@@ -7,6 +7,16 @@ export type TaskStatus = 'active' | 'backlog' | 'completed';
 export type TaskSource = 'ai' | 'user' | 'reflection';
 
 export type SessionTaskStatus = 'worked_on' | 'completed';
+
+export type RitualCadence = 'daily' | 'weekly' | 'occasional';
+
+export type SagaKind =
+  | 'hatch'
+  | 'task_completed'
+  | 'ritual_logged'
+  | 'session_completed'
+  | 'stage_changed'
+  | 'season_turn';
 
 export interface Project {
   id: string;
@@ -108,6 +118,33 @@ export interface ProjectContext {
   projectMemory: ProjectMemory | null;
 }
 
+export interface Ritual {
+  id: string;
+  project_id: string;
+  ritual_text: string;
+  cadence: RitualCadence;
+  ritual_order: number;
+  is_archived: number;
+  created_at: string;
+}
+
+export interface RitualLog {
+  id: string;
+  ritual_id: string;
+  project_id: string;
+  logged_at: string;
+  note: string | null;
+}
+
+export interface SagaEntry {
+  id: string;
+  project_id: string;
+  kind: SagaKind;
+  entry_text: string;
+  meta: string | null;
+  created_at: string;
+}
+
 export const DRAGON_STAGES: { stage: DragonStage; minMinutes: number }[] = [
   { stage: 'egg', minMinutes: 0 },
   { stage: 'hatchling', minMinutes: 20 },
@@ -120,6 +157,14 @@ export const DRAGON_TYPE_COLORS: Record<DragonType, string> = {
   cinder: '#D4421A',
   moss: '#7A9B5A',
   drift: '#6B8AA8',
+  frost: '#8FB8D6',
 };
 
 export const MAX_ACTIVE_TASKS = 5;
+
+export const DRAGON_KIND_LABEL: Record<DragonType, string> = {
+  cinder: 'Cinder',
+  moss: 'Moss',
+  drift: 'Drift',
+  frost: 'Frost',
+};

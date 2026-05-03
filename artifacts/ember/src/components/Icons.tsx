@@ -207,6 +207,15 @@ export function WindIcon({ size = 14, ...rest }: IconProps) {
   );
 }
 
+export function SnowflakeIcon({ size = 16, ...rest }: IconProps) {
+  return (
+    <svg {...base(size)} {...rest}>
+      <path d="M10 2V18M2 10H18M4.5 4.5L15.5 15.5M15.5 4.5L4.5 15.5" />
+      <path d="M10 5L8 7M10 5L12 7M10 15L8 13M10 15L12 13M5 10L7 8M5 10L7 12M15 10L13 8M15 10L13 12" strokeWidth="0.8" />
+    </svg>
+  );
+}
+
 export function ArchiveIcon({ size = 14, ...rest }: IconProps) {
   return (
     <svg {...base(size)} {...rest}>

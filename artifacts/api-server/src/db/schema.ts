@@ -99,5 +99,43 @@ export function initializeSchema(db: Database.Database): void {
       last_updated TEXT NOT NULL,
       FOREIGN KEY (project_id) REFERENCES projects(id)
     );
+
+    CREATE TABLE IF NOT EXISTS rituals (
+      id TEXT PRIMARY KEY,
+      project_id TEXT NOT NULL,
+      ritual_text TEXT NOT NULL,
+      cadence TEXT NOT NULL DEFAULT 'daily',
+      ritual_order INTEGER NOT NULL DEFAULT 0,
+      is_archived INTEGER NOT NULL DEFAULT 0,
+      created_at TEXT NOT NULL,
+      FOREIGN KEY (project_id) REFERENCES projects(id)
+    );
+
+    CREATE TABLE IF NOT EXISTS ritual_logs (
+      id TEXT PRIMARY KEY,
+      ritual_id TEXT NOT NULL,
+      project_id TEXT NOT NULL,
+      logged_at TEXT NOT NULL,
+      note TEXT,
+      FOREIGN KEY (ritual_id) REFERENCES rituals(id),
+      FOREIGN KEY (project_id) REFERENCES projects(id)
+    );
+
+    CREATE TABLE IF NOT EXISTS saga_entries (
+      id TEXT PRIMARY KEY,
+      project_id TEXT NOT NULL,
+      kind TEXT NOT NULL,
+      entry_text TEXT NOT NULL,
+      meta TEXT,
+      created_at TEXT NOT NULL,
+      FOREIGN KEY (project_id) REFERENCES projects(id)
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_saga_project_created
+      ON saga_entries(project_id, created_at DESC);
+    CREATE INDEX IF NOT EXISTS idx_ritual_logs_project_logged
+      ON ritual_logs(project_id, logged_at DESC);
+    CREATE INDEX IF NOT EXISTS idx_ritual_logs_ritual_logged
+      ON ritual_logs(ritual_id, logged_at DESC);
   `);
 }

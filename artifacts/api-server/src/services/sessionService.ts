@@ -1,5 +1,6 @@
 import { randomUUID } from 'crypto';
 import { getDb } from '../db/db.js';
+import { writeSagaEntry } from './sagaService.js';
 
 export interface Session {
   id: string;
@@ -75,6 +76,13 @@ export function endSession(
       focus_minutes = focus_minutes + ?,
       sessions_completed = sessions_completed + 1
   `).run(today, durationMinutes, durationMinutes);
+
+  writeSagaEntry(
+    session.project_id,
+    'session_completed',
+    `tended for ${durationMinutes} minutes${reflection ? ` — "${reflection.slice(0, 140)}"` : ''}.`,
+    { session_id: sessionId, duration_minutes: durationMinutes }
+  );
 
   return getSession(sessionId);
 }

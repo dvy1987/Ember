@@ -140,7 +140,7 @@ export default function SessionPage() {
   if (isLoading || !project) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="font-serif-body italic text-ember-text-muted">Preparing the training ground…</p>
+        <p className="font-serif-body italic text-ember-text-muted">Preparing the tending ground…</p>
       </div>
     );
   }
@@ -167,7 +167,7 @@ export default function SessionPage() {
               </div>
               <p className="font-mono-caps text-[10px] text-ember-text-muted mb-2">Tonight · 20 minutes</p>
               <h1 className="font-display text-[40px] text-ember-text leading-tight mb-2">
-                Prepare the training.
+                Prepare the tending.
               </h1>
               <p className="font-serif-body italic text-[15px] text-ember-text-muted">
                 Choose what {project.name} will tend tonight.
@@ -206,7 +206,7 @@ export default function SessionPage() {
               className="cta-ember w-full py-[18px] px-6 flex items-center justify-between font-serif-body font-semibold text-[16px]"
             >
               <span className="inline-flex items-center gap-2">
-                <BeginIcon size={18} /> Begin tonight's training — 20 min
+                <BeginIcon size={18} /> Begin tonight's focus session — 20 min
               </span>
               <span className="font-mono-caps text-[11px] opacity-85" style={{ color: 'var(--amber-glow)' }}>20:00</span>
             </button>

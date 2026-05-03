@@ -4,6 +4,8 @@ import { Project, Task, Session, DragonType, ResumeContext } from '@/lib/types';
 import { getDragonAccentVar } from '@/lib/dragonAssets';
 import ResumeCard from '@/components/ResumeCard';
 import TaskList from '@/components/TaskList';
+import RitualList from '@/components/RitualList';
+import SagaTeaser from '@/components/SagaTeaser';
 import BrainDumpInput from '@/components/BrainDumpInput';
 import { ArrowLeftIcon, InsightsIcon, CheckIcon, ArchiveIcon } from '@/components/Icons';
 
@@ -23,6 +25,7 @@ export default function ProjectPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [brainDumpStatus, setBrainDumpStatus] = useState<BrainDumpStatus>('idle');
   const [archiveState, setArchiveState] = useState<ArchiveState>('idle');
+  const [sagaTick, setSagaTick] = useState(0);
 
   const fetchProject = useCallback(async () => {
     try {
@@ -171,7 +174,7 @@ export default function ProjectPage() {
   if (!project) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="font-serif-body italic text-ember-text-muted">Project not found.</p>
+        <p className="font-serif-body italic text-ember-text-muted">Dragon not found.</p>
       </div>
     );
   }
@@ -210,11 +213,22 @@ export default function ProjectPage() {
 
         <div className="mb-12">
           <h3 className="font-mono-caps text-[10px] text-ember-text-muted mb-4">
+            Rituals — the small, repeatable tending
+          </h3>
+          <RitualList
+            projectId={projectId}
+            accentColor={accentColor}
+            onRitualLogged={() => setSagaTick(t => t + 1)}
+          />
+        </div>
+
+        <div className="mb-12">
+          <h3 className="font-mono-caps text-[10px] text-ember-text-muted mb-4">
             Brain dump
           </h3>
           <BrainDumpInput
             onSubmit={handleBrainDump}
-            placeholder="What's on your mind about this project? Dump your thoughts and AI will extract tasks…"
+            placeholder="What's on your mind about this dragon? Dump your thoughts and tasks will be drawn out…"
             isLoading={brainDumpStatus === 'extracting'}
           />
           {brainDumpStatus === 'extracting' && (
@@ -222,7 +236,7 @@ export default function ProjectPage() {
           )}
           {brainDumpStatus === 'ai-success' && (
             <p className="font-mono-caps text-[10px] mt-2 inline-flex items-center gap-1.5" style={{ color: 'var(--amber-glow)' }}>
-              <CheckIcon size={12} /> AI extracted tasks
+              <CheckIcon size={12} /> Tasks drawn from the dump
             </p>
           )}
           {brainDumpStatus === 'fallback' && (
@@ -243,10 +257,14 @@ export default function ProjectPage() {
           />
         </div>
 
+        <div className="mb-12">
+          <SagaTeaser projectId={projectId} refreshKey={sagaTick} />
+        </div>
+
         {project.project_summary && (
           <div className="parchment-card p-6 mb-12">
             <h3 className="font-mono-caps text-[10px] text-ember-text-muted mb-3">
-              Project summary
+              What this dragon tends
             </h3>
             <p className="font-serif-body italic text-[15px] text-ember-text leading-relaxed">
               {project.project_summary}
@@ -260,7 +278,7 @@ export default function ProjectPage() {
               onClick={handleArchive}
               className="inline-flex items-center gap-2 font-mono-caps text-[10px] text-ember-text-muted hover:text-ember-text transition-colors px-3 py-2"
             >
-              <ArchiveIcon size={13} /> Archive this dragon
+              <ArchiveIcon size={13} /> Send this dragon to the archive
             </button>
           )}
           {archiveState === 'confirming' && (

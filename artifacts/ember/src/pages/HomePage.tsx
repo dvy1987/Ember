@@ -5,6 +5,7 @@ import CreateProjectModal from '@/components/CreateProjectModal';
 import SettingsModal from '@/components/SettingsModal';
 import { Link } from 'wouter';
 import { ClockIcon, InsightsIcon, SettingsIcon, PlusIcon, ArchiveIcon, ChevronDownIcon } from '@/components/Icons';
+import { getKeepSeasonBlurb } from '@/lib/season';
 
 export default function HomePage() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -64,6 +65,7 @@ export default function HomePage() {
   const timeStr = useMemo(() =>
     now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }),
   [now]);
+  const seasonBlurb = useMemo(() => getKeepSeasonBlurb(now), [now]);
 
   return (
     <div className="min-h-screen relative">
@@ -84,7 +86,10 @@ export default function HomePage() {
             The Roost
           </h1>
           <p className="font-serif-body italic text-[16px] text-ember-text-muted max-w-md">
-            Your dragons are waiting. Each one carries a project — tend the one that calls loudest tonight.
+            Your dragons are waiting. Some guard a single endeavor; others tend a piece of your life. Pick the one that calls loudest tonight.
+          </p>
+          <p className="font-mono-caps text-[10px] text-ember-text-muted mt-3 opacity-80">
+            {seasonBlurb}
           </p>
         </section>
 
@@ -120,7 +125,7 @@ export default function HomePage() {
             <div className="font-mono-caps text-[10px] text-ember-text-muted mb-3">An empty roost</div>
             <h2 className="font-display text-[32px] text-ember-text mb-3">No dragons yet.</h2>
             <p className="font-serif-body italic text-[15px] text-ember-text-muted mb-8">
-              Hatch your first dragon to start a project. Each dragon grows through your focused work sessions.
+              Bring your first dragon to the keep. Some guard a single endeavor; others tend a piece of life. Each one grows from what you tend.
             </p>
             <button
               onClick={() => setShowCreateModal(true)}

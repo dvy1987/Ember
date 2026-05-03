@@ -207,6 +207,38 @@ export default function DragonScene({ type, stage, size = 160, intense = false }
     );
   }
 
+  if (type === 'frost') {
+    return (
+      <div className="scene-frost dragon-scene relative" data-stage={stage} data-resolved-stage={resolvedStage} style={{ width: size, height: size }}>
+        <div className="particle-layer">
+          {fireflies.map(f => (
+            <span
+              key={`flake-${f.id}`}
+              className="frost-flake"
+              style={{
+                left: `${f.left}%`,
+                top: `${f.top}%`,
+                animationDuration: `${f.duration + 2}s`,
+                animationDelay: `-${f.delay}s`,
+              } as React.CSSProperties}
+            />
+          ))}
+        </div>
+        <div className="frost-sway w-full h-full">
+          <div className="frost-bobble w-full h-full">
+            <div className="dragon-image-container relative z-10 flex justify-center items-center w-full h-full">
+              <div className="frost-animated-frame" style={{ width: size, height: size }}>
+                <div className="frost-aura-radial" aria-hidden />
+                <div className="frost-aura-pulse" aria-hidden />
+                <img src={imagePath} alt="Frost" className="dragon-image frost-painterly-img" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // drift
   return (
     <div className="scene-drift dragon-scene relative" data-stage={stage} data-resolved-stage={resolvedStage} style={{ width: size, height: size }}>

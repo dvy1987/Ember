@@ -13,6 +13,7 @@ export function hasDragonImage(dragonType: DragonType, dragonStage: DragonStage)
     cinder: ['egg', 'hatchling', 'adolescent', 'adult', 'ancient'],
     drift: ['egg', 'hatchling', 'adolescent', 'adult', 'ancient'],
     moss: ['egg', 'hatchling', 'adolescent', 'adult', 'ancient'],
+    frost: ['egg'],
   };
 
   return existingImages[dragonType]?.includes(dragonStage) ?? false;

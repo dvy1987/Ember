@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { DragonType } from '@/lib/types';
-import { FlameIcon, LeafIcon, WindIcon, CloseIcon } from './Icons';
+import { FlameIcon, LeafIcon, WindIcon, SnowflakeIcon, CloseIcon, ArrowLeftIcon, ArrowRightIcon } from './Icons';
 
 interface CreateProjectModalProps {
   isOpen: boolean;
@@ -8,19 +8,86 @@ interface CreateProjectModalProps {
   onCreated: () => void;
 }
 
-const dragonTypes: { type: DragonType; label: string; Icon: typeof FlameIcon; desc: string }[] = [
-  { type: 'cinder', label: 'Cinder', Icon: FlameIcon, desc: 'intense bursts' },
-  { type: 'moss',   label: 'Moss',   Icon: LeafIcon,  desc: 'slow & steady' },
-  { type: 'drift',  label: 'Drift',  Icon: WindIcon,  desc: 'airy & curious' },
+type DragonShape = 'project' | 'ritual' | 'mixed';
+
+const dragonTypes: {
+  type: DragonType;
+  label: string;
+  Icon: typeof FlameIcon;
+  shape: DragonShape;
+  blurb: string;
+  question: string;
+}[] = [
+  {
+    type: 'cinder',
+    label: 'Cinder',
+    Icon: FlameIcon,
+    shape: 'project',
+    blurb: 'Forge-born — fire, embers, restless flame. For a single endeavor you mean to finish.',
+    question: 'What endeavor will Cinder guard?',
+  },
+  {
+    type: 'moss',
+    label: 'Moss',
+    Icon: LeafIcon,
+    shape: 'ritual',
+    blurb: 'Earth-born — slow, rooted. For a piece of life you want to keep tending, not finish.',
+    question: 'What part of your life will Moss tend?',
+  },
+  {
+    type: 'drift',
+    label: 'Drift',
+    Icon: WindIcon,
+    shape: 'mixed',
+    blurb: 'Sky-born — quick, ethereal, wandering. For exploration that takes both shape and rhythm.',
+    question: 'What will Drift carry for you?',
+  },
+  {
+    type: 'frost',
+    label: 'Frost',
+    Icon: SnowflakeIcon,
+    shape: 'ritual',
+    blurb: 'Winter-born — patient, exact, kept by the cold. For things that ask precision over heat.',
+    question: 'What does Frost watch over?',
+  },
 ];
 
+const exampleChips: { label: string; shape: DragonShape; suggestedKind: DragonType }[] = [
+  { label: 'Write the novel', shape: 'project', suggestedKind: 'cinder' },
+  { label: 'Train for the half-marathon', shape: 'project', suggestedKind: 'cinder' },
+  { label: 'Re-do the kitchen', shape: 'project', suggestedKind: 'cinder' },
+  { label: 'Learn Spanish', shape: 'mixed', suggestedKind: 'drift' },
+  { label: 'Family time', shape: 'ritual', suggestedKind: 'moss' },
+  { label: 'My craft', shape: 'mixed', suggestedKind: 'drift' },
+  { label: 'Money & savings', shape: 'ritual', suggestedKind: 'frost' },
+  { label: 'Friendships', shape: 'ritual', suggestedKind: 'moss' },
+];
+
+type Step = 'kind' | 'tend' | 'name';
+
 export default function CreateProjectModal({ isOpen, onClose, onCreated }: CreateProjectModalProps) {
+  const [step, setStep] = useState<Step>('kind');
   const [name, setName] = useState('');
   const [selectedType, setSelectedType] = useState<DragonType>('cinder');
-  const [brainDump, setBrainDump] = useState('');
+  const [tendingHint, setTendingHint] = useState('');
   const [isCreating, setIsCreating] = useState(false);
 
+  const reset = () => {
+    setStep('kind');
+    setName('');
+    setSelectedType('cinder');
+    setTendingHint('');
+    setIsCreating(false);
+  };
+
+  const handleClose = () => {
+    reset();
+    onClose();
+  };
+
   if (!isOpen) return null;
+
+  const selected = dragonTypes.find(d => d.type === selectedType)!;
 
   const handleCreate = async () => {
     if (!name.trim()) return;
@@ -33,16 +100,13 @@ export default function CreateProjectModal({ isOpen, onClose, onCreated }: Creat
         body: JSON.stringify({
           name: name.trim(),
           dragon_type: selectedType,
-          summary: brainDump.trim(),
+          summary: tendingHint.trim(),
         }),
       });
 
       if (res.ok) {
-        setName('');
-        setBrainDump('');
-        setSelectedType('cinder');
         onCreated();
-        onClose();
+        handleClose();
       }
     } catch {
     } finally {
@@ -54,11 +118,11 @@ export default function CreateProjectModal({ isOpen, onClose, onCreated }: Creat
     <div
       className="fixed inset-0 flex items-center justify-center z-50 p-4 animate-fade-in"
       style={{ backgroundColor: 'rgba(10, 6, 4, 0.78)' }}
-      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      onClick={(e) => { if (e.target === e.currentTarget) handleClose(); }}
     >
       <div className="parchment-card w-full max-w-lg p-8 relative">
         <button
-          onClick={onClose}
+          onClick={handleClose}
           className="absolute top-4 right-4 text-ember-text-muted hover:text-ember-text"
           aria-label="Close"
         >
@@ -66,73 +130,156 @@ export default function CreateProjectModal({ isOpen, onClose, onCreated }: Creat
         </button>
 
         <div className="text-center mb-6">
-          <p className="font-mono-caps text-[10px] text-ember-text-muted mb-2">A new keeper's egg</p>
-          <h2 className="font-display text-[32px] text-ember-text leading-tight">Hatch a new dragon</h2>
+          <p className="font-mono-caps text-[10px] text-ember-text-muted mb-2">
+            Step {step === 'kind' ? 1 : step === 'tend' ? 2 : 3} of 3
+          </p>
+          <h2 className="font-display text-[28px] text-ember-text leading-tight">
+            {step === 'kind' && 'Which kind comes to your hearth?'}
+            {step === 'tend' && selected.question}
+            {step === 'name' && 'Name the dragon.'}
+          </h2>
+          {step === 'kind' && (
+            <p className="font-serif-body italic text-[14px] text-ember-text-muted mt-2 max-w-md mx-auto">
+              Some dragons guard a single endeavor. Others guard a piece of your life you want to keep tending.
+            </p>
+          )}
         </div>
 
-        <div className="mb-5">
-          <label className="font-mono-caps text-[10px] text-ember-text-muted mb-2 block">Project name</label>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="what are you working on?"
-            className="w-full input-parchment px-3 py-3 text-[15px]"
-            autoFocus
-          />
-        </div>
-
-        <div className="mb-5">
-          <label className="font-mono-caps text-[10px] text-ember-text-muted mb-2 block">Choose your dragon</label>
-          <div className="grid grid-cols-3 gap-2">
-            {dragonTypes.map((dt) => (
+        {step === 'kind' && (
+          <>
+            <div className="grid grid-cols-2 gap-3 mb-6">
+              {dragonTypes.map((dt) => {
+                const isActive = selectedType === dt.type;
+                return (
+                  <button
+                    key={dt.type}
+                    onClick={() => setSelectedType(dt.type)}
+                    className="p-4 text-left transition-colors"
+                    style={{
+                      border: `1px solid ${isActive ? `var(--color-ember-${dt.type})` : 'var(--border-subtle)'}`,
+                      background: isActive ? 'var(--surface-mid-hover)' : 'var(--surface-mid)',
+                      borderRadius: '4px',
+                    }}
+                  >
+                    <div className="flex items-center gap-2 mb-1.5" style={{ color: `var(--color-ember-${dt.type})` }}>
+                      <dt.Icon size={18} />
+                      <span className="font-display text-[18px] text-ember-text">{dt.label}</span>
+                    </div>
+                    <p className="font-serif-body italic text-[12.5px] text-ember-text-muted leading-snug">
+                      {dt.blurb}
+                    </p>
+                  </button>
+                );
+              })}
+            </div>
+            <div className="flex gap-3">
               <button
-                key={dt.type}
-                onClick={() => setSelectedType(dt.type)}
-                className="p-4 text-center transition-colors"
-                style={{
-                  border: `1px solid ${selectedType === dt.type ? 'var(--ember-accent)' : 'var(--border-subtle)'}`,
-                  background: selectedType === dt.type ? 'var(--surface-mid-hover)' : 'var(--surface-mid)',
-                  borderRadius: '4px',
-                  color: selectedType === dt.type ? 'var(--ember-accent)' : 'var(--text-muted)',
-                }}
+                onClick={handleClose}
+                className="cta-quiet flex-1 py-3 font-mono-caps text-[11px] text-ember-text-muted"
               >
-                <div className="flex justify-center mb-2"><dt.Icon size={20} /></div>
-                <div className="font-display text-[18px] text-ember-text">{dt.label}</div>
-                <div className="font-mono-caps text-[9px] text-ember-text-muted mt-1">{dt.desc}</div>
+                Cancel
               </button>
-            ))}
-          </div>
-        </div>
+              <button
+                onClick={() => setStep('tend')}
+                className="cta-ember flex-1 py-3 font-mono-caps text-[11px] inline-flex items-center justify-center gap-2"
+              >
+                Next <ArrowRightIcon size={13} />
+              </button>
+            </div>
+          </>
+        )}
 
-        <div className="mb-6">
-          <label className="font-mono-caps text-[10px] text-ember-text-muted mb-2 block">
-            Brain dump <span className="opacity-60">(optional)</span>
-          </label>
-          <textarea
-            value={brainDump}
-            onChange={(e) => setBrainDump(e.target.value)}
-            placeholder="dump your initial thoughts about this project…"
-            rows={3}
-            className="w-full input-parchment px-3 py-2.5 text-[14px] resize-none"
-          />
-        </div>
+        {step === 'tend' && (
+          <>
+            <div className="mb-4">
+              <textarea
+                value={tendingHint}
+                onChange={(e) => setTendingHint(e.target.value)}
+                placeholder="A few words about what this dragon will tend…"
+                rows={3}
+                className="w-full input-parchment px-3 py-2.5 text-[14px] resize-none"
+                autoFocus
+              />
+            </div>
 
-        <div className="flex gap-3">
-          <button
-            onClick={onClose}
-            className="cta-quiet flex-1 py-3 font-mono-caps text-[11px] text-ember-text-muted"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleCreate}
-            disabled={!name.trim() || isCreating}
-            className="cta-ember flex-1 py-3 font-mono-caps text-[11px]"
-          >
-            {isCreating ? 'Hatching…' : 'Hatch dragon'}
-          </button>
-        </div>
+            <div className="mb-6">
+              <p className="font-mono-caps text-[10px] text-ember-text-muted mb-2">Or borrow an example</p>
+              <div className="flex flex-wrap gap-2">
+                {exampleChips.map((chip) => (
+                  <button
+                    key={chip.label}
+                    onClick={() => {
+                      setTendingHint(chip.label);
+                      setName(chip.label);
+                    }}
+                    className="px-3 py-1.5 font-serif-body text-[13px] text-ember-text-muted hover:text-ember-text transition-colors"
+                    style={{
+                      border: '1px solid var(--border-subtle)',
+                      background: 'var(--surface-mid)',
+                      borderRadius: '999px',
+                    }}
+                  >
+                    {chip.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setStep('kind')}
+                className="cta-quiet px-4 py-3 font-mono-caps text-[11px] text-ember-text-muted inline-flex items-center gap-2"
+              >
+                <ArrowLeftIcon size={13} /> Back
+              </button>
+              <button
+                onClick={() => setStep('name')}
+                className="cta-ember flex-1 py-3 font-mono-caps text-[11px] inline-flex items-center justify-center gap-2"
+              >
+                Next <ArrowRightIcon size={13} />
+              </button>
+            </div>
+          </>
+        )}
+
+        {step === 'name' && (
+          <>
+            <div className="mb-6">
+              <label className="font-mono-caps text-[10px] text-ember-text-muted mb-2 block">
+                Project name
+              </label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="give your dragon a name"
+                className="w-full input-parchment px-3 py-3 text-[15px]"
+                autoFocus
+                onKeyDown={(e) => { if (e.key === 'Enter' && name.trim()) handleCreate(); }}
+              />
+              <p className="font-serif-body italic text-[13px] text-ember-text-muted mt-3 leading-snug">
+                You chose <span className="text-ember-text">{selected.label}</span>.
+                {' '}Their egg comes to your hearth, waiting to be tended.
+              </p>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setStep('tend')}
+                className="cta-quiet px-4 py-3 font-mono-caps text-[11px] text-ember-text-muted inline-flex items-center gap-2"
+              >
+                <ArrowLeftIcon size={13} /> Back
+              </button>
+              <button
+                onClick={handleCreate}
+                disabled={!name.trim() || isCreating}
+                className="cta-ember flex-1 py-3 font-mono-caps text-[11px]"
+              >
+                {isCreating ? 'Hatching…' : 'Bring this dragon to the keep'}
+              </button>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

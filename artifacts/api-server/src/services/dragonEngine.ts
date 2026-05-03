@@ -1,5 +1,6 @@
 import { getDb } from '../db/db.js';
 import { getProject, updateProject, Project, DragonStage } from './projectService.js';
+import { writeSagaEntry } from './sagaService.js';
 
 const DRAGON_STAGES: { stage: DragonStage; minMinutes: number }[] = [
   { stage: 'egg', minMinutes: 0 },
@@ -9,10 +10,29 @@ const DRAGON_STAGES: { stage: DragonStage; minMinutes: number }[] = [
   { stage: 'ancient', minMinutes: 2400 },
 ];
 
+// Ritual-shape thresholds — counted in distinct days of ritual logging.
+const RITUAL_STAGE_DAYS: { stage: DragonStage; minDays: number }[] = [
+  { stage: 'egg', minDays: 0 },
+  { stage: 'hatchling', minDays: 1 },
+  { stage: 'adolescent', minDays: 7 },
+  { stage: 'adult', minDays: 30 },
+  { stage: 'ancient', minDays: 365 },
+];
+
 export function computeDragonStage(totalFocusMinutes: number): DragonStage {
   let stage: DragonStage = 'egg';
   for (const entry of DRAGON_STAGES) {
     if (totalFocusMinutes >= entry.minMinutes) {
+      stage = entry.stage;
+    }
+  }
+  return stage;
+}
+
+export function computeRitualStage(distinctDays: number): DragonStage {
+  let stage: DragonStage = 'egg';
+  for (const entry of RITUAL_STAGE_DAYS) {
+    if (distinctDays >= entry.minDays) {
       stage = entry.stage;
     }
   }
@@ -55,12 +75,26 @@ export function getNeglectState(project: Project): string {
   return 'active';
 }
 
+function getRitualDistinctDays(projectId: string): number {
+  const db = getDb();
+  const row = db.prepare(
+    `SELECT COUNT(DISTINCT substr(logged_at, 1, 10)) as days FROM ritual_logs WHERE project_id = ?`
+  ).get(projectId) as { days: number } | undefined;
+  return row?.days ?? 0;
+}
+
 export function updateDragonState(projectId: string): Project | null {
   const project = getProject(projectId);
   if (!project) return null;
 
-  const earnedStage = computeDragonStage(project.total_focus_minutes);
-  const earnedIndex = stageIndex(earnedStage);
+  const previousStage = project.dragon_stage as DragonStage;
+
+  // Earned stage is the higher of: minutes-shape OR ritual-shape progression.
+  const minutesEarned = computeDragonStage(project.total_focus_minutes);
+  const ritualDays = getRitualDistinctDays(projectId);
+  const ritualEarned = computeRitualStage(ritualDays);
+  const earnedIndex = Math.max(stageIndex(minutesEarned), stageIndex(ritualEarned));
+  const earnedStage = DRAGON_STAGES[earnedIndex].stage;
 
   const decayedStage = applyDecay({ ...project, dragon_stage: earnedStage });
   const decayedIndex = stageIndex(decayedStage);
@@ -72,6 +106,18 @@ export function updateDragonState(projectId: string): Project | null {
   const db = getDb();
   db.prepare('UPDATE projects SET dragon_stage = ?, last_decay_check = ?, updated_at = ? WHERE id = ?')
     .run(finalStage, now, now, projectId);
+
+  if (finalStage !== previousStage) {
+    const grew = stageIndex(finalStage) > stageIndex(previousStage);
+    const text = grew
+      ? `the dragon grew — now a ${finalStage}.`
+      : `the dragon slipped back — now a ${finalStage}.`;
+    writeSagaEntry(projectId, 'stage_changed', text, {
+      from: previousStage,
+      to: finalStage,
+      direction: grew ? 'up' : 'down',
+    });
+  }
 
   return getProject(projectId);
 }

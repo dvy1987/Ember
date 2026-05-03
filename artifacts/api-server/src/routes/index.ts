@@ -8,6 +8,8 @@ import resumeRouter from "./resume.js";
 import aiRouter from "./ai.js";
 import settingsRouter from "./settings.js";
 import projectAnalyticsRouter from "./projectAnalytics.js";
+import ritualsRouter from "./rituals.js";
+import sagaRouter from "./saga.js";
 
 const router: IRouter = Router();
 
@@ -19,6 +21,8 @@ router.use(analyticsRouter);
 router.use(resumeRouter);
 router.use(aiRouter);
 router.use(settingsRouter);
+router.use(ritualsRouter);
+router.use(sagaRouter);
 // Per-project analytics must be registered AFTER global analytics
 // to avoid route conflicts with /analytics/:projectId vs /analytics
 router.use(projectAnalyticsRouter);

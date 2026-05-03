@@ -1,4 +1,4 @@
-import { Project, Task, Session, DragonType, ResumeContext } from '@/lib/types';
+import { Project, Task, Session, DragonType, ResumeContext, DRAGON_KIND_LABEL } from '@/lib/types';
 import { getDragonAccentVar } from '@/lib/dragonAssets';
 import DragonScene from './DragonScene';
 import { BeginIcon, CircleDotIcon } from './Icons';
@@ -22,14 +22,14 @@ export default function ResumeCard({
 }: ResumeCardProps) {
   const dragonType = project.dragon_type as DragonType;
   const accentColor = getDragonAccentVar(dragonType);
-  const dragonName = dragonType === 'cinder' ? 'Cinder' : dragonType === 'moss' ? 'Moss' : 'Drift';
+  const dragonName = DRAGON_KIND_LABEL[dragonType] ?? 'Dragon';
 
   const suggestedTask = resumeContext?.suggested_next_step
     || (activeTasks.length > 0 ? activeTasks[0].task_text : null);
 
   const lastSessionInfo = resumeContext?.last_session_summary
     || (lastSession
-      ? lastSession.ai_summary || lastSession.reflection || `${lastSession.duration_minutes} minute training`
+      ? lastSession.ai_summary || lastSession.reflection || `${lastSession.duration_minutes} minute focus session`
       : null);
 
   const lastSessionDate = lastSession
@@ -84,7 +84,7 @@ export default function ResumeCard({
           className="cta-ember w-full py-[18px] px-6 flex items-center justify-between font-serif-body font-semibold text-[16px]"
         >
           <span className="flex items-center gap-2">
-            <BeginIcon size={18} /> Begin tonight's training — 20 min
+            <BeginIcon size={18} /> Begin tonight's focus session — 20 min
           </span>
           <span className="font-mono-caps text-[11px] opacity-85" style={{ color: 'var(--amber-glow)' }}>20:00</span>
         </button>

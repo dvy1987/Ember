@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createProject, getAllProjects, getArchivedProjects, getProject, updateProject, archiveProject, DragonType } from '../services/projectService.js';
+import { createProject, getAllProjects, getArchivedProjects, getProject, updateProject, archiveProject, ensureDefaultHealthDragon, VALID_DRAGON_TYPES, DragonType } from '../services/projectService.js';
 import { updateDragonState } from '../services/dragonEngine.js';
 
 const router = Router();
@@ -7,6 +7,10 @@ const router = Router();
 router.get('/projects', (req, res) => {
   try {
     const archived = req.query.archived === 'true';
+    if (!archived) {
+      // Idempotent: only seeds the very first time per database.
+      ensureDefaultHealthDragon();
+    }
     const projects = archived ? getArchivedProjects() : getAllProjects();
     res.json(projects);
   } catch {
@@ -23,8 +27,7 @@ router.post('/projects', (req, res) => {
       return;
     }
 
-    const validTypes: DragonType[] = ['cinder', 'moss', 'drift'];
-    if (!validTypes.includes(dragon_type as DragonType)) {
+    if (!VALID_DRAGON_TYPES.includes(dragon_type as DragonType)) {
       res.status(400).json({ error: 'Invalid dragon_type' });
       return;
     }

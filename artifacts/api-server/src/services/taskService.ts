@@ -1,5 +1,6 @@
 import { randomUUID } from 'crypto';
 import { getDb } from '../db/db.js';
+import { writeSagaEntry } from './sagaService.js';
 
 export type TaskStatus = 'active' | 'backlog' | 'completed';
 export type TaskSource = 'ai' | 'user' | 'reflection';
@@ -104,7 +105,13 @@ export function updateTask(
 export function completeTask(id: string): Task | null {
   const db = getDb();
   const now = new Date().toISOString();
+  const existing = getTask(id);
   db.prepare('UPDATE tasks SET status = ?, completed_at = ? WHERE id = ?').run('completed', now, id);
+  if (existing) {
+    writeSagaEntry(existing.project_id, 'task_completed', `done — ${existing.task_text}`, {
+      task_id: id,
+    });
+  }
   return getTask(id);
 }
 

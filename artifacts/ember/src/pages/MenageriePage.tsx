@@ -2,16 +2,18 @@ import { Link } from 'wouter';
 import DragonScene from '@/components/DragonScene';
 import { DRAGON_STAGES, DragonType, DragonStage } from '@/lib/types';
 
-const TYPES: DragonType[] = ['cinder', 'moss', 'drift'];
+const TYPES: DragonType[] = ['cinder', 'moss', 'drift', 'frost'];
 const TYPE_LABEL: Record<DragonType, string> = {
   cinder: 'Cinder',
   moss: 'Moss',
   drift: 'Drift',
+  frost: 'Frost',
 };
 const TYPE_BLURB: Record<DragonType, string> = {
   cinder: 'Forge-born — fire, embers, restless flame.',
   moss: 'Earth-born — slow, rooted, patient growth.',
   drift: 'Sky-born — quick, ethereal, wandering.',
+  frost: 'Winter-born — patient, exact, kept by the cold.',
 };
 
 function stageLabel(s: DragonStage) {

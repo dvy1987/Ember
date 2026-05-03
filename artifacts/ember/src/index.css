@@ -15,6 +15,8 @@
   --color-ember-moss-glow: #9BB868;
   --color-ember-drift: #6B8AA8;
   --color-ember-drift-glow: #B0C4D8;
+  --color-ember-frost: #8FB8D6;
+  --color-ember-frost-glow: #D4E6F4;
   --color-ember-success: #7A9B5A;
   --color-ember-warning: #C49A4D;
   --color-ember-danger: #B33A1A;
@@ -32,6 +34,8 @@
   --amber-glow: #F0A04A;
   --moss-accent: #7A9B5A;
   --drift-accent: #6B8AA8;
+  --frost-accent: #8FB8D6;
+  --frost-glow: #D4E6F4;
   --text-parchment: #F4E8D0;
   --text-muted: #A89478;
   --border-subtle: #3A2F23;
@@ -752,4 +756,80 @@ html, body {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* ===== Frost scene ===== */
+.scene-frost {
+  position: relative;
+  isolation: isolate;
+}
+.scene-frost .particle-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 1;
+}
+.frost-flake {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--frost-glow) 0%, var(--frost-accent) 60%, transparent 100%);
+  box-shadow: 0 0 5px var(--frost-glow);
+  opacity: 0;
+  animation: frost-flake-drift 6s ease-in-out infinite;
+}
+@keyframes frost-flake-drift {
+  0%   { transform: translate3d(0, -8px, 0) scale(0.7); opacity: 0; }
+  20%  { opacity: 0.85; }
+  100% { transform: translate3d(6px, 22px, 0) scale(1.05); opacity: 0; }
+}
+.frost-animated-frame {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.frost-aura-radial {
+  position: absolute;
+  inset: -14%;
+  background: radial-gradient(circle at 50% 55%,
+    rgba(212, 230, 244, 0.22) 0%,
+    rgba(143, 184, 214, 0.10) 45%,
+    transparent 72%);
+  filter: blur(6px);
+  z-index: 0;
+}
+.frost-aura-pulse {
+  position: absolute;
+  inset: 6%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(212, 230, 244, 0.18) 0%, transparent 65%);
+  animation: frost-aura-pulse 6s ease-in-out infinite;
+  z-index: 0;
+}
+@keyframes frost-aura-pulse {
+  0%, 100% { transform: scale(1);    opacity: 0.65; }
+  50%      { transform: scale(1.06); opacity: 0.95; }
+}
+.frost-painterly-img {
+  position: relative;
+  z-index: 1;
+  width: 86%;
+  height: 86%;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 14px rgba(143, 184, 214, 0.35));
+}
+.frost-sway   { animation: frost-sway   9s ease-in-out infinite; transform-origin: 50% 100%; }
+.frost-bobble { animation: frost-bobble 5.5s ease-in-out infinite; }
+@keyframes frost-sway   { 0%,100% { transform: translateX(-2px); } 50% { transform: translateX(2px); } }
+@keyframes frost-bobble { 0%,100% { transform: translateY(0); }    50% { transform: translateY(-3px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .frost-flake,
+  .frost-aura-pulse,
+  .frost-sway,
+  .frost-bobble { animation: none !important; }
+  .frost-flake { opacity: 0.5; }
 }
