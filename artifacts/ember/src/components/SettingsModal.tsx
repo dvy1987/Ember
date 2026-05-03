@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'wouter';
 import { CloseIcon } from './Icons';
 
 interface Settings {
@@ -174,15 +175,17 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
           </div>
         )}
 
-        <div className="mt-8 pt-5" style={{ borderTop: '1px solid var(--border-subtle)' }}>
-          <p className="font-mono-caps text-[9px] text-ember-text-muted mb-2 opacity-70">Developer</p>
-          <a
-            href="/menagerie"
-            className="font-serif-body italic text-[12px] text-ember-text-muted hover:text-ember-text"
-          >
-            View the dragon menagerie →
-          </a>
-        </div>
+        {import.meta.env.DEV && (
+          <div className="mt-8 pt-5" style={{ borderTop: '1px solid var(--border-subtle)' }}>
+            <p className="font-mono-caps text-[9px] text-ember-text-muted mb-2 opacity-70">Developer</p>
+            <Link
+              href="/menagerie"
+              className="font-serif-body italic text-[12px] text-ember-text-muted hover:text-ember-text"
+            >
+              View the dragon menagerie →
+            </Link>
+          </div>
+        )}
       </div>
     </div>
   );

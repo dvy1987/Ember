@@ -15,7 +15,7 @@ function Router() {
       <Route path="/session/:projectId" component={SessionPage} />
       <Route path="/analytics" component={AnalyticsPage} />
       <Route path="/analytics/:projectId" component={ProjectAnalyticsPage} />
-      <Route path="/menagerie" component={MenageriePage} />
+      {import.meta.env.DEV && <Route path="/menagerie" component={MenageriePage} />}
       <Route component={NotFound} />
     </Switch>
   );

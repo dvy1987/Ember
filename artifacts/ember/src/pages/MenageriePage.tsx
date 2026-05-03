@@ -1,3 +1,4 @@
+import { Link } from 'wouter';
 import DragonScene from '@/components/DragonScene';
 import { DRAGON_STAGES, DragonType, DragonStage } from '@/lib/types';
 
@@ -31,12 +32,12 @@ export default function MenageriePage() {
             Every dragon, every stage. A keeper's gallery for verifying that each one breathes,
             sways, and glows the way it ought to.
           </p>
-          <a
+          <Link
             href="/"
             className="font-mono-caps text-[10px] text-ember-text-muted mt-4 hover:text-ember-text"
           >
             ← back to the roost
-          </a>
+          </Link>
         </header>
 
         <div className="space-y-12">
