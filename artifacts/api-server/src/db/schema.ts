@@ -141,5 +141,134 @@ export function initializeSchema(db: Database.Database): void {
       ON ritual_logs(project_id, logged_at DESC);
     CREATE INDEX IF NOT EXISTS idx_ritual_logs_ritual_logged
       ON ritual_logs(ritual_id, logged_at DESC);
+
+    -- =====================================================================
+    -- Living Dragons foundation (Task #16) — Phase 0 architecture.
+    -- All tables additive; existing productivity flows untouched.
+    -- "user_id" is a constant for now (single-user app); shape kept so a
+    -- multi-user migration is a data backfill, not a schema rewrite.
+    -- "dragon_id" === project.id (dragons are 1:1 with projects).
+    -- =====================================================================
+
+    CREATE TABLE IF NOT EXISTS skills (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL UNIQUE,
+      description TEXT NOT NULL DEFAULT '',
+      agent_recipe_key TEXT NOT NULL,
+      default_trust_band TEXT NOT NULL DEFAULT 'novice',
+      cost_estimate_input_tokens INTEGER NOT NULL DEFAULT 800,
+      created_at TEXT NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS dragon_skill_maturity (
+      dragon_id TEXT NOT NULL,
+      skill_id TEXT NOT NULL,
+      runs INTEGER NOT NULL DEFAULT 0,
+      approvals INTEGER NOT NULL DEFAULT 0,
+      edits INTEGER NOT NULL DEFAULT 0,
+      rejections INTEGER NOT NULL DEFAULT 0,
+      current_trust TEXT NOT NULL DEFAULT 'novice',
+      locked_band TEXT,
+      paused INTEGER NOT NULL DEFAULT 0,
+      last_used_at TEXT,
+      last_paired_at TEXT,
+      last_autonomous_at TEXT,
+      created_at TEXT NOT NULL,
+      PRIMARY KEY (dragon_id, skill_id),
+      FOREIGN KEY (dragon_id) REFERENCES projects(id),
+      FOREIGN KEY (skill_id) REFERENCES skills(id)
+    );
+
+    CREATE TABLE IF NOT EXISTS skill_runs (
+      id TEXT PRIMARY KEY,
+      dragon_id TEXT NOT NULL,
+      skill_id TEXT NOT NULL,
+      project_id TEXT NOT NULL,
+      mode TEXT NOT NULL DEFAULT 'paired',
+      complexity TEXT NOT NULL DEFAULT 'simple',
+      user_prompt TEXT NOT NULL,
+      system_prompt TEXT NOT NULL,
+      output_text TEXT,
+      user_edit TEXT,
+      status TEXT NOT NULL DEFAULT 'pending',
+      model TEXT NOT NULL DEFAULT '',
+      input_tokens INTEGER NOT NULL DEFAULT 0,
+      output_tokens INTEGER NOT NULL DEFAULT 0,
+      cost_usd REAL NOT NULL DEFAULT 0,
+      ran_at TEXT NOT NULL,
+      verdicted_at TEXT,
+      FOREIGN KEY (dragon_id) REFERENCES projects(id),
+      FOREIGN KEY (skill_id) REFERENCES skills(id),
+      FOREIGN KEY (project_id) REFERENCES projects(id)
+    );
+
+    CREATE TABLE IF NOT EXISTS skill_rules_global (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL DEFAULT 'default',
+      skill_id TEXT NOT NULL,
+      rule_text TEXT NOT NULL,
+      examples_json TEXT,
+      promoted_from_dragon_id TEXT,
+      promoted_from_project_id TEXT,
+      promoted_at TEXT,
+      created_at TEXT NOT NULL,
+      FOREIGN KEY (skill_id) REFERENCES skills(id)
+    );
+
+    CREATE TABLE IF NOT EXISTS skill_rules_project (
+      id TEXT PRIMARY KEY,
+      dragon_id TEXT NOT NULL,
+      skill_id TEXT NOT NULL,
+      project_id TEXT NOT NULL,
+      rule_text TEXT NOT NULL,
+      examples_json TEXT,
+      applied_count INTEGER NOT NULL DEFAULT 0,
+      promotion_candidate INTEGER NOT NULL DEFAULT 0,
+      promoted INTEGER NOT NULL DEFAULT 0,
+      created_at TEXT NOT NULL,
+      FOREIGN KEY (dragon_id) REFERENCES projects(id),
+      FOREIGN KEY (skill_id) REFERENCES skills(id),
+      FOREIGN KEY (project_id) REFERENCES projects(id)
+    );
+
+    CREATE TABLE IF NOT EXISTS rule_overrides (
+      id TEXT PRIMARY KEY,
+      project_id TEXT NOT NULL,
+      global_rule_id TEXT NOT NULL,
+      excluded INTEGER NOT NULL DEFAULT 1,
+      created_at TEXT NOT NULL,
+      UNIQUE (project_id, global_rule_id),
+      FOREIGN KEY (project_id) REFERENCES projects(id),
+      FOREIGN KEY (global_rule_id) REFERENCES skill_rules_global(id)
+    );
+
+    CREATE TABLE IF NOT EXISTS dragon_budgets (
+      dragon_id TEXT PRIMARY KEY,
+      monthly_cap_usd REAL NOT NULL DEFAULT 5.0,
+      current_spend_usd REAL NOT NULL DEFAULT 0,
+      reset_month TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      FOREIGN KEY (dragon_id) REFERENCES projects(id)
+    );
+
+    -- WhatsApp / SMS / etc. placeholder. No code path writes here in Phase 0.
+    CREATE TABLE IF NOT EXISTS messaging_channels (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL DEFAULT 'default',
+      channel TEXT NOT NULL,
+      address TEXT NOT NULL,
+      verified INTEGER NOT NULL DEFAULT 0,
+      opt_in_scales_json TEXT,
+      created_at TEXT NOT NULL
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_skill_runs_dragon_skill
+      ON skill_runs(dragon_id, skill_id, ran_at DESC);
+    CREATE INDEX IF NOT EXISTS idx_skill_runs_status
+      ON skill_runs(status, ran_at DESC);
+    CREATE INDEX IF NOT EXISTS idx_skill_rules_project
+      ON skill_rules_project(dragon_id, skill_id);
+    CREATE INDEX IF NOT EXISTS idx_skill_rules_global
+      ON skill_rules_global(user_id, skill_id);
   `);
 }

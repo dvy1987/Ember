@@ -6,6 +6,7 @@ import AnalyticsPage from "@/pages/AnalyticsPage";
 import ProjectAnalyticsPage from "@/pages/ProjectAnalyticsPage";
 import MenageriePage from "@/pages/MenageriePage";
 import SagaPage from "@/pages/SagaPage";
+import DevSkillsPage from "@/pages/DevSkillsPage";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -18,6 +19,7 @@ function Router() {
       <Route path="/analytics/:projectId" component={ProjectAnalyticsPage} />
       <Route path="/saga/:projectId" component={SagaPage} />
       {import.meta.env.DEV && <Route path="/menagerie" component={MenageriePage} />}
+      {import.meta.env.DEV && <Route path="/dev/skills" component={DevSkillsPage} />}
       <Route component={NotFound} />
     </Switch>
   );

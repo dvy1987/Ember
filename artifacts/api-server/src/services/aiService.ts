@@ -66,6 +66,12 @@ export function isAiAvailable(): boolean {
   return getApiConfig() !== null;
 }
 
+/**
+ * Re-exported for the skill runtime so it shares one provider config / call
+ * path with the productivity AI flow. Do not duplicate provider wiring.
+ */
+export { getApiConfig, callLlm, parseJsonResponse };
+
 async function callLlm(messages: LlmMessage[]): Promise<string | null> {
   const config = getApiConfig();
   if (!config) return null;

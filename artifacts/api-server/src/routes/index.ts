@@ -10,6 +10,7 @@ import settingsRouter from "./settings.js";
 import projectAnalyticsRouter from "./projectAnalytics.js";
 import ritualsRouter from "./rituals.js";
 import sagaRouter from "./saga.js";
+import skillsRouter from "./skills.js";
 
 const router: IRouter = Router();
 
@@ -23,6 +24,7 @@ router.use(aiRouter);
 router.use(settingsRouter);
 router.use(ritualsRouter);
 router.use(sagaRouter);
+router.use(skillsRouter);
 // Per-project analytics must be registered AFTER global analytics
 // to avoid route conflicts with /analytics/:projectId vs /analytics
 router.use(projectAnalyticsRouter);

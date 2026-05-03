@@ -175,15 +175,30 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
           </div>
         )}
 
+        <div className="mt-6 pt-5" style={{ borderTop: '1px solid var(--border-subtle)' }}>
+          <p className="font-mono-caps text-[10px] text-ember-text-muted mb-2">External messaging</p>
+          <p className="font-serif-body italic text-[12px] text-ember-text-muted">
+            Letting your dragons reach you on WhatsApp — coming soon.
+          </p>
+        </div>
+
         {import.meta.env.DEV && (
-          <div className="mt-8 pt-5" style={{ borderTop: '1px solid var(--border-subtle)' }}>
+          <div className="mt-6 pt-5" style={{ borderTop: '1px solid var(--border-subtle)' }}>
             <p className="font-mono-caps text-[9px] text-ember-text-muted mb-2 opacity-70">Developer</p>
-            <Link
-              href="/menagerie"
-              className="font-serif-body italic text-[12px] text-ember-text-muted hover:text-ember-text"
-            >
-              View the dragon menagerie →
-            </Link>
+            <div className="flex flex-col gap-1">
+              <Link
+                href="/menagerie"
+                className="font-serif-body italic text-[12px] text-ember-text-muted hover:text-ember-text"
+              >
+                View the dragon menagerie →
+              </Link>
+              <Link
+                href="/dev/skills"
+                className="font-serif-body italic text-[12px] text-ember-text-muted hover:text-ember-text"
+              >
+                Skill runtime test page →
+              </Link>
+            </div>
           </div>
         )}
       </div>
