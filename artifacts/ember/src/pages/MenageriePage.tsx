@@ -57,7 +57,10 @@ export default function MenageriePage() {
                     key={`${type}-${stage}`}
                     className="parchment-card flex flex-col items-center p-4"
                   >
-                    <div style={{ width: 200, height: 200 }} className="flex items-center justify-center">
+                    <div
+                      style={{ width: 200, height: 200, overflow: 'hidden', borderRadius: 8 }}
+                      className="flex items-center justify-center"
+                    >
                       <DragonScene type={type} stage={stage} size={200} />
                     </div>
                     <div className="mt-3 text-center">
