@@ -116,13 +116,16 @@ export default function ProjectPage() {
 
   const dismissSuggestion = useCallback(
     async (s: Suggestion, snoozeDays?: number) => {
+      // Per F4 spec: "Not now" applies a 7-day snooze. Callers may pass an
+      // explicit override (e.g. quick-close for instant 24h cooldown).
+      const effectiveSnooze = snoozeDays ?? 7;
       try {
         await fetch(`/api/dragons/${projectId}/suggestion/dismiss`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             dismissal_key: s.dismissal_key,
-            ...(snoozeDays ? { snooze_days: snoozeDays } : {}),
+            snooze_days: effectiveSnooze,
           }),
         });
       } catch { /* dismissal is best-effort */ }
