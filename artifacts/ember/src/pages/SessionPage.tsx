@@ -226,22 +226,24 @@ export default function SessionPage() {
               {project.name}
             </h2>
 
-            <FocusTimer
-              initialMinutes={20}
-              onComplete={handleTimerComplete}
-              accentColor={accentColor}
-            />
-
-            {/* F2 — paired co-work is reachable mid-session without leaving
-                the focus surface. The button is intentionally quiet so the
-                timer keeps the visual centre. */}
-            <button
-              type="button"
-              onClick={() => setShowChat(true)}
-              className="mt-6 inline-flex items-center gap-2 font-mono-caps text-ember-text-muted hover:text-ember-text transition-colors"
-            >
-              <FeatherIcon size={13} /> Speak to your dragon
-            </button>
+            {/* Timer + co-work trigger live on the same horizontal axis so
+                "talk to your dragon" reads as a peer affordance to the timer
+                itself, not a buried action below it. The button is quiet so
+                the timer keeps the visual centre. */}
+            <div className="flex items-center gap-6">
+              <FocusTimer
+                initialMinutes={20}
+                onComplete={handleTimerComplete}
+                accentColor={accentColor}
+              />
+              <button
+                type="button"
+                onClick={() => setShowChat(true)}
+                className="inline-flex items-center gap-2 font-mono-caps text-ember-text-muted hover:text-ember-text transition-colors"
+              >
+                <FeatherIcon size={13} /> Talk to your dragon
+              </button>
+            </div>
 
             {selectedTaskIds.length > 0 && (
               <div className="mt-10 w-full max-w-sm">

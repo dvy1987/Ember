@@ -286,7 +286,7 @@ export default function ProjectPage() {
               onClick={() => setShowChat(true)}
               className="inline-flex items-center gap-2 font-mono-caps text-ember-text-muted hover:text-ember-text transition-colors"
             >
-              <FeatherIcon size={13} /> Co-work with your dragon
+              <FeatherIcon size={13} /> Talk to your dragon
             </button>
           </div>
         </div>
