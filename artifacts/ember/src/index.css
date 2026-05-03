@@ -8,7 +8,7 @@
   --color-ember-panel-light: #2C1A12;
   --color-ember-border: #3A2F23;
   --color-ember-text: #F4E8D0;
-  --color-ember-text-muted: #A89478;
+  --color-ember-text-muted: #BFAB8A;
   --color-ember-cinder: #D4421A;
   --color-ember-cinder-glow: #F0A04A;
   --color-ember-moss: #7A9B5A;
@@ -37,7 +37,7 @@
   --frost-accent: #8FB8D6;
   --frost-glow: #D4E6F4;
   --text-parchment: #F4E8D0;
-  --text-muted: #A89478;
+  --text-muted: #BFAB8A;
   --border-subtle: #3A2F23;
   --ember-highlight: rgba(240, 160, 74, 0.28);
 }
@@ -65,7 +65,30 @@ html, body {
   font-family: 'IBM Plex Mono', monospace;
   font-variant-caps: small-caps;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+/* Semantic body type scale — upright Source Serif 4, comfortable on the
+   dark parchment background. Use these instead of hand-tuned text-[Npx]. */
+.body-lg {
+  font-family: 'Source Serif 4', serif;
+  font-style: normal;
+  font-size: 17px;
+  line-height: 1.55;
+}
+.body {
+  font-family: 'Source Serif 4', serif;
+  font-style: normal;
+  font-size: 16px;
+  line-height: 1.55;
+}
+.body-sm {
+  font-family: 'Source Serif 4', serif;
+  font-style: normal;
+  font-size: 15px;
+  line-height: 1.5;
 }
 
 .firelight-overlay {

@@ -121,7 +121,7 @@ export default function SagaPage() {
         <div className="flex items-center justify-between mb-8">
           <Link
             href={`/project/${projectId}`}
-            className="inline-flex items-center gap-2 font-mono-caps text-[11px] text-ember-text-muted hover:text-ember-text transition-colors"
+            className="inline-flex items-center gap-2 font-mono-caps text-ember-text-muted hover:text-ember-text transition-colors"
           >
             <ArrowLeftIcon size={14} /> Back to dragon
           </Link>
@@ -131,14 +131,14 @@ export default function SagaPage() {
           <h1 className="font-serif-display text-[28px] text-ember-text mb-1">
             The saga {project ? `of ${project.name}` : ''}
           </h1>
-          <p className="font-serif-body italic text-[14px] text-ember-text-muted">
+          <p className="body-sm text-ember-text-muted">
             Every hatch, ritual, task, session, and turning of the wheel — in the order it happened.
           </p>
         </div>
 
         {entries.length === 0 && !isLoading && (
           <div className="parchment-card p-6">
-            <p className="font-serif-body italic text-[14px] text-ember-text-muted">
+            <p className="body-sm text-ember-text-muted">
               No saga entries yet. Tend to your dragon and the chronicle will begin.
             </p>
           </div>
@@ -146,7 +146,7 @@ export default function SagaPage() {
 
         {grouped.map((group) => (
           <section key={group.date} className="mb-8">
-            <h2 className="font-mono-caps text-[10px] text-ember-text-muted mb-3">
+            <h2 className="font-mono-caps text-ember-text-muted mb-3">
               {formatDateHeading(group.date)}
             </h2>
             <ol className="parchment-card p-6 space-y-4">
@@ -156,14 +156,14 @@ export default function SagaPage() {
                   className="border-l-2 pl-3 py-0.5"
                   style={{ borderColor: 'var(--border-subtle)' }}
                 >
-                  <div className="flex items-center gap-2 font-mono-caps text-[9px] text-ember-text-muted mb-1">
+                  <div className="flex items-center gap-2 font-mono-caps text-ember-text-muted mb-1">
                     <KindIcon kind={e.kind} />
                     <span>{KIND_LABEL[e.kind]}</span>
                     {e.season_at_time && (
                       <span aria-hidden="true">· {e.season_at_time}</span>
                     )}
                   </div>
-                  <p className="font-serif-body italic text-[14px] text-ember-text leading-snug">
+                  <p className="body-sm text-ember-text leading-snug">
                     {e.entry_text}
                   </p>
                 </li>
@@ -177,12 +177,12 @@ export default function SagaPage() {
             <button
               onClick={loadMore}
               disabled={isLoading}
-              className="font-mono-caps text-[10px] text-ember-text-muted hover:text-ember-text transition-colors px-4 py-2 disabled:opacity-50"
+              className="font-mono-caps text-ember-text-muted hover:text-ember-text transition-colors px-4 py-2 disabled:opacity-50"
             >
               {isLoading ? 'turning the page…' : 'Read earlier entries'}
             </button>
           ) : entries.length > 0 ? (
-            <p className="font-mono-caps text-[10px] text-ember-text-muted">
+            <p className="font-mono-caps text-ember-text-muted">
               the saga begins here
             </p>
           ) : null}

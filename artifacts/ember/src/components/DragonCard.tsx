@@ -70,24 +70,24 @@ export default function DragonCard({ project, neglectState = 'active' }: DragonC
         <h3 className="font-display text-[26px] text-ember-text text-center leading-tight mb-1 relative z-10">
           {project.name}
         </h3>
-        <p className="font-serif-body italic text-ember-text-muted text-[12px] text-center mb-4 relative z-10">
+        <p className="body-sm text-ember-text-muted text-center mb-4 relative z-10">
           {TYPE_LABEL[dragonType]}, {STAGE_PHRASE[project.dragon_stage as DragonStage]}
         </p>
 
-        <div className="flex items-center justify-between font-mono-caps text-[10px] text-ember-text-muted relative z-10">
+        <div className="flex items-center justify-between font-mono-caps text-ember-text-muted relative z-10">
           <span className="inline-flex items-center gap-1.5">
-            <ClockIcon size={12} />
+            <ClockIcon size={13} />
             {formatMinutes(project.total_focus_minutes)}
           </span>
           <span className="inline-flex items-center gap-1.5">
-            <CircleDotIcon size={10} className="text-ember-cinder" />
+            <CircleDotIcon size={11} className="text-ember-cinder" />
             {formatTimeSince(project.last_session_at)}
           </span>
         </div>
 
         {neglect && (
-          <div className="mt-3 flex items-center justify-center gap-1.5 font-mono-caps text-[9px] text-ember-warning relative z-10">
-            <neglect.Icon size={11} />
+          <div className="mt-3 flex items-center justify-center gap-1.5 font-mono-caps text-ember-warning relative z-10">
+            <neglect.Icon size={12} />
             <span>{neglect.label}</span>
           </div>
         )}

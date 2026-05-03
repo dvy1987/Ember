@@ -95,7 +95,7 @@ export default function RitualList({ projectId, accentColor, onRitualLogged }: R
               </button>
               <div className="flex-1">
                 <div className="font-serif-body text-[15px] text-ember-text">{r.ritual_text}</div>
-                <div className="font-mono-caps text-[9px] text-ember-text-muted mt-0.5">
+                <div className="font-mono-caps text-ember-text-muted mt-0.5">
                   {r.cadence}{done ? ' · tended today' : ''}
                 </div>
               </div>
@@ -111,7 +111,7 @@ export default function RitualList({ projectId, accentColor, onRitualLogged }: R
           );
         })}
         {rituals.length === 0 && (
-          <p className="font-serif-body italic text-[14px] text-ember-text-muted px-2">
+          <p className="body-sm text-ember-text-muted px-2">
             No rituals yet. Add a small, repeatable thing this dragon will tend.
           </p>
         )}
@@ -139,7 +139,7 @@ export default function RitualList({ projectId, accentColor, onRitualLogged }: R
         <button
           onClick={handleAdd}
           disabled={!newRitual.trim()}
-          className="cta-ember px-4 py-2 font-mono-caps text-[11px] inline-flex items-center justify-center gap-2"
+          className="cta-ember px-4 py-2 font-mono-caps inline-flex items-center justify-center gap-2"
         >
           <PlusIcon size={12} /> Add
         </button>

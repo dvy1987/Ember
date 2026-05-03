@@ -74,7 +74,7 @@ function StatCard({ label, value, Icon }: { label: string; value: string; Icon: 
     <div className="parchment-card p-4 text-center">
       <div className="flex justify-center mb-1.5 text-ember-cinder"><Icon size={14} /></div>
       <div className="font-display text-[24px] text-ember-text leading-none">{value}</div>
-      <div className="font-mono-caps text-[9px] text-ember-text-muted mt-2">{label}</div>
+      <div className="font-mono-caps text-ember-text-muted mt-2">{label}</div>
     </div>
   );
 }
@@ -85,7 +85,7 @@ function DailyBarChart({ data, color }: { data: ProjectDailyStat[]; color: strin
 
   return (
     <div className="parchment-card p-6">
-      <h3 className="font-mono-caps text-[10px] text-ember-text-muted mb-5">Focus · last 14 days</h3>
+      <h3 className="font-mono-caps text-ember-text-muted mb-5">Focus · last 14 days</h3>
       <div className="flex items-end gap-1 h-32">
         {recent.map(day => {
           const height = (day.focus_minutes / maxMinutes) * 100;
@@ -102,7 +102,7 @@ function DailyBarChart({ data, color }: { data: ProjectDailyStat[]; color: strin
                   }}
                 />
               </div>
-              <span className="font-mono-caps text-[9px] text-ember-text-muted">{dayLabel}</span>
+              <span className="font-mono-caps text-ember-text-muted">{dayLabel}</span>
             </div>
           );
         })}
@@ -131,12 +131,12 @@ function StageProgress({
 
   return (
     <div className="parchment-card p-6">
-      <h3 className="font-mono-caps text-[10px] text-ember-text-muted mb-4">Dragon growth</h3>
+      <h3 className="font-mono-caps text-ember-text-muted mb-4">Dragon growth</h3>
       <div className="flex items-center justify-between mb-3">
         <span className="font-display text-[20px] text-ember-text capitalize">{currentStage}</span>
         {nextStage && (
-          <span className="font-mono-caps text-[10px] text-ember-text-muted inline-flex items-center gap-1.5">
-            {nextStage.stage} <ArrowRightIcon size={12} />
+          <span className="font-mono-caps text-ember-text-muted inline-flex items-center gap-1.5">
+            {nextStage.stage} <ArrowRightIcon size={13} />
           </span>
         )}
       </div>
@@ -146,7 +146,7 @@ function StageProgress({
           style={{ width: `${pct}%`, background: 'linear-gradient(to right, var(--ember-accent), var(--amber-glow))' }}
         />
       </div>
-      <p className="font-serif-body italic text-[13px] text-ember-text-muted mt-3">
+      <p className="body-sm text-ember-text-muted mt-3">
         {minutesToNext !== null
           ? `${formatMinutes(minutesToNext)} until ${nextStage?.stage}`
           : 'Maximum stage reached.'}
@@ -159,30 +159,30 @@ function RecentSessionList({ sessions }: { sessions: RecentSession[] }) {
   if (sessions.length === 0) {
     return (
       <div className="parchment-card p-6">
-        <h3 className="font-mono-caps text-[10px] text-ember-text-muted mb-3">Recent sessions</h3>
-        <p className="font-serif-body italic text-ember-text-muted">No completed sessions yet.</p>
+        <h3 className="font-mono-caps text-ember-text-muted mb-3">Recent sessions</h3>
+        <p className="body-sm text-ember-text-muted">No completed sessions yet.</p>
       </div>
     );
   }
 
   return (
     <div className="parchment-card p-6">
-      <h3 className="font-mono-caps text-[10px] text-ember-text-muted mb-5">Recent sessions</h3>
+      <h3 className="font-mono-caps text-ember-text-muted mb-5">Recent sessions</h3>
       <div className="space-y-4">
         {sessions.map(s => (
           <div key={s.id} className="border-b last:border-0 pb-4 last:pb-0" style={{ borderColor: 'var(--border-subtle)' }}>
             <div className="flex items-center justify-between mb-1">
-              <span className="font-mono-caps text-[10px] text-ember-text-muted">{formatDate(s.start_time)}</span>
-              <span className="font-mono-caps text-[10px] text-ember-text-muted">{formatMinutes(s.duration_minutes)}</span>
+              <span className="font-mono-caps text-ember-text-muted">{formatDate(s.start_time)}</span>
+              <span className="font-mono-caps text-ember-text-muted">{formatMinutes(s.duration_minutes)}</span>
             </div>
             {(s.ai_summary || s.reflection) && (
-              <p className="font-serif-body italic text-[14px] text-ember-text leading-relaxed line-clamp-2">
+              <p className="body-sm text-ember-text leading-relaxed line-clamp-2">
                 "{s.ai_summary || s.reflection}"
               </p>
             )}
             {s.tasks_completed_count > 0 && (
-              <p className="font-mono-caps text-[10px] mt-2 inline-flex items-center gap-1.5" style={{ color: 'var(--amber-glow)' }}>
-                <CheckIcon size={11} /> {s.tasks_completed_count} task{s.tasks_completed_count !== 1 ? 's' : ''} completed
+              <p className="font-mono-caps mt-2 inline-flex items-center gap-1.5" style={{ color: 'var(--amber-glow)' }}>
+                <CheckIcon size={12} /> {s.tasks_completed_count} task{s.tasks_completed_count !== 1 ? 's' : ''} completed
               </p>
             )}
           </div>
@@ -213,7 +213,7 @@ export default function ProjectAnalyticsPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="font-serif-body italic text-ember-text-muted">Tending the ledger…</p>
+        <p className="body text-ember-text-muted">Tending the ledger…</p>
       </div>
     );
   }
@@ -221,9 +221,9 @@ export default function ProjectAnalyticsPage() {
   if (notFound || !data) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-4">
-        <p className="font-serif-body italic text-ember-text-muted">Dragon not found.</p>
-        <Link href="/" className="font-mono-caps text-[11px] text-ember-cinder hover:underline inline-flex items-center gap-2">
-          <ArrowLeftIcon size={13} /> Ember Keep
+        <p className="body text-ember-text-muted">Dragon not found.</p>
+        <Link href="/" className="font-mono-caps text-ember-cinder hover:underline inline-flex items-center gap-2">
+          <ArrowLeftIcon size={14} /> Ember Keep
         </Link>
       </div>
     );
@@ -238,20 +238,20 @@ export default function ProjectAnalyticsPage() {
         <div className="flex items-center justify-between mb-8">
           <Link
             href={`/project/${projectId}`}
-            className="inline-flex items-center gap-2 font-mono-caps text-[11px] text-ember-text-muted hover:text-ember-text transition-colors"
+            className="inline-flex items-center gap-2 font-mono-caps text-ember-text-muted hover:text-ember-text transition-colors"
           >
             <ArrowLeftIcon size={14} /> {data.project.name}
           </Link>
           <Link
             href="/analytics"
-            className="inline-flex items-center gap-2 font-mono-caps text-[11px] text-ember-text-muted hover:text-ember-text transition-colors"
+            className="inline-flex items-center gap-2 font-mono-caps text-ember-text-muted hover:text-ember-text transition-colors"
           >
-            All dragons <ArrowRightIcon size={13} />
+            All dragons <ArrowRightIcon size={14} />
           </Link>
         </div>
 
         <header className="mb-8">
-          <p className="font-mono-caps text-[10px] text-ember-text-muted mb-1">
+          <p className="font-mono-caps text-ember-text-muted mb-1">
             {data.project.dragon_stage} {data.project.dragon_type}
           </p>
           <h1 className="font-display text-[40px] text-ember-text leading-tight">{data.project.name}</h1>
@@ -266,7 +266,7 @@ export default function ProjectAnalyticsPage() {
 
         {data.overall.avgSessionMinutes > 0 && (
           <div className="parchment-card p-5 mb-8 flex items-center justify-between">
-            <span className="font-mono-caps text-[10px] text-ember-text-muted">Avg session length</span>
+            <span className="font-mono-caps text-ember-text-muted">Avg session length</span>
             <span className="font-display text-[20px] text-ember-text">{formatMinutes(data.overall.avgSessionMinutes)}</span>
           </div>
         )}

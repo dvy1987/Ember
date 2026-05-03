@@ -134,7 +134,7 @@ export default function CreateProjectModal({ isOpen, onClose, onCreated }: Creat
         </button>
 
         <div className="text-center mb-6">
-          <p className="font-mono-caps text-[10px] text-ember-text-muted mb-2">
+          <p className="font-mono-caps text-ember-text-muted mb-2">
             Step {step === 'kind' ? 1 : step === 'tend' ? 2 : 3} of 3
           </p>
           <h2 className="font-display text-[28px] text-ember-text leading-tight">
@@ -143,7 +143,7 @@ export default function CreateProjectModal({ isOpen, onClose, onCreated }: Creat
             {step === 'name' && 'Name the dragon.'}
           </h2>
           {step === 'tend' && (
-            <p className="font-serif-body italic text-[14px] text-ember-text-muted mt-2 max-w-md mx-auto">
+            <p className="body-sm text-ember-text-muted mt-2 max-w-md mx-auto">
               Some dragons guard a single endeavor. Others guard a piece of your life you want to keep tending.
             </p>
           )}
@@ -169,7 +169,7 @@ export default function CreateProjectModal({ isOpen, onClose, onCreated }: Creat
                       <dt.Icon size={18} />
                       <span className="font-display text-[18px] text-ember-text">{dt.label}</span>
                     </div>
-                    <p className="font-serif-body italic text-[12.5px] text-ember-text-muted leading-snug">
+                    <p className="body-sm text-ember-text-muted leading-snug">
                       {dt.blurb}
                     </p>
                   </button>
@@ -179,13 +179,13 @@ export default function CreateProjectModal({ isOpen, onClose, onCreated }: Creat
             <div className="flex gap-3">
               <button
                 onClick={handleClose}
-                className="cta-quiet flex-1 py-3 font-mono-caps text-[11px] text-ember-text-muted"
+                className="cta-quiet flex-1 py-3 font-mono-caps text-ember-text-muted"
               >
                 Cancel
               </button>
               <button
                 onClick={() => setStep('tend')}
-                className="cta-ember flex-1 py-3 font-mono-caps text-[11px] inline-flex items-center justify-center gap-2"
+                className="cta-ember flex-1 py-3 font-mono-caps inline-flex items-center justify-center gap-2"
               >
                 Next <ArrowRightIcon size={13} />
               </button>
@@ -207,7 +207,7 @@ export default function CreateProjectModal({ isOpen, onClose, onCreated }: Creat
             </div>
 
             <div className="mb-6">
-              <p className="font-mono-caps text-[10px] text-ember-text-muted mb-2">Or borrow an example</p>
+              <p className="font-mono-caps text-ember-text-muted mb-2">Or borrow an example</p>
               <div className="flex flex-wrap gap-2">
                 {exampleChips.map((chip) => (
                   <button
@@ -232,7 +232,7 @@ export default function CreateProjectModal({ isOpen, onClose, onCreated }: Creat
             <div className="flex gap-3">
               <button
                 onClick={() => setStep('kind')}
-                className="cta-quiet px-4 py-3 font-mono-caps text-[11px] text-ember-text-muted inline-flex items-center gap-2"
+                className="cta-quiet px-4 py-3 font-mono-caps text-ember-text-muted inline-flex items-center gap-2"
               >
                 <ArrowLeftIcon size={13} /> Back
               </button>
@@ -247,7 +247,7 @@ export default function CreateProjectModal({ isOpen, onClose, onCreated }: Creat
                   }
                   setStep('name');
                 }}
-                className="cta-ember flex-1 py-3 font-mono-caps text-[11px] inline-flex items-center justify-center gap-2"
+                className="cta-ember flex-1 py-3 font-mono-caps inline-flex items-center justify-center gap-2"
               >
                 Next <ArrowRightIcon size={13} />
               </button>
@@ -258,7 +258,7 @@ export default function CreateProjectModal({ isOpen, onClose, onCreated }: Creat
         {step === 'name' && (
           <>
             <div className="mb-6">
-              <label className="font-mono-caps text-[10px] text-ember-text-muted mb-2 block">
+              <label className="font-mono-caps text-ember-text-muted mb-2 block">
                 Project name
               </label>
               <input
@@ -270,7 +270,7 @@ export default function CreateProjectModal({ isOpen, onClose, onCreated }: Creat
                 autoFocus
                 onKeyDown={(e) => { if (e.key === 'Enter' && name.trim()) handleCreate(); }}
               />
-              <p className="font-serif-body italic text-[13px] text-ember-text-muted mt-3 leading-snug">
+              <p className="body-sm text-ember-text-muted mt-3 leading-snug">
                 You chose <span className="text-ember-text">{selected.label}</span>.
                 {' '}Their egg comes to your hearth, waiting to be tended.
               </p>
@@ -279,7 +279,7 @@ export default function CreateProjectModal({ isOpen, onClose, onCreated }: Creat
                 <button
                   type="button"
                   onClick={() => setBrainDumpOpen(o => !o)}
-                  className="font-mono-caps text-[10px] text-ember-text-muted hover:text-ember-text inline-flex items-center gap-1.5"
+                  className="font-mono-caps text-ember-text-muted hover:text-ember-text inline-flex items-center gap-1.5"
                   aria-expanded={brainDumpOpen}
                 >
                   {brainDumpOpen ? '−' : '+'} A few notes? (optional)
@@ -301,14 +301,14 @@ export default function CreateProjectModal({ isOpen, onClose, onCreated }: Creat
             <div className="flex gap-3">
               <button
                 onClick={() => setStep('tend')}
-                className="cta-quiet px-4 py-3 font-mono-caps text-[11px] text-ember-text-muted inline-flex items-center gap-2"
+                className="cta-quiet px-4 py-3 font-mono-caps text-ember-text-muted inline-flex items-center gap-2"
               >
                 <ArrowLeftIcon size={13} /> Back
               </button>
               <button
                 onClick={handleCreate}
                 disabled={!name.trim() || isCreating}
-                className="cta-ember flex-1 py-3 font-mono-caps text-[11px]"
+                className="cta-ember flex-1 py-3 font-mono-caps"
               >
                 {isCreating ? 'Hatching…' : 'Bring this dragon to the keep'}
               </button>

@@ -91,22 +91,22 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
         </button>
 
         <div className="mb-6">
-          <p className="font-mono-caps text-[10px] text-ember-text-muted mb-2">The keeper's tools</p>
+          <p className="font-mono-caps text-ember-text-muted mb-2">The keeper's tools</p>
           <h2 className="font-display text-[28px] text-ember-text">AI Settings</h2>
         </div>
 
         {isLoading ? (
-          <p className="font-serif-body italic text-ember-text-muted text-[14px] py-4 text-center">Loading…</p>
+          <p className="body-sm text-ember-text-muted py-4 text-center">Loading…</p>
         ) : (
           <div className="space-y-5">
             <div>
-              <label className="font-mono-caps text-[10px] text-ember-text-muted mb-2 block">Provider</label>
+              <label className="font-mono-caps text-ember-text-muted mb-2 block">Provider</label>
               <div className="flex flex-wrap gap-2">
                 {PROVIDER_PRESETS.map(p => (
                   <button
                     key={p.label}
                     onClick={() => handlePresetChange(p.label)}
-                    className="px-3 py-1.5 font-mono-caps text-[10px] transition-colors"
+                    className="px-3 py-1.5 font-mono-caps transition-colors"
                     style={{
                       border: `1px solid ${selectedPreset === p.label ? 'var(--ember-accent)' : 'var(--border-subtle)'}`,
                       background: selectedPreset === p.label ? 'var(--ember-accent)' : 'transparent',
@@ -121,7 +121,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
             </div>
 
             <div>
-              <label className="font-mono-caps text-[10px] text-ember-text-muted mb-2 block">API Key</label>
+              <label className="font-mono-caps text-ember-text-muted mb-2 block">API Key</label>
               <input
                 type="password"
                 value={settings.ai_api_key}
@@ -129,13 +129,13 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                 placeholder={settings.ai_api_key.startsWith('••') ? 'key saved — enter new to replace' : 'sk-…'}
                 className="w-full input-parchment px-3 py-2.5 text-[14px]"
               />
-              <p className="font-serif-body italic text-[12px] text-ember-text-muted mt-2">
+              <p className="body-sm text-ember-text-muted mt-2">
                 Stored locally in SQLite. Never sent to Ember servers.
               </p>
             </div>
 
             <div>
-              <label className="font-mono-caps text-[10px] text-ember-text-muted mb-2 block">Base URL</label>
+              <label className="font-mono-caps text-ember-text-muted mb-2 block">Base URL</label>
               <input
                 type="text"
                 value={settings.ai_base_url}
@@ -146,7 +146,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
             </div>
 
             <div>
-              <label className="font-mono-caps text-[10px] text-ember-text-muted mb-2 block">Model</label>
+              <label className="font-mono-caps text-ember-text-muted mb-2 block">Model</label>
               <input
                 type="text"
                 value={settings.ai_model}
@@ -158,16 +158,16 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
 
             <div className="flex items-center justify-between pt-1">
               {savedMsg ? (
-                <span className="font-mono-caps text-[10px]" style={{ color: 'var(--amber-glow)' }}>{savedMsg}</span>
+                <span className="font-mono-caps" style={{ color: 'var(--amber-glow)' }}>{savedMsg}</span>
               ) : (
-                <p className="font-serif-body italic text-[12px] text-ember-text-muted">
+                <p className="body-sm text-ember-text-muted">
                   AI is optional — Ember works without it.
                 </p>
               )}
               <button
                 onClick={handleSave}
                 disabled={isSaving}
-                className="cta-ember px-5 py-2 font-mono-caps text-[11px]"
+                className="cta-ember px-5 py-2 font-mono-caps"
               >
                 {isSaving ? 'Saving…' : 'Save'}
               </button>
@@ -176,25 +176,25 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
         )}
 
         <div className="mt-6 pt-5" style={{ borderTop: '1px solid var(--border-subtle)' }}>
-          <p className="font-mono-caps text-[10px] text-ember-text-muted mb-2">External messaging — coming soon</p>
-          <p className="font-serif-body italic text-[12px] text-ember-text-muted">
+          <p className="font-mono-caps text-ember-text-muted mb-2">External messaging — coming soon</p>
+          <p className="body-sm text-ember-text-muted">
             Letting your dragons reach you on WhatsApp — coming soon.
           </p>
         </div>
 
         {import.meta.env.DEV && (
-          <div className="mt-6 pt-5" style={{ borderTop: '1px solid var(--border-subtle)' }}>
-            <p className="font-mono-caps text-[9px] text-ember-text-muted mb-2 opacity-70">Developer</p>
+          <div className="mt-8 pt-5" style={{ borderTop: '1px solid var(--border-subtle)' }}>
+            <p className="font-mono-caps text-ember-text-muted mb-2 opacity-70">Developer</p>
             <div className="flex flex-col gap-1">
               <Link
                 href="/menagerie"
-                className="font-serif-body italic text-[12px] text-ember-text-muted hover:text-ember-text"
+                className="body-sm text-ember-text-muted hover:text-ember-text"
               >
                 View the dragon menagerie →
               </Link>
               <Link
                 href="/dev/skills"
-                className="font-serif-body italic text-[12px] text-ember-text-muted hover:text-ember-text"
+                className="body-sm text-ember-text-muted hover:text-ember-text"
               >
                 Skill runtime test page →
               </Link>

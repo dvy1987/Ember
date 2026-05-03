@@ -39,13 +39,13 @@ export default function BrainDumpInput({
         />
       </div>
       <div className="flex justify-between items-center">
-        <span className="font-mono-caps text-[10px] text-ember-text-muted">
+        <span className="font-mono-caps text-ember-text-muted">
           {text.length > 0 ? `${text.length} characters` : 'Cmd/Ctrl + Enter to submit'}
         </span>
         <button
           onClick={handleSubmit}
           disabled={!text.trim() || isLoading}
-          className="cta-ember px-5 py-2 font-mono-caps text-[11px]"
+          className="cta-ember px-5 py-2 font-mono-caps"
         >
           {isLoading ? 'Tending…' : 'Brain Dump'}
         </button>

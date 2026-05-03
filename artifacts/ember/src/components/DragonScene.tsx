@@ -90,7 +90,7 @@ export default function DragonScene({ type, stage, size = 160, intense = false }
   if (!imagePath) {
     return (
       <div
-        className="flex items-center justify-center font-mono-caps text-[10px]"
+        className="flex items-center justify-center font-mono-caps"
         style={{ width: size, height: size, color: 'var(--text-muted)' }}
       >
         {stage}

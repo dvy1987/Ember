@@ -169,7 +169,7 @@ export default function ProjectPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="font-serif-body italic text-ember-text-muted">Tending the keep…</p>
+        <p className="body text-ember-text-muted">Tending the keep…</p>
       </div>
     );
   }
@@ -177,7 +177,7 @@ export default function ProjectPage() {
   if (!project) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="font-serif-body italic text-ember-text-muted">Dragon not found.</p>
+        <p className="body text-ember-text-muted">Dragon not found.</p>
       </div>
     );
   }
@@ -192,15 +192,15 @@ export default function ProjectPage() {
         <div className="flex items-center justify-between mb-8">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 font-mono-caps text-[11px] text-ember-text-muted hover:text-ember-text transition-colors"
+            className="inline-flex items-center gap-2 font-mono-caps text-ember-text-muted hover:text-ember-text transition-colors"
           >
             <ArrowLeftIcon size={14} /> Ember Keep
           </Link>
           <Link
             href={`/analytics/${project.id}`}
-            className="inline-flex items-center gap-2 font-mono-caps text-[11px] text-ember-text-muted hover:text-ember-text transition-colors"
+            className="inline-flex items-center gap-2 font-mono-caps text-ember-text-muted hover:text-ember-text transition-colors"
           >
-            <InsightsIcon size={13} /> Dragon stats
+            <InsightsIcon size={14} /> Dragon stats
           </Link>
         </div>
 
@@ -228,8 +228,8 @@ export default function ProjectPage() {
               (document.querySelector<HTMLInputElement>('#tasks-section input[type="text"]'))?.focus();
             }}
           >
-            <div className="font-mono-caps text-[10px] text-ember-text-muted mb-1">+ Add a task</div>
-            <div className="font-serif-body italic text-[14px] text-ember-text leading-snug">
+            <div className="font-mono-caps text-ember-text-muted mb-1">+ Add a task</div>
+            <div className="body-sm text-ember-text leading-snug">
               something to finish
             </div>
           </a>
@@ -242,15 +242,15 @@ export default function ProjectPage() {
               (document.querySelector<HTMLInputElement>('#rituals-section input[type="text"]'))?.focus();
             }}
           >
-            <div className="font-mono-caps text-[10px] text-ember-text-muted mb-1">+ Add a ritual</div>
-            <div className="font-serif-body italic text-[14px] text-ember-text leading-snug">
+            <div className="font-mono-caps text-ember-text-muted mb-1">+ Add a ritual</div>
+            <div className="body-sm text-ember-text leading-snug">
               something to keep
             </div>
           </a>
         </div>
 
         <div id="rituals-section" className="mb-12 scroll-mt-20">
-          <h3 className="font-mono-caps text-[10px] text-ember-text-muted mb-4">
+          <h3 className="font-mono-caps text-ember-text-muted mb-4">
             Rituals — the small, repeatable tending
           </h3>
           <RitualList
@@ -261,7 +261,7 @@ export default function ProjectPage() {
         </div>
 
         <div className="mb-12">
-          <h3 className="font-mono-caps text-[10px] text-ember-text-muted mb-4">
+          <h3 className="font-mono-caps text-ember-text-muted mb-4">
             Brain dump
           </h3>
           <BrainDumpInput
@@ -270,15 +270,15 @@ export default function ProjectPage() {
             isLoading={brainDumpStatus === 'extracting'}
           />
           {brainDumpStatus === 'extracting' && (
-            <p className="font-mono-caps text-[10px] text-ember-text-muted mt-2">extracting tasks…</p>
+            <p className="font-mono-caps text-ember-text-muted mt-2">extracting tasks…</p>
           )}
           {brainDumpStatus === 'ai-success' && (
-            <p className="font-mono-caps text-[10px] mt-2 inline-flex items-center gap-1.5" style={{ color: 'var(--amber-glow)' }}>
-              <CheckIcon size={12} /> Tasks drawn from the dump
+            <p className="font-mono-caps mt-2 inline-flex items-center gap-1.5" style={{ color: 'var(--amber-glow)' }}>
+              <CheckIcon size={13} /> Tasks drawn from the dump
             </p>
           )}
           {brainDumpStatus === 'fallback' && (
-            <p className="font-mono-caps text-[10px] text-ember-text-muted mt-2">tasks added</p>
+            <p className="font-mono-caps text-ember-text-muted mt-2">tasks added</p>
           )}
         </div>
 
@@ -301,10 +301,10 @@ export default function ProjectPage() {
 
         {project.project_summary && (
           <div className="parchment-card p-6 mb-12">
-            <h3 className="font-mono-caps text-[10px] text-ember-text-muted mb-3">
+            <h3 className="font-mono-caps text-ember-text-muted mb-3">
               What this dragon tends
             </h3>
-            <p className="font-serif-body italic text-[15px] text-ember-text leading-relaxed">
+            <p className="body text-ember-text leading-relaxed">
               {project.project_summary}
             </p>
           </div>
@@ -314,33 +314,33 @@ export default function ProjectPage() {
           {archiveState === 'idle' && (
             <button
               onClick={handleArchive}
-              className="inline-flex items-center gap-2 font-mono-caps text-[10px] text-ember-text-muted hover:text-ember-text transition-colors px-3 py-2"
+              className="inline-flex items-center gap-2 font-mono-caps text-ember-text-muted hover:text-ember-text transition-colors px-3 py-2"
             >
-              <ArchiveIcon size={13} /> Send this dragon to the archive
+              <ArchiveIcon size={14} /> Send this dragon to the archive
             </button>
           )}
           {archiveState === 'confirming' && (
             <div className="flex items-center gap-3">
-              <span className="font-mono-caps text-[10px] text-ember-text-muted">
+              <span className="font-mono-caps text-ember-text-muted">
                 Retire this dragon to the archive?
               </span>
               <button
                 onClick={handleArchive}
-                className="font-mono-caps text-[10px] px-3 py-1.5 transition-colors"
+                className="font-mono-caps px-3 py-1.5 transition-colors"
                 style={{ color: 'var(--ember-accent)', border: '1px solid var(--ember-accent)', borderRadius: '3px' }}
               >
                 Archive
               </button>
               <button
                 onClick={() => setArchiveState('idle')}
-                className="font-mono-caps text-[10px] text-ember-text-muted hover:text-ember-text transition-colors px-3 py-1.5"
+                className="font-mono-caps text-ember-text-muted hover:text-ember-text transition-colors px-3 py-1.5"
               >
                 Cancel
               </button>
             </div>
           )}
           {archiveState === 'archiving' && (
-            <span className="font-mono-caps text-[10px] text-ember-text-muted">Sending to the archive…</span>
+            <span className="font-mono-caps text-ember-text-muted">Sending to the archive…</span>
           )}
         </div>
       </div>

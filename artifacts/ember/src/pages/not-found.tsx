@@ -10,16 +10,16 @@ export default function NotFound() {
         <div className="flex justify-center mb-6">
           <DragonScene type="drift" stage="adolescent" size={160} />
         </div>
-        <p className="font-mono-caps text-[10px] text-ember-text-muted mb-2">404</p>
+        <p className="font-mono-caps text-ember-text-muted mb-2">404</p>
         <h1 className="font-display text-[40px] text-ember-text leading-tight mb-3">
           The dragons drifted elsewhere.
         </h1>
-        <p className="font-serif-body italic text-[15px] text-ember-text-muted mb-8">
+        <p className="body text-ember-text-muted mb-8">
           This page flew away on the wind. Let's get you back to the keep.
         </p>
         <Link
           href="/"
-          className="cta-ember inline-flex items-center gap-2 px-6 py-3 font-mono-caps text-[11px]"
+          className="cta-ember inline-flex items-center gap-2 px-6 py-3 font-mono-caps"
         >
           <ArrowLeftIcon size={13} /> Back to Ember Keep
         </Link>

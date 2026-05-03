@@ -88,7 +88,7 @@ export default function FocusTimer({
           <div className="font-display text-[64px] leading-none text-ember-text">
             {String(minutes).padStart(2, '0')}<span className="opacity-50">:</span>{String(seconds).padStart(2, '0')}
           </div>
-          <div className="font-mono-caps text-[10px] text-ember-text-muted mt-3">
+          <div className="font-mono-caps text-ember-text-muted mt-3">
             {isComplete ? 'session complete' : isRunning ? 'tending' : 'paused'}
           </div>
         </div>
@@ -97,10 +97,10 @@ export default function FocusTimer({
       <div className="flex gap-3">
         {!isComplete && (
           <>
-            <button onClick={togglePause} className="cta-quiet px-5 py-2 font-mono-caps text-[11px] inline-flex items-center gap-1.5">
+            <button onClick={togglePause} className="cta-quiet px-5 py-2 font-mono-caps inline-flex items-center gap-1.5">
               {isRunning ? <><PauseIcon size={12} /> Pause</> : <><PlayIcon size={12} /> Resume</>}
             </button>
-            <button onClick={endEarly} className="cta-quiet px-5 py-2 font-mono-caps text-[11px] text-ember-text-muted">
+            <button onClick={endEarly} className="cta-quiet px-5 py-2 font-mono-caps text-ember-text-muted">
               End Early
             </button>
           </>
@@ -113,7 +113,7 @@ export default function FocusTimer({
             <button
               key={mins}
               onClick={() => addTime(mins)}
-              className="px-3 py-1.5 font-mono-caps text-[10px] text-ember-text-muted hover:text-ember-text transition-colors inline-flex items-center gap-1"
+              className="px-3 py-1.5 font-mono-caps text-ember-text-muted hover:text-ember-text transition-colors inline-flex items-center gap-1"
               style={{ border: '1px solid var(--border-subtle)', borderRadius: '4px' }}
             >
               <PlusIcon size={10} />{mins} min

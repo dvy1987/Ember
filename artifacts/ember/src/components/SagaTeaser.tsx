@@ -25,14 +25,14 @@ export default function SagaTeaser({ projectId, refreshKey = 0 }: SagaTeaserProp
 
   return (
     <div className="parchment-card p-6">
-      <h3 className="font-mono-caps text-[10px] text-ember-text-muted mb-4">The dragon's saga</h3>
+      <h3 className="font-mono-caps text-ember-text-muted mb-4">The dragon's saga</h3>
       <ol className="space-y-3">
         {entries.map((e) => (
           <li key={e.id} className="border-l-2 pl-3 py-0.5" style={{ borderColor: 'var(--border-subtle)' }}>
-            <div className="font-mono-caps text-[9px] text-ember-text-muted mb-0.5">
+            <div className="font-mono-caps text-ember-text-muted mb-0.5">
               {formatDate(e.occurred_at ?? e.created_at)} · {e.kind.replace(/_/g, ' ')}
             </div>
-            <p className="font-serif-body italic text-[14px] text-ember-text leading-snug">
+            <p className="body-sm text-ember-text leading-snug">
               {e.entry_text}
             </p>
           </li>
@@ -41,7 +41,7 @@ export default function SagaTeaser({ projectId, refreshKey = 0 }: SagaTeaserProp
       <div className="mt-4 pt-3 border-t" style={{ borderColor: 'var(--border-subtle)' }}>
         <Link
           href={`/saga/${projectId}`}
-          className="font-mono-caps text-[10px] text-ember-text-muted hover:text-ember-text transition-colors"
+          className="font-mono-caps text-ember-text-muted hover:text-ember-text transition-colors"
         >
           Read the full saga →
         </Link>

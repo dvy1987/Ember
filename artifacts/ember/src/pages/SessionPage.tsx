@@ -140,7 +140,7 @@ export default function SessionPage() {
   if (isLoading || !project) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="font-serif-body italic text-ember-text-muted">Preparing the tending ground…</p>
+        <p className="body text-ember-text-muted">Preparing the tending ground…</p>
       </div>
     );
   }
@@ -156,7 +156,7 @@ export default function SessionPage() {
           <div className="animate-enter">
             <Link
               href={`/project/${projectId}`}
-              className="inline-flex items-center gap-2 font-mono-caps text-[11px] text-ember-text-muted hover:text-ember-text transition-colors mb-8"
+              className="inline-flex items-center gap-2 font-mono-caps text-ember-text-muted hover:text-ember-text transition-colors mb-8"
             >
               <ArrowLeftIcon size={14} /> back to project
             </Link>
@@ -165,11 +165,11 @@ export default function SessionPage() {
               <div className="flex justify-center mb-4">
                 <DragonScene type={dragonType} stage={project.dragon_stage} size={140} />
               </div>
-              <p className="font-mono-caps text-[10px] text-ember-text-muted mb-2">Tonight · 20 minutes</p>
+              <p className="font-mono-caps text-ember-text-muted mb-2">Tonight · 20 minutes</p>
               <h1 className="font-display text-[40px] text-ember-text leading-tight mb-2">
                 Prepare the tending.
               </h1>
-              <p className="font-serif-body italic text-[15px] text-ember-text-muted">
+              <p className="body text-ember-text-muted">
                 Choose what {project.name} will tend tonight.
               </p>
             </div>
@@ -191,11 +191,11 @@ export default function SessionPage() {
                     className="w-4 h-4"
                     style={{ accentColor }}
                   />
-                  <span className="font-serif-body text-[15px] text-ember-text">{task.task_text}</span>
+                  <span className="body-sm text-ember-text">{task.task_text}</span>
                 </label>
               ))}
               {activeTasks.length === 0 && (
-                <p className="text-center font-serif-body italic text-ember-text-muted py-4">
+                <p className="text-center body-sm text-ember-text-muted py-4">
                   No active tasks. You can still start a free training session.
                 </p>
               )}
@@ -208,7 +208,7 @@ export default function SessionPage() {
               <span className="inline-flex items-center gap-2">
                 <BeginIcon size={18} /> Begin tonight's focus session — 20 min
               </span>
-              <span className="font-mono-caps text-[11px] opacity-85" style={{ color: 'var(--amber-glow)' }}>20:00</span>
+              <span className="font-mono-caps opacity-85" style={{ color: 'var(--amber-glow)' }}>20:00</span>
             </button>
           </div>
         )}
@@ -219,7 +219,7 @@ export default function SessionPage() {
               <DragonScene type={dragonType} stage={project.dragon_stage} size={180} intense />
             </div>
 
-            <p className="font-mono-caps text-[11px] text-ember-text-muted mb-1">tending</p>
+            <p className="font-mono-caps text-ember-text-muted mb-1">tending</p>
             <h2 className="font-display text-[34px] text-ember-text leading-tight mb-6">
               {project.name}
             </h2>
@@ -232,14 +232,14 @@ export default function SessionPage() {
 
             {selectedTaskIds.length > 0 && (
               <div className="mt-10 w-full max-w-sm">
-                <h3 className="font-mono-caps text-[10px] text-ember-text-muted mb-2">Session tasks</h3>
+                <h3 className="font-mono-caps text-ember-text-muted mb-2">Session tasks</h3>
                 <div className="space-y-1.5">
                   {activeTasks
                     .filter(t => selectedTaskIds.includes(t.id))
                     .map(task => (
                       <div
                         key={task.id}
-                        className="font-serif-body text-[14px] text-ember-text-muted px-3 py-2 border-l-2"
+                        className="body-sm text-ember-text-muted px-3 py-2 border-l-2"
                         style={{ borderColor: 'var(--border-subtle)' }}
                       >
                         {task.task_text}
@@ -257,18 +257,18 @@ export default function SessionPage() {
               <div className="flex justify-center mb-4">
                 <DragonScene type={dragonType} stage={project.dragon_stage} size={140} intense />
               </div>
-              <p className="font-mono-caps text-[10px] text-ember-text-muted mb-2">session complete</p>
+              <p className="font-mono-caps text-ember-text-muted mb-2">session complete</p>
               <h1 className="font-display text-[36px] text-ember-text leading-tight mb-2">
                 {project.name} grew stronger.
               </h1>
-              <p className="font-serif-body italic text-[15px] text-ember-text-muted">
+              <p className="body text-ember-text-muted">
                 What did the keeper see?
               </p>
             </div>
 
             {selectedTaskIds.length > 0 && (
               <div className="mb-8">
-                <h3 className="font-mono-caps text-[10px] text-ember-text-muted mb-3">What did you complete?</h3>
+                <h3 className="font-mono-caps text-ember-text-muted mb-3">What did you complete?</h3>
                 <div className="space-y-2">
                   {activeTasks
                     .filter(t => selectedTaskIds.includes(t.id))
@@ -284,7 +284,7 @@ export default function SessionPage() {
                           className="w-4 h-4"
                           style={{ accentColor }}
                         />
-                        <span className="font-serif-body text-[15px] text-ember-text">{task.task_text}</span>
+                        <span className="body-sm text-ember-text">{task.task_text}</span>
                       </label>
                     ))}
                 </div>
@@ -292,7 +292,7 @@ export default function SessionPage() {
             )}
 
             <div className="mb-8">
-              <h3 className="font-mono-caps text-[10px] text-ember-text-muted mb-3">Quick reflection (optional)</h3>
+              <h3 className="font-mono-caps text-ember-text-muted mb-3">Quick reflection (optional)</h3>
               <textarea
                 value={reflection}
                 onChange={(e) => setReflection(e.target.value)}
@@ -305,13 +305,13 @@ export default function SessionPage() {
             <div className="flex gap-3">
               <button
                 onClick={handleEndSession}
-                className="cta-quiet flex-1 py-3 font-mono-caps text-[11px] text-ember-text-muted"
+                className="cta-quiet flex-1 py-3 font-mono-caps text-ember-text-muted"
               >
                 Skip reflection
               </button>
               <button
                 onClick={handleEndSession}
-                className="cta-ember flex-1 py-3 font-mono-caps text-[11px]"
+                className="cta-ember flex-1 py-3 font-mono-caps"
               >
                 Save & finish
               </button>
@@ -335,20 +335,20 @@ export default function SessionPage() {
                   )}
                 </div>
 
-                <div className="animate-slide-up mb-3 inline-flex items-center gap-2 font-mono-caps text-[10px]" style={{ color: 'var(--amber-glow)' }}>
+                <div className="animate-slide-up mb-3 inline-flex items-center gap-2 font-mono-caps" style={{ color: 'var(--amber-glow)' }}>
                   <SparkIcon size={12} /> Evolution
                 </div>
 
                 <h1 className="font-display text-[44px] text-ember-text leading-tight mb-2">
                   {project.name} evolved.
                 </h1>
-                <p className="font-serif-body italic text-[17px] text-ember-text-muted mb-1">
+                <p className="body-lg text-ember-text-muted mb-1">
                   Your dragon is now a{' '}
-                  <span className="text-ember-text not-italic font-semibold">
+                  <span className="text-ember-text font-semibold">
                     {STAGE_DISPLAY_NAMES[evolvedToStage]}
                   </span>.
                 </p>
-                <p className="font-mono-caps text-[10px] text-ember-text-muted mb-10">
+                <p className="font-mono-caps text-ember-text-muted mb-10">
                   Keep tending to unlock the next stage.
                 </p>
               </>
@@ -357,11 +357,11 @@ export default function SessionPage() {
                 <div className="mb-8">
                   <DragonScene type={dragonType} stage={project.dragon_stage} size={200} intense />
                 </div>
-                <p className="font-mono-caps text-[10px] text-ember-text-muted mb-2">training complete</p>
+                <p className="font-mono-caps text-ember-text-muted mb-2">training complete</p>
                 <h1 className="font-display text-[40px] text-ember-text leading-tight mb-3">
                   Well-tended.
                 </h1>
-                <p className="font-serif-body italic text-[16px] text-ember-text-muted mb-10 max-w-md">
+                <p className="body text-ember-text-muted mb-10 max-w-md">
                   Your dragon has grown stronger. Keep the momentum going.
                 </p>
               </>
@@ -370,13 +370,13 @@ export default function SessionPage() {
             <div className="flex gap-3">
               <Link
                 href={`/project/${projectId}`}
-                className="cta-quiet px-6 py-3 font-mono-caps text-[11px] text-ember-text-muted"
+                className="cta-quiet px-6 py-3 font-mono-caps text-ember-text-muted"
               >
                 Back to project
               </Link>
               <Link
                 href="/"
-                className="cta-ember px-6 py-3 font-mono-caps text-[11px]"
+                className="cta-ember px-6 py-3 font-mono-caps"
               >
                 Ember Keep
               </Link>

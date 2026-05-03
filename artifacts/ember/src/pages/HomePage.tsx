@@ -72,11 +72,11 @@ export default function HomePage() {
       <div className="firelight-overlay" />
       <div className="relative z-10 max-w-5xl mx-auto px-6 pb-24 pt-12">
         <header className="flex flex-col items-center text-center mb-12 animate-enter">
-          <div className="font-mono-caps text-[11px] text-ember-text-muted opacity-80 mb-2">
+          <div className="font-mono-caps text-ember-text-muted opacity-90 mb-2">
             Roost <span className="mx-2">·</span> {dateLabel} <span className="mx-2">·</span> {timeOfDay}
           </div>
-          <div className="font-mono-caps text-[10px] text-ember-text-muted flex items-center gap-1.5">
-            <ClockIcon size={12} />
+          <div className="font-mono-caps text-ember-text-muted flex items-center gap-1.5">
+            <ClockIcon size={13} />
             <span>{dateNumber}</span> <span className="mx-1">·</span> <span>{timeStr}</span>
           </div>
         </header>
@@ -85,10 +85,10 @@ export default function HomePage() {
           <h1 className="font-display text-[44px] sm:text-[52px] text-ember-text leading-tight mb-3">
             Ember Keep
           </h1>
-          <p className="font-serif-body italic text-[16px] text-ember-text-muted max-w-md">
+          <p className="body-lg text-ember-text-muted max-w-md">
             Your dragons are waiting. Some guard a single endeavor; others tend a piece of your life. Pick the one that calls loudest tonight.
           </p>
-          <p className="font-mono-caps text-[10px] text-ember-text-muted mt-3 opacity-80">
+          <p className="font-mono-caps text-ember-text-muted mt-3 opacity-90">
             {seasonBlurb}
           </p>
         </section>
@@ -96,15 +96,15 @@ export default function HomePage() {
         <div className="flex items-center justify-center gap-3 mb-12">
           <button
             onClick={() => setShowCreateModal(true)}
-            className="cta-ember inline-flex items-center gap-2 px-5 py-3 font-mono-caps text-[11px]"
+            className="cta-ember inline-flex items-center gap-2 px-5 py-3 font-mono-caps"
           >
-            <PlusIcon size={13} /> Hatch a new dragon
+            <PlusIcon size={14} /> Hatch a new dragon
           </button>
           <Link
             href="/analytics"
-            className="cta-quiet inline-flex items-center gap-2 px-5 py-3 font-mono-caps text-[11px] text-ember-text-muted"
+            className="cta-quiet inline-flex items-center gap-2 px-5 py-3 font-mono-caps text-ember-text-muted"
           >
-            <InsightsIcon size={13} /> Insights
+            <InsightsIcon size={14} /> Insights
           </Link>
           <button
             onClick={() => setShowSettings(true)}
@@ -118,20 +118,20 @@ export default function HomePage() {
 
         {isLoading ? (
           <div className="flex items-center justify-center h-64">
-            <p className="font-serif-body italic text-ember-text-muted">Tending the keep…</p>
+            <p className="body text-ember-text-muted">Tending the keep…</p>
           </div>
         ) : projects.length === 0 ? (
           <div className="flex flex-col items-center justify-center text-center py-12 max-w-md mx-auto">
-            <div className="font-mono-caps text-[10px] text-ember-text-muted mb-3">An empty keep</div>
+            <div className="font-mono-caps text-ember-text-muted mb-3">An empty keep</div>
             <h2 className="font-display text-[32px] text-ember-text mb-3">No dragons yet.</h2>
-            <p className="font-serif-body italic text-[15px] text-ember-text-muted mb-8">
+            <p className="body text-ember-text-muted mb-8">
               Bring your first dragon to the keep. Some guard a single endeavor; others tend a piece of life. Each one grows from what you tend.
             </p>
             <button
               onClick={() => setShowCreateModal(true)}
-              className="cta-ember px-6 py-3 font-mono-caps text-[11px] inline-flex items-center gap-2"
+              className="cta-ember px-6 py-3 font-mono-caps inline-flex items-center gap-2"
             >
-              <PlusIcon size={13} /> Hatch your first dragon
+              <PlusIcon size={14} /> Hatch your first dragon
             </button>
           </div>
         ) : (
@@ -145,12 +145,12 @@ export default function HomePage() {
         <div className="mt-16 flex justify-center">
           <button
             onClick={handleToggleArchived}
-            className="inline-flex items-center gap-2 font-mono-caps text-[10px] text-ember-text-muted hover:text-ember-text transition-colors px-3 py-2"
+            className="inline-flex items-center gap-2 font-mono-caps text-ember-text-muted hover:text-ember-text transition-colors px-3 py-2"
           >
-            <ArchiveIcon size={12} />
+            <ArchiveIcon size={13} />
             Archived dragons
             <ChevronDownIcon
-              size={11}
+              size={12}
               style={{ transform: showArchived ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}
             />
           </button>
@@ -160,11 +160,11 @@ export default function HomePage() {
           <div className="mt-6">
             {isLoadingArchived ? (
               <div className="flex justify-center py-8">
-                <p className="font-serif-body italic text-ember-text-muted text-[14px]">Searching the archive…</p>
+                <p className="body-sm text-ember-text-muted">Searching the archive…</p>
               </div>
             ) : archivedProjects.length === 0 ? (
               <div className="text-center py-8">
-                <p className="font-mono-caps text-[10px] text-ember-text-muted">No archived dragons yet.</p>
+                <p className="font-mono-caps text-ember-text-muted">No archived dragons yet.</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 opacity-60">

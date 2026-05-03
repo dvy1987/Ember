@@ -42,7 +42,7 @@ export default function TaskList({
   return (
     <div className="space-y-5">
       <div>
-        <h3 className="font-mono-caps text-[10px] text-ember-text-muted mb-3">
+        <h3 className="font-mono-caps text-ember-text-muted mb-3">
           Tonight's tasks · {activeTasks.length}/5
         </h3>
         <div className="space-y-2">
@@ -88,7 +88,7 @@ export default function TaskList({
             </div>
           ))}
           {activeTasks.length === 0 && (
-            <p className="font-serif-body italic text-[14px] text-ember-text-muted px-1">
+            <p className="body-sm text-ember-text-muted px-1">
               No active tasks. Add one below or brain dump your thoughts.
             </p>
           )}
@@ -106,7 +106,7 @@ export default function TaskList({
         />
         <button
           onClick={handleAddTask}
-          className="cta-ember px-4 py-2.5 font-mono-caps text-[11px] inline-flex items-center gap-1.5"
+          className="cta-ember px-4 py-2.5 font-mono-caps inline-flex items-center gap-1.5"
         >
           <PlusIcon size={12} /> Add
         </button>
@@ -116,7 +116,7 @@ export default function TaskList({
         <div>
           <button
             onClick={() => setShowBacklog(!showBacklog)}
-            className="font-mono-caps text-[10px] text-ember-text-muted hover:text-ember-text transition-colors inline-flex items-center gap-1.5"
+            className="font-mono-caps text-ember-text-muted hover:text-ember-text transition-colors inline-flex items-center gap-1.5"
           >
             {showBacklog ? <ChevronDownIcon size={11} /> : <ChevronRightIcon size={11} />}
             Backlog · {backlogTasks.length}
@@ -129,7 +129,7 @@ export default function TaskList({
                   className="flex items-center gap-3 px-4 py-2.5 group rounded-none border-l-2"
                   style={{ borderColor: 'var(--border-subtle)', background: 'transparent' }}
                 >
-                  <span className="flex-1 font-serif-body italic text-[14px] text-ember-text-muted">{task.task_text}</span>
+                  <span className="flex-1 body-sm text-ember-text-muted">{task.task_text}</span>
                   <div className="hidden group-hover:flex gap-2 items-center">
                     <button
                       onClick={() => onMoveToActive(task.id)}

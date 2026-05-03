@@ -30,17 +30,17 @@ export default function MenageriePage() {
     <div className="min-h-screen relative menagerie-page">
       <div className="relative z-10 max-w-6xl mx-auto px-6 pb-24 pt-12">
         <header className="flex flex-col items-center text-center mb-10">
-          <div className="font-mono-caps text-[10px] text-ember-text-muted opacity-80 mb-2">
+          <div className="font-mono-caps text-ember-text-muted opacity-80 mb-2">
             Roost <span className="mx-2">·</span> Developer <span className="mx-2">·</span> Menagerie
           </div>
           <h1 className="font-display text-[40px] text-ember-text mb-3">The Menagerie</h1>
-          <p className="font-serif-body italic text-ember-text-muted max-w-xl">
+          <p className="body text-ember-text-muted max-w-xl">
             Every dragon, every stage. A keeper's gallery for verifying that each one breathes,
             sways, and glows the way it ought to.
           </p>
           <Link
             href="/"
-            className="font-mono-caps text-[10px] text-ember-text-muted mt-4 hover:text-ember-text"
+            className="font-mono-caps text-ember-text-muted mt-4 hover:text-ember-text"
           >
             ← back to the keep
           </Link>
@@ -50,10 +50,10 @@ export default function MenageriePage() {
           {TYPES.map(type => (
             <section key={type}>
               <div className="mb-5 pl-2">
-                <div className="font-mono-caps text-[10px] text-ember-text-muted">
+                <div className="font-mono-caps text-ember-text-muted">
                   {TYPE_LABEL[type]}
                 </div>
-                <p className="font-serif-body italic text-ember-text-muted text-[13px]">
+                <p className="body-sm text-ember-text-muted">
                   {TYPE_BLURB[type]}
                 </p>
               </div>
@@ -70,7 +70,7 @@ export default function MenageriePage() {
                       <DragonScene type={type} stage={stage} size={200} />
                     </div>
                     <div className="mt-3 text-center">
-                      <div className="font-serif-body italic text-ember-text text-[12px]">
+                      <div className="body-sm text-ember-text">
                         {TYPE_LABEL[type]}, {STAGE_PHRASE[stage]}
                       </div>
                     </div>
