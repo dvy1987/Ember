@@ -173,6 +173,10 @@ function evalTakeFirstPass(dragonId: string, now: number): Suggestion | null {
     dismissal_key: dismissalKey,
     skill_id: skill.id,
     skill_name: skill.name,
+    // Pre-fill the autonomous trigger modal so the keeper opens it primed,
+    // not staring at a blank prompt.
+    seed_prompt:
+      "Take a first pass on the next thing in this project. I'll review what you draft.",
   };
 }
 
@@ -263,7 +267,14 @@ export function evaluateForDragon(dragonId: string): Suggestion | null {
  * confuse the keeper. The pulse is purely "I have a mode-fluid offer."
  */
 export function wantsToTalk(dragonId: string): boolean {
-  return evaluateForDragon(dragonId) !== null;
+  // Spec: pulse only for the two "let's talk" kinds. take_first_pass is a
+  // hand-off offer, not a talk-to-me signal, so we exclude it; escalation
+  // is chat-internal and never surfaces on the Keep card.
+  const now = Date.now();
+  return (
+    evalBrainstormOffer(dragonId, now) !== null ||
+    evalWanderingCheckIn(dragonId, now) !== null
+  );
 }
 
 // ---------------------------------------------------------------------------

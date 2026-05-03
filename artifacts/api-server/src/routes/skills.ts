@@ -422,9 +422,12 @@ router.patch('/dragons/:id/budget', (req, res) => {
 
 router.get('/dragons/:id/suggestion', (req, res) => {
   try {
-    const project = getProject(req.params.id);
+    // dragon_id == project_id today; accept project_id as an explicit
+    // forward-compatible override per the F4 endpoint contract.
+    const dragonId = (req.query.project_id as string) || req.params.id;
+    const project = getProject(dragonId);
     if (!project) { res.status(404).json({ error: 'Dragon not found' }); return; }
-    const suggestion = evaluateForDragon(req.params.id);
+    const suggestion = evaluateForDragon(dragonId);
     res.json({ suggestion });
   } catch {
     res.status(500).json({ error: 'Failed to evaluate suggestion' });

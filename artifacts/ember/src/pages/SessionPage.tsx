@@ -5,6 +5,7 @@ import { getDragonAccentVar } from '@/lib/dragonAssets';
 import FocusTimer from '@/components/FocusTimer';
 import DragonScene from '@/components/DragonScene';
 import ChatPanel from '@/components/ChatPanel';
+import AutonomousTriggerModal from '@/components/AutonomousTriggerModal';
 import SuggestionBanner, { Suggestion } from '@/components/SuggestionBanner';
 import { Link } from 'wouter';
 import { ArrowLeftIcon, BeginIcon, SparkIcon, FeatherIcon } from '@/components/Icons';
@@ -37,6 +38,8 @@ export default function SessionPage() {
   // F4 — mode-fluid suggestion (one banner, before task selection).
   const [suggestion, setSuggestion] = useState<Suggestion | null>(null);
   const [chatSeed, setChatSeed] = useState<string | undefined>(undefined);
+  const [showTrigger, setShowTrigger] = useState(false);
+  const [triggerSeed, setTriggerSeed] = useState<string | undefined>(undefined);
   const evolutionTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const fetchData = useCallback(async () => {
@@ -85,11 +88,15 @@ export default function SessionPage() {
 
   const handleSuggestionAccept = useCallback(
     (s: Suggestion) => {
-      // The session page only opens chat — task hand-off lives on the
-      // project page. take_first_pass shouldn't normally reach this surface,
-      // but if it does we route to chat with a "talk first" seed.
-      setChatSeed(s.seed_prompt);
-      setShowChat(true);
+      // Route by kind: take_first_pass opens the autonomous trigger modal
+      // (F3 hand-off surface). Brainstorm / wandering open chat with a seed.
+      if (s.kind === 'take_first_pass') {
+        setTriggerSeed(s.seed_prompt);
+        setShowTrigger(true);
+      } else {
+        setChatSeed(s.seed_prompt);
+        setShowChat(true);
+      }
       dismissSuggestion(s);
     },
     [dismissSuggestion],
@@ -401,6 +408,16 @@ export default function SessionPage() {
             dragonName={project.name}
             dragonType={dragonType}
             seedPrompt={chatSeed}
+          />
+        )}
+        {project && (
+          <AutonomousTriggerModal
+            isOpen={showTrigger}
+            onClose={() => { setShowTrigger(false); setTriggerSeed(undefined); }}
+            dragonId={project.id}
+            dragonName={project.name}
+            dragonType={dragonType}
+            seedPrompt={triggerSeed}
           />
         )}
 
