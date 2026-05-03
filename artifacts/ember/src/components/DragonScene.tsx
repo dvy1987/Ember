@@ -40,7 +40,7 @@ export default function DragonScene({ type, stage, size = 160, intense = false }
     };
   }), [intense]);
 
-  const wisps = useMemo(() => Array.from({ length: 3 }).map((_, i) => ({
+  const wisps = useMemo(() => Array.from({ length: 6 }).map((_, i) => ({
     id: i,
     top: 20 + Math.random() * 60,
     width: 20 + Math.random() * 16,
@@ -51,7 +51,7 @@ export default function DragonScene({ type, stage, size = 160, intense = false }
     maxOpacity: 0.4 + Math.random() * 0.4,
   })), []);
 
-  const leaves = useMemo(() => Array.from({ length: 4 }).map((_, i) => ({
+  const leaves = useMemo(() => Array.from({ length: 7 }).map((_, i) => ({
     id: i,
     left: 20 + Math.random() * 60,
     top: -5 + Math.random() * 15,
@@ -100,10 +100,6 @@ export default function DragonScene({ type, stage, size = 160, intense = false }
                   <div className="cinder-aura-radial" aria-hidden />
                   <div className="cinder-aura-pulse" aria-hidden />
                   <img src={imagePath} alt="Cinder" className="dragon-image cinder-painterly-img" />
-                  <div
-                    className="dragon-eyelid"
-                    style={{ left: '50%', top: '32%', width: '13px', height: '9px', transformOrigin: 'top center' }}
-                  />
                   <div className="cinder-mouth-breath" aria-hidden>
                     <span className="cinder-ember e1" />
                     <span className="cinder-ember e2" />
@@ -144,12 +140,24 @@ export default function DragonScene({ type, stage, size = 160, intense = false }
             </svg>
           ))}
         </div>
-        <div className="dragon-image-container relative z-10 w-full h-full flex justify-center items-center">
-          <img src={imagePath} alt="Moss" className="dragon-image max-h-full max-w-full object-contain" />
-          <div
-            className="dragon-eyelid"
-            style={{ left: '50%', top: '29.5%', width: '12px', height: '8px', transformOrigin: 'top center' }}
-          />
+        <div className="moss-rootsway w-full h-full">
+          <div className="moss-bobble w-full h-full">
+            <div className="moss-headturn w-full h-full">
+              <div className="dragon-image-container relative z-10 flex justify-center items-center w-full h-full">
+                <div className="moss-animated-frame" style={{ width: size, height: size }}>
+                  <div className="moss-aura-radial" aria-hidden />
+                  <div className="moss-aura-pulse" aria-hidden />
+                  <img src={imagePath} alt="Moss" className="dragon-image moss-painterly-img" />
+                  <div className="moss-spore-emitter" aria-hidden>
+                    <span className="moss-spore s1" />
+                    <span className="moss-spore s2" />
+                    <span className="moss-spore s3" />
+                    <span className="moss-spore s4" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -177,12 +185,23 @@ export default function DragonScene({ type, stage, size = 160, intense = false }
           />
         ))}
       </div>
-      <div className="dragon-image-container relative z-10 w-full h-full flex justify-center items-center">
-        <img src={imagePath} alt="Drift" className="dragon-image max-h-full max-w-full object-contain" />
-        <div
-          className="dragon-eyelid"
-          style={{ left: '50%', top: '25%', width: '14px', height: '10px', transformOrigin: 'top center' }}
-        />
+      <div className="drift-bank w-full h-full">
+        <div className="drift-hover w-full h-full">
+          <div className="drift-headturn w-full h-full">
+            <div className="dragon-image-container relative z-10 flex justify-center items-center w-full h-full">
+              <div className="drift-animated-frame" style={{ width: size, height: size }}>
+                <div className="drift-aura-radial" aria-hidden />
+                <div className="drift-aura-pulse" aria-hidden />
+                <img src={imagePath} alt="Drift" className="dragon-image drift-painterly-img" />
+                <div className="drift-tail-stream" aria-hidden>
+                  <span className="drift-tail t1" />
+                  <span className="drift-tail t2" />
+                  <span className="drift-tail t3" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

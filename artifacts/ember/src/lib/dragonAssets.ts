@@ -5,7 +5,7 @@ export function getDragonImagePath(dragonType: DragonType, dragonStage: DragonSt
     ? 'adolscent'
     : dragonStage;
 
-  return `${import.meta.env.BASE_URL}dragons/${dragonType}/${stageName}-${dragonType}.webp`;
+  return `${import.meta.env.BASE_URL}dragons/${dragonType}/${stageName}-${dragonType}.png`;
 }
 
 export function hasDragonImage(dragonType: DragonType, dragonStage: DragonStage): boolean {
