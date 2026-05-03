@@ -20,8 +20,7 @@ function stageLabel(s: DragonStage) {
 
 export default function MenageriePage() {
   return (
-    <div className="min-h-screen relative">
-      <div className="firelight-overlay" />
+    <div className="min-h-screen relative menagerie-page">
       <div className="relative z-10 max-w-6xl mx-auto px-6 pb-24 pt-12">
         <header className="flex flex-col items-center text-center mb-10">
           <div className="font-mono-caps text-[10px] text-ember-text-muted opacity-80 mb-2">

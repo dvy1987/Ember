@@ -60,6 +60,24 @@ export default function DragonScene({ type, stage, size = 160, intense = false }
     driftX: (Math.random() - 0.5) * 60,
   })), []);
 
+  const pollen = useMemo(() => Array.from({ length: 8 }).map((_, i) => ({
+    id: i,
+    top: 25 + Math.random() * 55,
+    size: 2 + Math.random() * 1.6,
+    duration: 9 + Math.random() * 5,
+    delay: Math.random() * 10,
+    driftY: (Math.random() - 0.5) * 30,
+    fromLeft: Math.random() > 0.5,
+  })), []);
+
+  const fireflies = useMemo(() => Array.from({ length: 4 }).map((_, i) => ({
+    id: i,
+    left: 15 + Math.random() * 70,
+    top: 30 + Math.random() * 45,
+    duration: 3 + Math.random() * 2,
+    delay: Math.random() * 6,
+  })), []);
+
   if (!imagePath) {
     return (
       <div
@@ -138,6 +156,32 @@ export default function DragonScene({ type, stage, size = 160, intense = false }
             >
               <path d="M0,4 Q3,0 6,4 T12,4 Q9,8 6,4 T0,4" />
             </svg>
+          ))}
+          {pollen.map(p => (
+            <span
+              key={`pollen-${p.id}`}
+              className={`moss-pollen ${p.fromLeft ? 'from-left' : 'from-right'}`}
+              style={{
+                top: `${p.top}%`,
+                width: `${p.size}px`,
+                height: `${p.size}px`,
+                animationDuration: `${p.duration}s`,
+                animationDelay: `-${p.delay}s`,
+                ['--drift-y' as string]: `${p.driftY}px`,
+              } as React.CSSProperties}
+            />
+          ))}
+          {fireflies.map(f => (
+            <span
+              key={`fly-${f.id}`}
+              className="moss-firefly"
+              style={{
+                left: `${f.left}%`,
+                top: `${f.top}%`,
+                animationDuration: `${f.duration}s`,
+                animationDelay: `-${f.delay}s`,
+              } as React.CSSProperties}
+            />
           ))}
         </div>
         <div className="moss-rootsway w-full h-full">

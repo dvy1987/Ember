@@ -617,6 +617,53 @@ html, body {
 [data-stage="egg"] .drift-tail-stream { display: none; }
 [data-stage="egg"] .dragon-image-container { animation: none; }
 
+/* ---------- Moss-only particle vocabulary: pollen drift + firefly blink ---------- */
+@keyframes moss-pollen-drift-l {
+  0%   { transform: translateX(-12px) translateY(0); opacity: 0; }
+  18%  { opacity: 0.85; }
+  82%  { opacity: 0.85; }
+  100% { transform: translateX(calc(100% + 14px)) translateY(var(--drift-y, -10px)); opacity: 0; }
+}
+@keyframes moss-pollen-drift-r {
+  0%   { transform: translateX(calc(100% + 12px)) translateY(0); opacity: 0; }
+  18%  { opacity: 0.85; }
+  82%  { opacity: 0.85; }
+  100% { transform: translateX(-14px) translateY(var(--drift-y, 10px)); opacity: 0; }
+}
+.moss-pollen {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, #E4F0C8 0%, #9BB868 60%, #7A9B5A 100%);
+  filter: blur(0.4px) drop-shadow(0 0 4px rgba(155,184,104,0.7));
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+.moss-pollen.from-left  { left: 0; animation: moss-pollen-drift-l linear infinite; }
+.moss-pollen.from-right { right: 0; animation: moss-pollen-drift-r linear infinite; }
+
+@keyframes moss-firefly-blink {
+  0%, 100%   { opacity: 0; transform: scale(0.4); }
+  10%, 20%   { opacity: 0.95; transform: scale(1.1); }
+  30%        { opacity: 0.3; transform: scale(0.7); }
+  45%, 55%   { opacity: 0.85; transform: scale(1); }
+  70%        { opacity: 0; transform: scale(0.5); }
+}
+.moss-firefly {
+  position: absolute;
+  width: 3px; height: 3px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #F0F8D8 0%, #C4D898 55%, transparent 100%);
+  box-shadow: 0 0 8px rgba(195, 220, 140, 0.9), 0 0 14px rgba(155, 184, 104, 0.5);
+  opacity: 0;
+  pointer-events: none;
+  animation: moss-firefly-blink ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+/* Menagerie dev page — neutral parchment, no global firelight tint */
+.menagerie-page { background: #1A140F; }
+
 /* ---------- Moss richness pass: yawn + micro-shake + denser spores ---------- */
 @keyframes moss-yawn {
   0%,84%,100% { transform: scaleY(1) scaleX(1); }
