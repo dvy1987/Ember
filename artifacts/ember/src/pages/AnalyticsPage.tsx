@@ -49,14 +49,14 @@ function DailyBarChart({ data }: { data: DailyStat[] }) {
 
   return (
     <div className="parchment-card p-6">
-      <h3 className="font-mono-caps text-ember-text-muted mb-5">This week</h3>
+      <h3 className="section-heading mb-5">This week</h3>
       <div className="flex items-end gap-2 h-40">
         {data.map((day) => {
           const height = maxMinutes > 0 ? (day.focus_minutes / maxMinutes) * 100 : 0;
           const dayLabel = new Date(day.date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short' });
           return (
             <div key={day.date} className="flex-1 flex flex-col items-center gap-1">
-              <span className="font-mono-caps text-ember-text-muted">
+              <span className="caption">
                 {day.focus_minutes > 0 ? formatMinutes(day.focus_minutes) : ''}
               </span>
               <div className="w-full flex items-end" style={{ height: '100px' }}>
@@ -69,7 +69,7 @@ function DailyBarChart({ data }: { data: DailyStat[] }) {
                   }}
                 />
               </div>
-              <span className="font-mono-caps text-ember-text-muted">{dayLabel}</span>
+              <span className="caption">{dayLabel}</span>
             </div>
           );
         })}
@@ -84,7 +84,7 @@ function ProjectBreakdown({ projects }: { projects: ProjectStat[] }) {
   if (projects.length === 0) {
     return (
       <div className="parchment-card p-6">
-        <h3 className="font-mono-caps text-ember-text-muted mb-3">Focus by dragon</h3>
+        <h3 className="section-heading mb-3">Focus by dragon</h3>
         <p className="body-sm text-ember-text-muted">No projects yet.</p>
       </div>
     );
@@ -92,7 +92,7 @@ function ProjectBreakdown({ projects }: { projects: ProjectStat[] }) {
 
   return (
     <div className="parchment-card p-6">
-      <h3 className="font-mono-caps text-ember-text-muted mb-5">Focus by dragon</h3>
+      <h3 className="section-heading mb-5">Focus by dragon</h3>
       <div className="space-y-4">
         {projects.map((p) => {
           const width = maxMinutes > 0 ? (p.total_minutes / maxMinutes) * 100 : 0;
@@ -102,11 +102,11 @@ function ProjectBreakdown({ projects }: { projects: ProjectStat[] }) {
               <div className="flex justify-between mb-1.5 items-baseline">
                 <span className="font-display text-[18px] text-ember-text">
                   {p.project_name}{' '}
-                  <span className="font-mono-caps text-ember-text-muted ml-1">
+                  <span className="body-sm text-ember-text-muted ml-1 capitalize">
                     {p.dragon_stage}
                   </span>
                 </span>
-                <span className="font-mono-caps text-ember-text-muted">{formatMinutes(p.total_minutes)}</span>
+                <span className="body-sm text-ember-text">{formatMinutes(p.total_minutes)}</span>
               </div>
               <div className="h-1.5 overflow-hidden" style={{ background: 'var(--bg-base)' }}>
                 <div
@@ -117,7 +117,7 @@ function ProjectBreakdown({ projects }: { projects: ProjectStat[] }) {
                   }}
                 />
               </div>
-              <div className="font-mono-caps text-ember-text-muted mt-1">
+              <div className="caption mt-1">
                 {p.sessions_count} session{p.sessions_count !== 1 ? 's' : ''}
               </div>
             </div>
@@ -133,7 +133,7 @@ function StatCard({ label, value, Icon }: { label: string; value: string; Icon: 
     <div className="parchment-card p-5 text-center">
       <div className="flex justify-center mb-2 text-ember-cinder"><Icon size={16} /></div>
       <div className="font-display text-[28px] text-ember-text leading-none">{value}</div>
-      <div className="font-mono-caps text-ember-text-muted mt-2">{label}</div>
+      <div className="caption mt-2">{label}</div>
     </div>
   );
 }
@@ -177,7 +177,7 @@ export default function AnalyticsPage() {
           <ArrowLeftIcon size={14} /> Ember Keep
         </Link>
         <header className="mb-10">
-          <p className="font-mono-caps text-ember-text-muted mb-1">The keeper's ledger</p>
+          <p className="font-mono-caps text-ember-text mb-1">The keeper's ledger</p>
           <h1 className="font-display text-[40px] text-ember-text leading-tight">Training insights</h1>
         </header>
 

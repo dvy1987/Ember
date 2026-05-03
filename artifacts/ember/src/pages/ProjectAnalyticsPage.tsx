@@ -74,7 +74,7 @@ function StatCard({ label, value, Icon }: { label: string; value: string; Icon: 
     <div className="parchment-card p-4 text-center">
       <div className="flex justify-center mb-1.5 text-ember-cinder"><Icon size={14} /></div>
       <div className="font-display text-[24px] text-ember-text leading-none">{value}</div>
-      <div className="font-mono-caps text-ember-text-muted mt-2">{label}</div>
+      <div className="caption mt-2">{label}</div>
     </div>
   );
 }
@@ -85,7 +85,7 @@ function DailyBarChart({ data, color }: { data: ProjectDailyStat[]; color: strin
 
   return (
     <div className="parchment-card p-6">
-      <h3 className="font-mono-caps text-ember-text-muted mb-5">Focus · last 14 days</h3>
+      <h3 className="section-heading mb-5">Focus · last 14 days</h3>
       <div className="flex items-end gap-1 h-32">
         {recent.map(day => {
           const height = (day.focus_minutes / maxMinutes) * 100;
@@ -102,7 +102,7 @@ function DailyBarChart({ data, color }: { data: ProjectDailyStat[]; color: strin
                   }}
                 />
               </div>
-              <span className="font-mono-caps text-ember-text-muted">{dayLabel}</span>
+              <span className="caption">{dayLabel}</span>
             </div>
           );
         })}
@@ -131,11 +131,11 @@ function StageProgress({
 
   return (
     <div className="parchment-card p-6">
-      <h3 className="font-mono-caps text-ember-text-muted mb-4">Dragon growth</h3>
+      <h3 className="section-heading mb-4">Dragon growth</h3>
       <div className="flex items-center justify-between mb-3">
         <span className="font-display text-[20px] text-ember-text capitalize">{currentStage}</span>
         {nextStage && (
-          <span className="font-mono-caps text-ember-text-muted inline-flex items-center gap-1.5">
+          <span className="body-sm text-ember-text-muted inline-flex items-center gap-1.5 capitalize">
             {nextStage.stage} <ArrowRightIcon size={13} />
           </span>
         )}
@@ -159,7 +159,7 @@ function RecentSessionList({ sessions }: { sessions: RecentSession[] }) {
   if (sessions.length === 0) {
     return (
       <div className="parchment-card p-6">
-        <h3 className="font-mono-caps text-ember-text-muted mb-3">Recent sessions</h3>
+        <h3 className="section-heading mb-3">Recent sessions</h3>
         <p className="body-sm text-ember-text-muted">No completed sessions yet.</p>
       </div>
     );
@@ -167,13 +167,13 @@ function RecentSessionList({ sessions }: { sessions: RecentSession[] }) {
 
   return (
     <div className="parchment-card p-6">
-      <h3 className="font-mono-caps text-ember-text-muted mb-5">Recent sessions</h3>
+      <h3 className="section-heading mb-5">Recent sessions</h3>
       <div className="space-y-4">
         {sessions.map(s => (
           <div key={s.id} className="border-b last:border-0 pb-4 last:pb-0" style={{ borderColor: 'var(--border-subtle)' }}>
             <div className="flex items-center justify-between mb-1">
-              <span className="font-mono-caps text-ember-text-muted">{formatDate(s.start_time)}</span>
-              <span className="font-mono-caps text-ember-text-muted">{formatMinutes(s.duration_minutes)}</span>
+              <span className="body-sm text-ember-text">{formatDate(s.start_time)}</span>
+              <span className="body-sm text-ember-text-muted">{formatMinutes(s.duration_minutes)}</span>
             </div>
             {(s.ai_summary || s.reflection) && (
               <p className="body-sm text-ember-text leading-relaxed line-clamp-2">
@@ -181,8 +181,8 @@ function RecentSessionList({ sessions }: { sessions: RecentSession[] }) {
               </p>
             )}
             {s.tasks_completed_count > 0 && (
-              <p className="font-mono-caps mt-2 inline-flex items-center gap-1.5" style={{ color: 'var(--amber-glow)' }}>
-                <CheckIcon size={12} /> {s.tasks_completed_count} task{s.tasks_completed_count !== 1 ? 's' : ''} completed
+              <p className="body-sm mt-2 inline-flex items-center gap-1.5" style={{ color: 'var(--amber-glow)' }}>
+                <CheckIcon size={13} /> {s.tasks_completed_count} task{s.tasks_completed_count !== 1 ? 's' : ''} completed
               </p>
             )}
           </div>
@@ -251,7 +251,7 @@ export default function ProjectAnalyticsPage() {
         </div>
 
         <header className="mb-8">
-          <p className="font-mono-caps text-ember-text-muted mb-1">
+          <p className="font-mono-caps text-ember-text mb-1 capitalize">
             {data.project.dragon_stage} {data.project.dragon_type}
           </p>
           <h1 className="font-display text-[40px] text-ember-text leading-tight">{data.project.name}</h1>
@@ -266,7 +266,7 @@ export default function ProjectAnalyticsPage() {
 
         {data.overall.avgSessionMinutes > 0 && (
           <div className="parchment-card p-5 mb-8 flex items-center justify-between">
-            <span className="font-mono-caps text-ember-text-muted">Avg session length</span>
+            <span className="body-sm text-ember-text-muted">Avg session length</span>
             <span className="font-display text-[20px] text-ember-text">{formatMinutes(data.overall.avgSessionMinutes)}</span>
           </div>
         )}

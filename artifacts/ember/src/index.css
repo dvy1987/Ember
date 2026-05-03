@@ -91,6 +91,30 @@ html, body {
   line-height: 1.5;
 }
 
+/* Insights/section heading — readable upright serif heading at the top of a
+   card or section. Replaces the small uppercase mono-caps that was being used
+   as section heading on the insights pages. */
+.section-heading {
+  font-family: 'Source Serif 4', serif;
+  font-style: normal;
+  font-weight: 600;
+  font-size: 17px;
+  line-height: 1.3;
+  letter-spacing: 0.01em;
+  color: var(--text-parchment);
+}
+
+/* Caption — small upright label used under stat tiles, weekday axis, and
+   short metadata rows. Brighter than --text-muted so it reads at arm's
+   length while still feeling secondary. */
+.caption {
+  font-family: 'Source Serif 4', serif;
+  font-style: normal;
+  font-size: 13px;
+  line-height: 1.4;
+  color: #D9C9A8;
+}
+
 .firelight-overlay {
   position: fixed;
   inset: 0;
