@@ -29,7 +29,7 @@ export default function SagaTeaser({ projectId, refreshKey = 0 }: SagaTeaserProp
         {entries.map((e) => (
           <li key={e.id} className="border-l-2 pl-3 py-0.5" style={{ borderColor: 'var(--border-subtle)' }}>
             <div className="font-mono-caps text-[9px] text-ember-text-muted mb-0.5">
-              {formatDate(e.created_at)} · {e.kind.replace(/_/g, ' ')}
+              {formatDate(e.occurred_at ?? e.created_at)} · {e.kind.replace(/_/g, ' ')}
             </div>
             <p className="font-serif-body italic text-[14px] text-ember-text leading-snug">
               {e.entry_text}

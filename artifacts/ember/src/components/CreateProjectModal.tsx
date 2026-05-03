@@ -70,6 +70,8 @@ export default function CreateProjectModal({ isOpen, onClose, onCreated }: Creat
   const [name, setName] = useState('');
   const [selectedType, setSelectedType] = useState<DragonType>('cinder');
   const [tendingHint, setTendingHint] = useState('');
+  const [brainDump, setBrainDump] = useState('');
+  const [brainDumpOpen, setBrainDumpOpen] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
 
   const reset = () => {
@@ -77,6 +79,8 @@ export default function CreateProjectModal({ isOpen, onClose, onCreated }: Creat
     setName('');
     setSelectedType('cinder');
     setTendingHint('');
+    setBrainDump('');
+    setBrainDumpOpen(false);
     setIsCreating(false);
   };
 
@@ -100,7 +104,7 @@ export default function CreateProjectModal({ isOpen, onClose, onCreated }: Creat
         body: JSON.stringify({
           name: name.trim(),
           dragon_type: selectedType,
-          summary: tendingHint.trim(),
+          summary: [tendingHint.trim(), brainDump.trim()].filter(Boolean).join('\n\n'),
         }),
       });
 
@@ -138,7 +142,7 @@ export default function CreateProjectModal({ isOpen, onClose, onCreated }: Creat
             {step === 'tend' && selected.question}
             {step === 'name' && 'Name the dragon.'}
           </h2>
-          {step === 'kind' && (
+          {step === 'tend' && (
             <p className="font-serif-body italic text-[14px] text-ember-text-muted mt-2 max-w-md mx-auto">
               Some dragons guard a single endeavor. Others guard a piece of your life you want to keep tending.
             </p>
@@ -261,6 +265,28 @@ export default function CreateProjectModal({ isOpen, onClose, onCreated }: Creat
                 You chose <span className="text-ember-text">{selected.label}</span>.
                 {' '}Their egg comes to your hearth, waiting to be tended.
               </p>
+
+              <div className="mt-5 border-t pt-4" style={{ borderColor: 'var(--border-subtle)' }}>
+                <button
+                  type="button"
+                  onClick={() => setBrainDumpOpen(o => !o)}
+                  className="font-mono-caps text-[10px] text-ember-text-muted hover:text-ember-text inline-flex items-center gap-1.5"
+                  aria-expanded={brainDumpOpen}
+                >
+                  {brainDumpOpen ? '−' : '+'} A few notes? (optional)
+                </button>
+                {brainDumpOpen && (
+                  <div className="mt-3">
+                    <textarea
+                      value={brainDump}
+                      onChange={(e) => setBrainDump(e.target.value)}
+                      placeholder="Anything on your mind about this dragon — context, hopes, first steps. Nothing required."
+                      rows={4}
+                      className="w-full input-parchment px-3 py-2.5 text-[13.5px] resize-none"
+                    />
+                  </div>
+                )}
+              </div>
             </div>
 
             <div className="flex gap-3">

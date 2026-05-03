@@ -111,14 +111,28 @@ export function ensureDefaultHealthDragon(): Project | null {
   const db = getDb();
   const now = new Date().toISOString();
 
+  // Hard gate: only seed for brand-new users (zero non-archived projects).
+  // Existing-DB users — even those upgrading without the sentinel — must NOT
+  // receive a Moss "Health" dragon. This protects the existing-user smoke test.
+  const projectCount = db
+    .prepare('SELECT COUNT(*) as c FROM projects WHERE is_archived = 0')
+    .get() as { c: number };
+  if (projectCount.c > 0) {
+    // Plant the sentinel so we never re-check on subsequent loads.
+    db.prepare(`INSERT OR IGNORE INTO settings (key, value, updated_at) VALUES (?, '1', ?)`)
+      .run(HEALTH_SEEDED_KEY, now);
+    return null;
+  }
+
   // Atomic claim: only the writer whose INSERT actually changed a row gets to seed.
-  // INSERT OR IGNORE returns changes() = 0 if the sentinel already existed.
+  // INSERT OR IGNORE returns changes() = 0 if the sentinel already existed
+  // (e.g. a concurrent request raced us, or the user previously deleted Moss
+  // and we recorded the seed claim).
   const result = db
     .prepare(`INSERT OR IGNORE INTO settings (key, value, updated_at) VALUES (?, '1', ?)`)
     .run(HEALTH_SEEDED_KEY, now);
 
   if (result.changes === 0) {
-    // Already seeded by us or a concurrent caller — do nothing.
     return null;
   }
 

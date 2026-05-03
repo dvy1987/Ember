@@ -8,8 +8,6 @@ export type TaskSource = 'ai' | 'user' | 'reflection';
 
 export type SessionTaskStatus = 'worked_on' | 'completed';
 
-export type RitualCadence = 'daily' | 'weekly' | 'occasional';
-
 export type SagaKind =
   | 'hatch'
   | 'task_completed'
@@ -118,13 +116,17 @@ export interface ProjectContext {
   projectMemory: ProjectMemory | null;
 }
 
+export type RitualCadence = 'daily' | 'weekdays' | 'weekly' | 'custom';
+
 export interface Ritual {
   id: string;
   project_id: string;
   ritual_text: string;
   cadence: RitualCadence;
+  custom_days_per_week: number | null;
   ritual_order: number;
   is_archived: number;
+  archived_at: string | null;
   created_at: string;
 }
 
@@ -142,6 +144,8 @@ export interface SagaEntry {
   kind: SagaKind;
   entry_text: string;
   meta: string | null;
+  occurred_at: string;
+  season_at_time: 'winter' | 'spring' | 'summer' | 'autumn' | null;
   created_at: string;
 }
 

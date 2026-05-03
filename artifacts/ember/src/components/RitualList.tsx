@@ -132,8 +132,9 @@ export default function RitualList({ projectId, accentColor, onRitualLogged }: R
           className="input-parchment px-3 py-2 text-[13px] font-mono-caps"
         >
           <option value="daily">daily</option>
+          <option value="weekdays">weekdays</option>
           <option value="weekly">weekly</option>
-          <option value="occasional">occasional</option>
+          <option value="custom">custom</option>
         </select>
         <button
           onClick={handleAdd}

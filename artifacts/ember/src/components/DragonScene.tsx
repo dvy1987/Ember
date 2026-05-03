@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { DragonType, DragonStage, DRAGON_STAGES } from '@/lib/types';
 import { getDragonImagePath, hasDragonImage } from '@/lib/dragonAssets';
+import { kindSongState, currentSeason } from '@/lib/season';
 
 interface DragonSceneProps {
   type: DragonType;
@@ -25,6 +26,14 @@ function nearestAvailableStage(type: DragonType, stage: DragonStage): DragonStag
 export default function DragonScene({ type, stage, size = 160, intense = false }: DragonSceneProps) {
   const resolvedStage = nearestAvailableStage(type, stage);
   const imagePath = resolvedStage ? getDragonImagePath(type, resolvedStage) : null;
+
+  // Season-aware atmosphere. Scene roots carry data-season + data-song-state
+  // attributes the CSS atmosphere layer reads to tint the scene and modulate
+  // particle density per kind (e.g. ash up in winter Cinder, blossoms in
+  // spring Moss, leaves in autumn Drift, crystals in deep-winter Frost).
+  // Reduced-motion users get the tint only — no particle motion.
+  const season = currentSeason();
+  const songState = kindSongState(type, new Date());
 
   const embers = useMemo(() => Array.from({ length: intense ? 12 : 6 }).map((_, i) => {
     const sz = Math.random() * 2 + 1;
@@ -91,7 +100,7 @@ export default function DragonScene({ type, stage, size = 160, intense = false }
 
   if (type === 'cinder') {
     return (
-      <div className={`scene-cinder dragon-scene relative`} data-stage={stage} data-resolved-stage={resolvedStage} style={{ width: size, height: size }}>
+      <div className={`scene-cinder dragon-scene relative`} data-stage={stage} data-resolved-stage={resolvedStage} data-season={season} data-song-state={songState} style={{ width: size, height: size }}>
         <div className="particle-layer">
           {embers.map(e => (
             <div
@@ -136,7 +145,7 @@ export default function DragonScene({ type, stage, size = 160, intense = false }
 
   if (type === 'moss') {
     return (
-      <div className="scene-moss dragon-scene relative" data-stage={stage} data-resolved-stage={resolvedStage} style={{ width: size, height: size }}>
+      <div className="scene-moss dragon-scene relative" data-stage={stage} data-resolved-stage={resolvedStage} data-season={season} data-song-state={songState} style={{ width: size, height: size }}>
         <div className="particle-layer">
           {leaves.map(l => (
             <svg
@@ -209,7 +218,7 @@ export default function DragonScene({ type, stage, size = 160, intense = false }
 
   if (type === 'frost') {
     return (
-      <div className="scene-frost dragon-scene relative" data-stage={stage} data-resolved-stage={resolvedStage} style={{ width: size, height: size }}>
+      <div className="scene-frost dragon-scene relative" data-stage={stage} data-resolved-stage={resolvedStage} data-season={season} data-song-state={songState} style={{ width: size, height: size }}>
         <div className="particle-layer">
           {fireflies.map(f => (
             <span
@@ -241,7 +250,7 @@ export default function DragonScene({ type, stage, size = 160, intense = false }
 
   // drift
   return (
-    <div className="scene-drift dragon-scene relative" data-stage={stage} data-resolved-stage={resolvedStage} style={{ width: size, height: size }}>
+    <div className="scene-drift dragon-scene relative" data-stage={stage} data-resolved-stage={resolvedStage} data-season={season} data-song-state={songState} style={{ width: size, height: size }}>
       <div className="rim-light" />
       <div className="particle-layer">
         {wisps.map(w => (

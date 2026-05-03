@@ -3,15 +3,19 @@ import { getDb } from '../db/db.js';
 import { writeSagaEntry } from './sagaService.js';
 import { updateDragonState } from './dragonEngine.js';
 
-export type RitualCadence = 'daily' | 'weekly' | 'occasional';
+export type RitualCadence = 'daily' | 'weekdays' | 'weekly' | 'custom';
+
+export const VALID_CADENCES: RitualCadence[] = ['daily', 'weekdays', 'weekly', 'custom'];
 
 export interface Ritual {
   id: string;
   project_id: string;
   ritual_text: string;
   cadence: RitualCadence;
+  custom_days_per_week: number | null;
   ritual_order: number;
   is_archived: number;
+  archived_at: string | null;
   created_at: string;
 }
 
@@ -26,7 +30,8 @@ export interface RitualLog {
 export function createRitual(
   projectId: string,
   ritualText: string,
-  cadence: RitualCadence = 'daily'
+  cadence: RitualCadence = 'daily',
+  customDaysPerWeek: number | null = null
 ): Ritual {
   const db = getDb();
   const id = randomUUID();
@@ -37,9 +42,19 @@ export function createRitual(
   ).get(projectId) as { max_order: number };
 
   db.prepare(`
-    INSERT INTO rituals (id, project_id, ritual_text, cadence, ritual_order, is_archived, created_at)
-    VALUES (?, ?, ?, ?, ?, 0, ?)
-  `).run(id, projectId, ritualText, cadence, maxOrder.max_order + 1, now);
+    INSERT INTO rituals
+      (id, project_id, ritual_text, cadence, custom_days_per_week,
+       ritual_order, is_archived, archived_at, created_at)
+    VALUES (?, ?, ?, ?, ?, ?, 0, NULL, ?)
+  `).run(
+    id,
+    projectId,
+    ritualText,
+    cadence,
+    cadence === 'custom' ? customDaysPerWeek : null,
+    maxOrder.max_order + 1,
+    now
+  );
 
   return getRitual(id)!;
 }
@@ -58,9 +73,36 @@ export function getRitualsByProject(projectId: string, includeArchived = false):
   return db.prepare(sql).all(projectId) as Ritual[];
 }
 
+const ALLOWED_RITUAL_UPDATE_COLUMNS = new Set([
+  'ritual_text',
+  'cadence',
+  'custom_days_per_week',
+  'ritual_order',
+] as const);
+
+export function updateRitual(
+  id: string,
+  updates: Partial<Pick<Ritual, 'ritual_text' | 'cadence' | 'custom_days_per_week' | 'ritual_order'>>
+): Ritual | null {
+  const db = getDb();
+  const fields: string[] = [];
+  const values: unknown[] = [];
+  for (const [k, v] of Object.entries(updates)) {
+    if (!ALLOWED_RITUAL_UPDATE_COLUMNS.has(k as typeof ALLOWED_RITUAL_UPDATE_COLUMNS extends Set<infer T> ? T : never)) continue;
+    if (k === 'cadence' && !VALID_CADENCES.includes(v as RitualCadence)) continue;
+    fields.push(`${k} = ?`);
+    values.push(v);
+  }
+  if (fields.length === 0) return getRitual(id);
+  values.push(id);
+  db.prepare(`UPDATE rituals SET ${fields.join(', ')} WHERE id = ?`).run(...values);
+  return getRitual(id);
+}
+
 export function archiveRitual(id: string): void {
   const db = getDb();
-  db.prepare('UPDATE rituals SET is_archived = 1 WHERE id = ?').run(id);
+  const now = new Date().toISOString();
+  db.prepare('UPDATE rituals SET is_archived = 1, archived_at = ? WHERE id = ?').run(now, id);
 }
 
 export function logRitual(ritualId: string, note?: string): RitualLog | null {

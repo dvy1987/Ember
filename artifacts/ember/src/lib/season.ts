@@ -1,84 +1,75 @@
 import { DragonType } from './types';
 
-export type SeasonPhase = 'peak' | 'rising' | 'quiet' | 'crack';
-
-export interface SeasonState {
-  phase: SeasonPhase;
-  /** A short, atmospheric line for the keep header. */
-  blurb: string;
-}
+export type Season = 'winter' | 'spring' | 'summer' | 'autumn';
+export type SongState = 'peak' | 'waxing' | 'waning' | 'quiet' | 'cracking';
 
 /**
- * Per-kind seasonal rhythm (Northern hemisphere only, v1).
- * Months are 0-indexed (0 = Jan, 11 = Dec).
+ * Wheel of the Year — per-kind seasonal song.
+ *
+ * Northern-hemisphere meteorological seasons (Dec–Feb winter, Mar–May spring,
+ * Jun–Aug summer, Sep–Nov autumn). Hemisphere toggle is out of scope for v1.
+ *
+ * Each kind gets a direct season → song-state map. Exactly one season per kind
+ * is the kind's `cracking` season (the air-of-rebirth season — atmospherically
+ * special; eggs still crack on tending only, never on the calendar). The other
+ * three seasons split into peak / waxing-or-waning / quiet, chosen so the
+ * map evokes the kind's nature:
+ *
+ *   Cinder  — winter peak,  autumn waxing,  spring cracking, summer quiet
+ *   Moss    — spring peak,  summer waning,  autumn cracking, winter quiet
+ *   Drift   — autumn peak,  summer waxing,  spring cracking, winter quiet
+ *   Frost   — winter peak,  autumn waxing,  spring cracking, summer quiet
+ *
+ * Per-kind direct mapping guarantees every state is reachable (cracking is
+ * never shadowed by another state).
  */
-function phaseForKind(kind: DragonType, month: number): SeasonPhase {
-  switch (kind) {
-    case 'cinder':
-      // Peak in winter (forge fires); quiet in high summer; cracks in autumn.
-      if (month === 11 || month === 0 || month === 1) return 'peak';
-      if (month >= 6 && month <= 7) return 'quiet';
-      if (month >= 9 && month <= 10) return 'crack';
-      return 'rising';
-    case 'moss':
-      // Peak in spring; quiet in deep winter; cracks in early spring.
-      if (month >= 3 && month <= 5) return 'peak';
-      if (month === 0 || month === 1) return 'quiet';
-      if (month === 2) return 'crack';
-      return 'rising';
-    case 'drift':
-      // Peak in autumn winds; quiet in still summer; cracks late autumn.
-      if (month >= 8 && month <= 10) return 'peak';
-      if (month >= 6 && month <= 7) return 'quiet';
-      if (month === 10) return 'crack';
-      return 'rising';
-    case 'frost':
-      // Peak in deep winter; quiet in summer; cracks late autumn.
-      if (month === 11 || month === 0 || month === 1) return 'peak';
-      if (month >= 5 && month <= 7) return 'quiet';
-      if (month === 10) return 'crack';
-      return 'rising';
-  }
-}
-
-const BLURBS: Record<DragonType, Record<SeasonPhase, string>> = {
-  cinder: {
-    peak: 'forge season — Cinder runs hot.',
-    rising: 'embers gathering — Cinder stirs.',
-    quiet: 'banked coals — Cinder rests in summer.',
-    crack: 'autumn winds crack the shell.',
-  },
-  moss: {
-    peak: 'green-rising — Moss spreads.',
-    rising: 'sap returning — Moss waits.',
-    quiet: 'rooted under snow — Moss sleeps.',
-    crack: 'first thaw — eggs split open.',
-  },
-  drift: {
-    peak: 'wandering winds — Drift rides high.',
-    rising: 'air gathering — Drift circles.',
-    quiet: 'still summer — Drift drowses.',
-    crack: 'late-autumn squall — Drift hatches.',
-  },
-  frost: {
-    peak: 'long dark — Frost is brightest.',
-    rising: 'cold gathering — Frost watches.',
-    quiet: 'high sun — Frost retreats.',
-    crack: 'first freeze — Frost cracks the shell.',
-  },
+const KIND_SEASONS: Record<DragonType, Record<Season, SongState>> = {
+  cinder: { winter: 'peak',   spring: 'cracking', summer: 'quiet',  autumn: 'waxing' },
+  moss:   { winter: 'quiet',  spring: 'peak',     summer: 'waning', autumn: 'cracking' },
+  drift:  { winter: 'quiet',  spring: 'cracking', summer: 'waxing', autumn: 'peak' },
+  frost:  { winter: 'peak',   spring: 'cracking', summer: 'quiet',  autumn: 'waxing' },
 };
 
-export function getSeasonState(kind: DragonType, now: Date = new Date()): SeasonState {
-  const month = now.getMonth();
-  const phase = phaseForKind(kind, month);
-  return { phase, blurb: BLURBS[kind][phase] };
+export function currentSeason(date: Date = new Date()): Season {
+  const m = date.getMonth() + 1;
+  if (m === 12 || m <= 2) return 'winter';
+  if (m <= 5) return 'spring';
+  if (m <= 8) return 'summer';
+  return 'autumn';
 }
 
-/** A single overall keep-level season blurb (uses Cinder by default for the header). */
-export function getKeepSeasonBlurb(now: Date = new Date()): string {
-  const month = now.getMonth();
-  if (month === 11 || month === 0 || month === 1) return 'Deep winter at the keep.';
-  if (month >= 2 && month <= 4) return 'Spring rises at the keep.';
-  if (month >= 5 && month <= 7) return 'High summer at the keep.';
-  return 'Autumn turns at the keep.';
+export function seasonForDragon(_kind: DragonType, date: Date = new Date()): Season {
+  // Per spec, season is currently global (Northern hemisphere). Per-kind seasons
+  // are surfaced via `kindSongState`, not by remapping the calendar. Kept as a
+  // separate function so future per-kind calendar offsets can land here.
+  return currentSeason(date);
+}
+
+/** Where this kind sits in its yearly song right now. Direct table lookup —
+ *  every state is reachable because each (kind, season) maps to exactly one. */
+export function kindSongState(kind: DragonType, date: Date = new Date()): SongState {
+  return KIND_SEASONS[kind][currentSeason(date)];
+}
+
+const KEEP_BLURBS: Record<Season, string> = {
+  winter: 'Deep winter at the keep — the hearth burns low, dragons curl close.',
+  spring: 'Spring rises at the keep — green things stir, dragons stretch their wings.',
+  summer: 'High summer at the keep — long light, slow afternoons, drowsy fire.',
+  autumn: 'Autumn turns at the keep — wood smoke, falling leaves, eggs grow restless.',
+};
+
+export function getKeepSeasonBlurb(date: Date = new Date()): string {
+  return KEEP_BLURBS[currentSeason(date)];
+}
+
+const PHASE_BLURB: Partial<Record<SongState, string>> = {
+  peak: 'in their peak season',
+  waxing: 'rising toward their season',
+  waning: 'settling after their peak',
+  quiet: 'in their quiet season',
+  cracking: 'in egg-cracking season',
+};
+
+export function phaseForKind(kind: DragonType, date: Date = new Date()): string {
+  return PHASE_BLURB[kindSongState(kind, date)] ?? '';
 }

@@ -1,8 +1,25 @@
-import { Project, DragonType } from '@/lib/types';
+import { Project, DragonType, DragonStage } from '@/lib/types';
 import { getDragonAccentVar } from '@/lib/dragonAssets';
 import { Link } from 'wouter';
 import DragonScene from './DragonScene';
 import { ClockIcon, CircleDotIcon, MoonIcon, AlertIcon } from './Icons';
+
+const TYPE_LABEL: Record<DragonType, string> = {
+  cinder: 'Cinder',
+  moss: 'Moss',
+  drift: 'Drift',
+  frost: 'Frost',
+};
+
+// Kind > Stage hierarchy: kind name leads, stage is a soft modifier.
+// "hatchling moss" → "Moss, just a hatchling"
+const STAGE_PHRASE: Record<DragonStage, string> = {
+  egg: 'just an egg',
+  hatchling: 'a hatchling',
+  adolescent: 'half-grown',
+  adult: 'full-grown',
+  ancient: 'ancient',
+};
 
 interface DragonCardProps {
   project: Project;
@@ -53,8 +70,8 @@ export default function DragonCard({ project, neglectState = 'active' }: DragonC
         <h3 className="font-display text-[26px] text-ember-text text-center leading-tight mb-1 relative z-10">
           {project.name}
         </h3>
-        <p className="font-mono-caps text-[10px] text-ember-text-muted text-center mb-4 relative z-10">
-          {project.dragon_stage} {project.dragon_type}
+        <p className="font-serif-body italic text-ember-text-muted text-[12px] text-center mb-4 relative z-10">
+          {TYPE_LABEL[dragonType]}, {STAGE_PHRASE[project.dragon_stage as DragonStage]}
         </p>
 
         <div className="flex items-center justify-between font-mono-caps text-[10px] text-ember-text-muted relative z-10">

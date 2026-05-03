@@ -1,15 +1,51 @@
 import { Router } from 'express';
 import {
   createRitual,
+  getRitual,
   getRitualsByProject,
+  updateRitual,
   archiveRitual,
   logRitual,
   getRecentLogs,
   RitualCadence,
+  VALID_CADENCES,
 } from '../services/ritualService.js';
 
 const router = Router();
 
+// Spec-required: GET /api/projects/:id/rituals
+router.get('/projects/:projectId/rituals', (req, res) => {
+  try {
+    res.json(getRitualsByProject(req.params.projectId));
+  } catch {
+    res.status(500).json({ error: 'Failed to fetch rituals' });
+  }
+});
+
+// Spec-required: POST /api/projects/:id/rituals
+router.post('/projects/:projectId/rituals', (req, res) => {
+  try {
+    const { ritual_text, cadence, custom_days_per_week } = req.body as {
+      ritual_text: string;
+      cadence?: string;
+      custom_days_per_week?: number;
+    };
+    if (!ritual_text) {
+      res.status(400).json({ error: 'ritual_text is required' });
+      return;
+    }
+    const c = VALID_CADENCES.includes(cadence as RitualCadence)
+      ? (cadence as RitualCadence)
+      : 'daily';
+    const cdpw =
+      c === 'custom' && typeof custom_days_per_week === 'number' ? custom_days_per_week : null;
+    res.status(201).json(createRitual(req.params.projectId, ritual_text, c, cdpw));
+  } catch {
+    res.status(500).json({ error: 'Failed to create ritual' });
+  }
+});
+
+// Back-compat collection routes (older clients)
 router.get('/rituals', (req, res) => {
   try {
     const projectId = req.query.project_id as string | undefined;
@@ -25,20 +61,51 @@ router.get('/rituals', (req, res) => {
 
 router.post('/rituals', (req, res) => {
   try {
-    const { project_id, ritual_text, cadence } = req.body as {
+    const { project_id, ritual_text, cadence, custom_days_per_week } = req.body as {
       project_id: string;
       ritual_text: string;
       cadence?: string;
+      custom_days_per_week?: number;
     };
     if (!project_id || !ritual_text) {
       res.status(400).json({ error: 'project_id and ritual_text are required' });
       return;
     }
-    const validCadence: RitualCadence[] = ['daily', 'weekly', 'occasional'];
-    const c = validCadence.includes(cadence as RitualCadence) ? (cadence as RitualCadence) : 'daily';
-    res.status(201).json(createRitual(project_id, ritual_text, c));
+    const c = VALID_CADENCES.includes(cadence as RitualCadence)
+      ? (cadence as RitualCadence)
+      : 'daily';
+    const cdpw =
+      c === 'custom' && typeof custom_days_per_week === 'number' ? custom_days_per_week : null;
+    res.status(201).json(createRitual(project_id, ritual_text, c, cdpw));
   } catch {
     res.status(500).json({ error: 'Failed to create ritual' });
+  }
+});
+
+// Spec-required: PATCH /api/rituals/:id
+router.patch('/rituals/:id', (req, res) => {
+  try {
+    const r = updateRitual(req.params.id, req.body || {});
+    if (!r) {
+      res.status(404).json({ error: 'Ritual not found' });
+      return;
+    }
+    res.json(r);
+  } catch {
+    res.status(500).json({ error: 'Failed to update ritual' });
+  }
+});
+
+router.get('/rituals/:id', (req, res) => {
+  try {
+    const r = getRitual(req.params.id);
+    if (!r) {
+      res.status(404).json({ error: 'Ritual not found' });
+      return;
+    }
+    res.json(r);
+  } catch {
+    res.status(500).json({ error: 'Failed to fetch ritual' });
   }
 });
 

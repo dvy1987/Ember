@@ -16,9 +16,14 @@ const TYPE_BLURB: Record<DragonType, string> = {
   frost: 'Winter-born — patient, exact, kept by the cold.',
 };
 
-function stageLabel(s: DragonStage) {
-  return s.charAt(0).toUpperCase() + s.slice(1);
-}
+// Kind > Stage hierarchy: kind name leads, stage is a soft modifier.
+const STAGE_PHRASE: Record<DragonStage, string> = {
+  egg: 'just an egg',
+  hatchling: 'a hatchling',
+  adolescent: 'half-grown',
+  adult: 'full-grown',
+  ancient: 'ancient',
+};
 
 export default function MenageriePage() {
   return (
@@ -65,8 +70,8 @@ export default function MenageriePage() {
                       <DragonScene type={type} stage={stage} size={200} />
                     </div>
                     <div className="mt-3 text-center">
-                      <div className="font-mono-caps text-[10px] text-ember-text">
-                        {stageLabel(stage)} <span className="mx-1.5 text-ember-text-muted">•</span> {TYPE_LABEL[type]}
+                      <div className="font-serif-body italic text-ember-text text-[12px]">
+                        {TYPE_LABEL[type]}, {STAGE_PHRASE[stage]}
                       </div>
                     </div>
                   </div>

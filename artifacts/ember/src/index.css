@@ -833,3 +833,53 @@ html, body {
   .frost-bobble { animation: none !important; }
   .frost-flake { opacity: 0.5; }
 }
+
+/* ─────────────────────────────────────────────────────────────
+   Wheel of the Year — atmosphere layer.
+   Per-kind, per-season tinting + particle modulation. Driven
+   by data-season + data-song-state on the .dragon-scene root.
+   Reduced-motion users get the tint only; particles freeze.
+   ───────────────────────────────────────────────────────────── */
+.dragon-scene { transition: filter 1.2s ease, opacity 1.2s ease; }
+
+/* Seasonal tint — applied subtly to the whole scene. */
+.dragon-scene[data-season="winter"] { filter: hue-rotate(-6deg) saturate(0.92) brightness(0.97); }
+.dragon-scene[data-season="spring"] { filter: hue-rotate(6deg)  saturate(1.06) brightness(1.02); }
+.dragon-scene[data-season="summer"] { filter: saturate(1.04) brightness(1.04); }
+.dragon-scene[data-season="autumn"] { filter: hue-rotate(-4deg) saturate(1.05) brightness(0.99); }
+
+/* Per-kind particle vocabulary modulation:
+   - Cinder embers: dense in winter (peak), drowsy in summer (quiet)
+   - Moss leaves/pollen: blossoming in spring (peak/cracking), bare in winter (quiet)
+   - Drift wisps: streaming in autumn (peak/cracking), still in summer (quiet)
+   - Frost flakes: bright in winter (peak), dormant in summer (quiet) */
+.scene-cinder[data-season="winter"] .ember-particle { opacity: 1;    animation-duration: 3.2s; }
+.scene-cinder[data-season="summer"] .ember-particle { opacity: 0.45; animation-duration: 5.5s; }
+
+.scene-moss[data-season="spring"]   .leaf-particle  { opacity: 1; }
+.scene-moss[data-season="spring"]   .moss-pollen    { opacity: 1; }
+.scene-moss[data-season="winter"]   .leaf-particle  { opacity: 0.3; }
+.scene-moss[data-season="winter"]   .moss-pollen    { opacity: 0.25; }
+
+.scene-drift[data-season="autumn"]  .wisp-particle  { opacity: 1;    animation-duration: 6s; }
+.scene-drift[data-season="summer"]  .wisp-particle  { opacity: 0.4;  animation-duration: 12s; }
+
+.scene-frost[data-season="winter"]  .frost-flake    { opacity: 1; }
+.scene-frost[data-season="summer"]  .frost-flake    { opacity: 0.25; }
+
+/* Cracking song-state: the egg feels especially eager. A barely-there
+   warm halo on the scene root. */
+.dragon-scene[data-song-state="cracking"][data-stage="egg"] {
+  box-shadow: 0 0 24px -6px var(--amber-glow);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Keep the seasonal tint, kill the animation. */
+  .dragon-scene { transition: none; }
+  .dragon-scene[data-season] .ember-particle,
+  .dragon-scene[data-season] .leaf-particle,
+  .dragon-scene[data-season] .moss-pollen,
+  .dragon-scene[data-season] .moss-firefly,
+  .dragon-scene[data-season] .wisp-particle,
+  .dragon-scene[data-season] .frost-flake { animation: none !important; }
+}

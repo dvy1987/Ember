@@ -105,8 +105,10 @@ export function initializeSchema(db: Database.Database): void {
       project_id TEXT NOT NULL,
       ritual_text TEXT NOT NULL,
       cadence TEXT NOT NULL DEFAULT 'daily',
+      custom_days_per_week INTEGER,
       ritual_order INTEGER NOT NULL DEFAULT 0,
       is_archived INTEGER NOT NULL DEFAULT 0,
+      archived_at TEXT,
       created_at TEXT NOT NULL,
       FOREIGN KEY (project_id) REFERENCES projects(id)
     );
@@ -127,12 +129,14 @@ export function initializeSchema(db: Database.Database): void {
       kind TEXT NOT NULL,
       entry_text TEXT NOT NULL,
       meta TEXT,
+      occurred_at TEXT NOT NULL,
+      season_at_time TEXT,
       created_at TEXT NOT NULL,
       FOREIGN KEY (project_id) REFERENCES projects(id)
     );
 
     CREATE INDEX IF NOT EXISTS idx_saga_project_created
-      ON saga_entries(project_id, created_at DESC);
+      ON saga_entries(project_id, occurred_at DESC);
     CREATE INDEX IF NOT EXISTS idx_ritual_logs_project_logged
       ON ritual_logs(project_id, logged_at DESC);
     CREATE INDEX IF NOT EXISTS idx_ritual_logs_ritual_logged
