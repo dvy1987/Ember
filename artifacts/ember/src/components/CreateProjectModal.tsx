@@ -237,7 +237,16 @@ export default function CreateProjectModal({ isOpen, onClose, onCreated }: Creat
                 <ArrowLeftIcon size={13} /> Back
               </button>
               <button
-                onClick={() => setStep('name')}
+                onClick={() => {
+                  // Carry the free-typed tending hint forward as the default
+                  // dragon name on step 3, so the user can either accept it
+                  // or edit it. Only auto-fill when name is still empty (don't
+                  // clobber a name the user already chose via example chip).
+                  if (!name.trim() && tendingHint.trim()) {
+                    setName(tendingHint.trim());
+                  }
+                  setStep('name');
+                }}
                 className="cta-ember flex-1 py-3 font-mono-caps text-[11px] inline-flex items-center justify-center gap-2"
               >
                 Next <ArrowRightIcon size={13} />

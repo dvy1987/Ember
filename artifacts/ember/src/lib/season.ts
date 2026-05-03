@@ -23,15 +23,36 @@ export type SongState = 'peak' | 'waxing' | 'waning' | 'quiet' | 'cracking';
  * Per-kind direct mapping guarantees every state is reachable (cracking is
  * never shadowed by another state).
  */
-// Per spec: Cinder + Drift + Frost crack in autumn (Frost = late autumn);
-// Moss cracks in spring. The remaining three seasons split into peak / waxing
-// or waning / quiet, chosen per kind. Direct map → every state is reachable.
-const KIND_SEASONS: Record<DragonType, Record<Season, SongState>> = {
-  cinder: { winter: 'peak',  autumn: 'cracking', spring: 'waning',  summer: 'quiet'  },
-  moss:   { spring: 'cracking', summer: 'peak',  autumn: 'waning',  winter: 'quiet'  },
-  drift:  { autumn: 'cracking', summer: 'peak',  spring: 'waxing',  winter: 'quiet'  },
-  frost:  { winter: 'peak',  autumn: 'cracking', spring: 'waning',  summer: 'quiet'  },
+// Per spec: each kind has a peak season, a quiet season, and a cracking
+// season — and these CAN overlap (Moss peak=spring AND cracking=spring;
+// Drift peak=autumn AND cracking=autumn). We therefore keep peak/quiet/
+// cracking as independent facets per kind and resolve the displayed
+// `data-song-state` via a priority order (cracking > peak > waxing >
+// waning > quiet). Atmosphere consumers who care about the underlying
+// facets can also read `kindIsPeak()` and `kindIsCracking()`.
+//
+// Spec matrix:
+//   Cinder — peak winter,   quiet summer,    cracking autumn
+//   Moss   — peak spring,   quiet winter,    cracking spring  (overlaps peak)
+//   Drift  — peak autumn,   quiet summer,    cracking autumn  (overlaps peak)
+//   Frost  — peak winter,   quiet summer,    cracking autumn  (late autumn)
+const KIND_SONG: Record<DragonType, { peak: Season; quiet: Season; cracking: Season }> = {
+  cinder: { peak: 'winter', quiet: 'summer', cracking: 'autumn' },
+  moss:   { peak: 'spring', quiet: 'winter', cracking: 'spring' },
+  drift:  { peak: 'autumn', quiet: 'summer', cracking: 'autumn' },
+  frost:  { peak: 'winter', quiet: 'summer', cracking: 'autumn' },
 };
+
+const SEASON_ORDER: Season[] = ['winter', 'spring', 'summer', 'autumn'];
+const prevSeason = (s: Season): Season => SEASON_ORDER[(SEASON_ORDER.indexOf(s) + 3) % 4];
+const nextSeason = (s: Season): Season => SEASON_ORDER[(SEASON_ORDER.indexOf(s) + 1) % 4];
+
+export function kindIsPeak(kind: DragonType, date: Date = new Date()): boolean {
+  return currentSeason(date) === KIND_SONG[kind].peak;
+}
+export function kindIsCracking(kind: DragonType, date: Date = new Date()): boolean {
+  return currentSeason(date) === KIND_SONG[kind].cracking;
+}
 
 export function currentSeason(date: Date = new Date()): Season {
   const m = date.getMonth() + 1;
@@ -48,10 +69,20 @@ export function seasonForDragon(_kind: DragonType, date: Date = new Date()): Sea
   return currentSeason(date);
 }
 
-/** Where this kind sits in its yearly song right now. Direct table lookup —
- *  every state is reachable because each (kind, season) maps to exactly one. */
+/** Where this kind sits in its yearly song right now.
+ *  Priority: cracking > peak > waxing (just-before-peak) > waning
+ *  (just-after-peak) > quiet. Cracking always wins so the cracking-egg
+ *  atmosphere is never shadowed when the spec puts peak in the same
+ *  season as cracking (Moss spring, Drift autumn). */
 export function kindSongState(kind: DragonType, date: Date = new Date()): SongState {
-  return KIND_SEASONS[kind][currentSeason(date)];
+  const season = currentSeason(date);
+  const song = KIND_SONG[kind];
+  if (season === song.cracking) return 'cracking';
+  if (season === song.peak) return 'peak';
+  if (season === prevSeason(song.peak)) return 'waxing';
+  if (season === nextSeason(song.peak)) return 'waning';
+  if (season === song.quiet) return 'quiet';
+  return 'quiet';
 }
 
 const KEEP_BLURBS: Record<Season, string> = {

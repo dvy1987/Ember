@@ -211,7 +211,42 @@ export default function ProjectPage() {
           />
         </div>
 
-        <div className="mb-12">
+        {/* Two clear tending affordances under the dragon — per spec.
+            Each card explains its kind of tending and scrolls to the
+            corresponding section's input. Side-by-side on sm+, stacked
+            on small screens. */}
+        <div id="tending-affordances" className="mb-10 grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <a
+            href="#tasks-section"
+            className="parchment-card p-4 block hover:bg-[var(--surface-mid)] transition-colors"
+            onClick={(e) => {
+              e.preventDefault();
+              document.getElementById('tasks-section')?.scrollIntoView({ behavior: 'smooth' });
+              (document.querySelector<HTMLInputElement>('#tasks-section input[type="text"]'))?.focus();
+            }}
+          >
+            <div className="font-mono-caps text-[10px] text-ember-text-muted mb-1">+ Add a task</div>
+            <div className="font-serif-body italic text-[14px] text-ember-text leading-snug">
+              something to finish
+            </div>
+          </a>
+          <a
+            href="#rituals-section"
+            className="parchment-card p-4 block hover:bg-[var(--surface-mid)] transition-colors"
+            onClick={(e) => {
+              e.preventDefault();
+              document.getElementById('rituals-section')?.scrollIntoView({ behavior: 'smooth' });
+              (document.querySelector<HTMLInputElement>('#rituals-section input[type="text"]'))?.focus();
+            }}
+          >
+            <div className="font-mono-caps text-[10px] text-ember-text-muted mb-1">+ Add a ritual</div>
+            <div className="font-serif-body italic text-[14px] text-ember-text leading-snug">
+              something to keep
+            </div>
+          </a>
+        </div>
+
+        <div id="rituals-section" className="mb-12 scroll-mt-20">
           <h3 className="font-mono-caps text-[10px] text-ember-text-muted mb-4">
             Rituals — the small, repeatable tending
           </h3>
@@ -244,7 +279,7 @@ export default function ProjectPage() {
           )}
         </div>
 
-        <div className="mb-12">
+        <div id="tasks-section" className="mb-12 scroll-mt-20">
           <TaskList
             activeTasks={activeTasks}
             backlogTasks={backlogTasks}
