@@ -192,7 +192,6 @@ export default function ProjectPage() {
           </h3>
           <BrainDumpInput
             onSubmit={handleBrainDump}
-            accentColor={accentColor}
             placeholder="What's on your mind about this project? Dump your thoughts and AI will extract tasks…"
             isLoading={brainDumpStatus === 'extracting'}
           />

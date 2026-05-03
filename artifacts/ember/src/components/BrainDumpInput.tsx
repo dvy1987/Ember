@@ -4,7 +4,6 @@ import { FeatherIcon } from './Icons';
 interface BrainDumpInputProps {
   onSubmit: (text: string) => void;
   placeholder?: string;
-  accentColor?: string;
   isLoading?: boolean;
 }
 
