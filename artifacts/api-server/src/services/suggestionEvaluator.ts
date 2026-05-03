@@ -1,7 +1,6 @@
 import { getDb } from '../db/db.js';
 import { getProject } from './projectService.js';
 import { getNeglectState } from './dragonEngine.js';
-import { getSkillByName } from './skillRegistry.js';
 import type { TrustBand } from './skillRegistry.js';
 
 /**
@@ -35,22 +34,29 @@ export type SuggestionKind =
   | 'take_first_pass'
   | 'wandering_check_in';
 
+/** Surface the primary CTA routes to. Per F4 step 9. */
+export type CtaRoute = 'chat' | 'trigger';
+
 export interface Suggestion {
   kind: SuggestionKind;
   /** Dragon-voice headline. */
   headline: string;
   /** Dragon-voice supporting line. */
   body: string;
-  /** Primary CTA label (always offers, never imposes). */
+  /** Canonical primary CTA label (per task spec). */
+  cta_label: string;
+  /** Where the primary CTA routes the keeper. */
+  cta_route: CtaRoute;
+  /** Alias of cta_label kept for the existing banner component. */
   primary_cta: string;
-  /** Optional secondary CTA — usually "Not now" (snooze). */
+  /** Secondary CTA — usually "Not now". */
   secondary_cta: string;
   /** Composite dismissal key, e.g. "take_first_pass:<skill_id>". */
   dismissal_key: string;
   /** When relevant, the skill the suggestion is bound to. */
   skill_id?: string;
   skill_name?: string;
-  /** Optional chat seed used when the primary CTA opens chat or trigger. */
+  /** Optional seed prompt pre-filled into chat or the trigger modal. */
   seed_prompt?: string;
 }
 
@@ -142,42 +148,57 @@ function effectiveTrust(m: MaturityRow): TrustBand {
  */
 function evalTakeFirstPass(dragonId: string, now: number): Suggestion | null {
   const db = getDb();
-  const skill = getSkillByName('general-assistance');
-  if (!skill) return null;
-
-  const maturity = db
+  // (dragon, skill) generalization per spec: scan every skill the dragon
+  // has practiced. First match wins (priority is project-page-banner-level,
+  // not skill-level — we only ever surface one). Skills are returned in
+  // creation order which is stable enough for v1.
+  const maturities = db
     .prepare(
-      'SELECT skill_id, current_trust, locked_band, paused FROM dragon_skill_maturity WHERE dragon_id = ? AND skill_id = ?',
+      `SELECT skill_id, current_trust, locked_band, paused
+         FROM dragon_skill_maturity
+        WHERE dragon_id = ?
+        ORDER BY created_at ASC`,
     )
-    .get(dragonId, skill.id) as MaturityRow | undefined;
-  if (!maturity || maturity.paused) return null;
-  if (effectiveTrust(maturity) !== 'autonomous') return null;
+    .all(dragonId) as MaturityRow[];
 
-  const recent = db
-    .prepare(
-      'SELECT mode FROM skill_runs WHERE dragon_id = ? AND skill_id = ? ORDER BY ran_at DESC LIMIT 5',
-    )
-    .all(dragonId, skill.id) as Array<{ mode: string }>;
-  if (recent.length < 5) return null;
-  if (!recent.every((r) => r.mode === 'paired')) return null;
+  for (const maturity of maturities) {
+    if (maturity.paused) continue;
+    if (effectiveTrust(maturity) !== 'autonomous') continue;
 
-  const dismissalKey = `take_first_pass:${skill.id}`;
-  if (isBlocked(getDismissal(dragonId, dismissalKey), now)) return null;
+    const recent = db
+      .prepare(
+        'SELECT mode FROM skill_runs WHERE dragon_id = ? AND skill_id = ? ORDER BY ran_at DESC LIMIT 5',
+      )
+      .all(dragonId, maturity.skill_id) as Array<{ mode: string }>;
+    if (recent.length < 5) continue;
+    if (!recent.every((r) => r.mode === 'paired')) continue;
 
-  return {
-    kind: 'take_first_pass',
-    headline: "I can take a first pass on the next one, if you'd like.",
-    body: "You've stayed with me through the last few — I'm steady on this kind of work now. Send the next one straight to my inbox and I'll have a draft waiting.",
-    primary_cta: 'Hand the next one off',
-    secondary_cta: 'Not now',
-    dismissal_key: dismissalKey,
-    skill_id: skill.id,
-    skill_name: skill.name,
-    // Pre-fill the autonomous trigger modal so the keeper opens it primed,
-    // not staring at a blank prompt.
-    seed_prompt:
-      "Take a first pass on the next thing in this project. I'll review what you draft.",
-  };
+    const dismissalKey = `take_first_pass:${maturity.skill_id}`;
+    if (isBlocked(getDismissal(dragonId, dismissalKey), now)) continue;
+
+    const skillRow = db
+      .prepare('SELECT id, name FROM skills WHERE id = ?')
+      .get(maturity.skill_id) as { id: string; name: string } | undefined;
+    if (!skillRow) continue;
+
+    return {
+      kind: 'take_first_pass',
+      headline: "I can take a first pass on the next one, if you'd like.",
+      body: "You've stayed with me through the last few — I'm steady on this kind of work now. Send the next one straight to my inbox and I'll have a draft waiting.",
+      cta_label: 'Hand the next one off',
+      cta_route: 'trigger',
+      primary_cta: 'Hand the next one off',
+      secondary_cta: 'Not now',
+      dismissal_key: dismissalKey,
+      skill_id: skillRow.id,
+      skill_name: skillRow.name,
+      // Pre-fill the autonomous trigger modal so the keeper opens it primed,
+      // not staring at a blank prompt.
+      seed_prompt:
+        "Take a first pass on the next thing in this project. I'll review what you draft.",
+    };
+  }
+  return null;
 }
 
 /**
@@ -206,6 +227,8 @@ function evalBrainstormOffer(dragonId: string, now: number): Suggestion | null {
     kind: 'brainstorm_offer',
     headline: "We've been circling — want to think out loud with me?",
     body: "A few sittings, no tasks crossed off yet. Sometimes the way through is to talk it apart before we touch it. I'm here if you want to.",
+    cta_label: "Let's talk it through",
+    cta_route: 'chat',
     primary_cta: "Let's talk it through",
     secondary_cta: 'Not now',
     dismissal_key: dismissalKey,
@@ -236,6 +259,8 @@ function evalWanderingCheckIn(dragonId: string, now: number): Suggestion | null 
     kind: 'wandering_check_in',
     headline: "It's been quiet — should we pick this up, or let it rest?",
     body: `We last sat together ${dayPhrase} ago. No judgement either way — say what's true and we'll go from there.`,
+    cta_label: 'Talk it over',
+    cta_route: 'chat',
     primary_cta: "Talk it over",
     secondary_cta: 'Not now',
     dismissal_key: dismissalKey,

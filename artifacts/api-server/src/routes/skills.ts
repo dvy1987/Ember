@@ -445,11 +445,17 @@ router.get('/dragons/:id/wants-to-talk', (req, res) => {
   }
 });
 
+// Per F4 spec the dismiss body is `{ kind, snooze_days? }`. We also accept
+// `dismissal_key` for kinds that bind to a specific skill (take_first_pass,
+// escalate_to_autonomous_dismiss) so the server can record exactly the
+// right composite key without re-deriving from request state.
 const dismissBodySchema = z.object({
-  // The composite key returned by the evaluator (e.g. "take_first_pass:<id>").
-  dismissal_key: z.string().min(1).max(200),
-  // Optional snooze in days; omit for the default 24h cooldown.
+  kind: z.string().min(1).max(80).optional(),
+  skill_id: z.string().min(1).max(80).optional(),
+  dismissal_key: z.string().min(1).max(200).optional(),
   snooze_days: z.number().int().min(1).max(90).optional(),
+}).refine(b => b.kind || b.dismissal_key, {
+  message: 'kind or dismissal_key required',
 });
 
 router.post('/dragons/:id/suggestion/dismiss', (req, res) => {
@@ -461,7 +467,13 @@ router.post('/dragons/:id/suggestion/dismiss', (req, res) => {
       res.status(400).json({ error: 'invalid_body', details: parsed.error.issues });
       return;
     }
-    recordDismissal(req.params.id, parsed.data.dismissal_key, parsed.data.snooze_days);
+    // Resolve the storage key. `kind` per spec; if a skill_id is supplied
+    // we form the composite key the evaluator looks up. Explicit
+    // `dismissal_key` wins for forward-compatible callers.
+    const { kind, skill_id, dismissal_key, snooze_days } = parsed.data;
+    const key = dismissal_key
+      ?? (kind && skill_id ? `${kind}:${skill_id}` : kind!);
+    recordDismissal(req.params.id, key, snooze_days);
     res.json({ ok: true });
   } catch {
     res.status(500).json({ error: 'Failed to dismiss suggestion' });
@@ -497,19 +509,13 @@ router.post('/dragons/:id/skills/:skillId/escalation/verdict', (req, res) => {
       res.status(400).json({ error: 'invalid_body', details: parsed.error.issues });
       return;
     }
-    if (parsed.data.decision === 'accept') {
-      // Lock the trust band so subsequent invocations route autonomously by
-      // default. The keeper can still hand the next one off in paired-mode
-      // explicitly; we just stop suggesting otherwise.
-      ensureMaturity(req.params.id, skill.id, skill.default_trust_band);
-      const updated = setLockedBand(req.params.id, skill.id, 'autonomous');
-      res.json({ ok: true, maturity: updated });
-    } else {
-      // Decline writes a 7-day snooze on the dismiss key so the chat doesn't
-      // re-offer next session. The 7-day "shown" cap is independent.
-      recordDismissal(req.params.id, `escalate_to_autonomous_dismiss:${skill.id}`, 7);
-      res.json({ ok: true });
-    }
+    // Per spec: the escalate card is a one-shot "next three then check
+    // back" bridge. We do NOT alter long-term trust here — maturity is
+    // already 'autonomous' (precondition). Both verdicts simply record a
+    // 7-day cooldown so the same offer doesn't reappear in chat.
+    const dismissKey = `escalate_to_autonomous_dismiss:${skill.id}`;
+    recordDismissal(req.params.id, dismissKey, 7);
+    res.json({ ok: true, decision: parsed.data.decision });
   } catch {
     res.status(500).json({ error: 'Failed to record escalation verdict' });
   }
