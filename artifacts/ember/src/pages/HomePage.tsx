@@ -34,6 +34,37 @@ export default function HomePage() {
     }
   }, []);
 
+  // Inline rename from a menagerie card. Same PATCH contract the project
+  // detail page uses; on success we patch both the active and archived
+  // lists in place from the server's response so the new name shows
+  // immediately without a follow-up refetch.
+  const handleRenameProject = useCallback(
+    async (id: string, newName: string): Promise<{ ok: true } | { ok: false; error: string }> => {
+      try {
+        const res = await fetch(`/api/projects/${id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: newName }),
+        });
+        if (res.ok) {
+          const updated = await res.json();
+          setProjects((prev) => prev.map((p) => (p.id === id ? { ...p, ...updated } : p)));
+          setArchivedProjects((prev) => prev.map((p) => (p.id === id ? { ...p, ...updated } : p)));
+          return { ok: true } as const;
+        }
+        let message = 'Could not save the new name.';
+        try {
+          const data = await res.json();
+          if (data && typeof data.error === 'string') message = data.error;
+        } catch { /* keep default */ }
+        return { ok: false, error: message } as const;
+      } catch {
+        return { ok: false, error: 'Could not reach the keep. Try again.' } as const;
+      }
+    },
+    [],
+  );
+
   const fetchReadyCounts = useCallback(async () => {
     try {
       const res = await fetch('/api/dragons/ready-counts');
@@ -194,6 +225,7 @@ export default function HomePage() {
                 project={project}
                 readyCount={readyCounts[project.id] ?? 0}
                 wantsToTalk={wantsToTalk[project.id] ?? false}
+                onRename={(newName) => handleRenameProject(project.id, newName)}
               />
             ))}
           </div>
@@ -226,7 +258,11 @@ export default function HomePage() {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 opacity-60">
                 {archivedProjects.map((project) => (
-                  <DragonCard key={project.id} project={project} />
+                  <DragonCard
+                    key={project.id}
+                    project={project}
+                    onRename={(newName) => handleRenameProject(project.id, newName)}
+                  />
                 ))}
               </div>
             )}
