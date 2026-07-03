@@ -19,6 +19,7 @@ metadata:
   resources:
     references:
       - interview-questions.md
+      - architecture-design-rigor.md
     templates:
       - agents-md-template.md
 ---
@@ -33,6 +34,8 @@ Never generate a generic AGENTS.md — every section must reflect this specific 
 Never skip the user interview — even 3 questions produce a dramatically better result than auto-generation.
 Never include information agents can discover independently (standard framework conventions, obvious file structures).
 Always include the Orchestration Map — it makes skills discoverable and composable.
+Always include the Skill Invocation mandate verbatim — without it agents ignore installed skills (the #1 cross-project failure).
+For non-technical owners, never defer architecture/design choices to them — the agent decides with mandatory rigor skills and translates trade-offs to plain language.
 Always keep total AGENTS.md under 150 lines — bloat degrades agent performance (arXiv:2601.20404).
 
 ---
@@ -73,6 +76,7 @@ One question at a time. Stop each axis when you have enough.
 2. "Which areas do you feel confident handling yourself?"
 3. "Which areas should agents handle more autonomously — security, testing, architecture, DevOps, frontend, database design?"
 4. "Any strong preferences for how agents should work?"
+5. "Want the full Session Lifecycle block (session-start: load handoff + bounded memory; session-end: auto handoff/capture on producer events)?" — default yes if memory suite installed.
 
 **Axis 2 — Project Context.** Core questions (skip what was discovered in Step 1):
 1. "What are you building, in one sentence?"
@@ -93,6 +97,8 @@ For each identified gap:
 
 Always include the `secure-skill` family regardless of user gaps — security is non-optional.
 
+**Set `owner_mode`** (technical | hybrid | non-technical) from Axis 1 role + "could you evaluate an architectural decision?". Read `references/architecture-design-rigor.md` for the autonomy policy + quality rubric. Non-technical/hybrid owners get the Agent-Led Architecture & Design block.
+
 ### Step 4 — Generate the AGENTS.md
 
 **4a. Platform detection:** Check which agent platform the user is on (or ask if ambiguous). Tailor output:
@@ -102,7 +108,7 @@ Always include the `secure-skill` family regardless of user gaps — security is
 - **Generic** — standard AGENTS.md (works everywhere)
 Default to full format if the user has agent-loom skills installed.
 
-**4b. Scaffold:** Use `templates/agents-md-template.md`. Populate **Key Commands** from Step 1b auto-extraction (user confirmed). The generated AGENTS.md must include:
+**4b. Scaffold:** Use `templates/agents-md-template.md`. Copy the **Skill Invocation — Non-Negotiable** block verbatim — mandatory on every platform; without it agents treat skills as optional and ignore them (the #1 cross-project failure). Populate **Key Commands** from Step 1b auto-extraction (user confirmed). The generated AGENTS.md must also include:
 1. **Project Overview** — one sentence: what, stack, what's non-standard
 2. **Key Commands** — from auto-extracted commands (Step 1b), not user-typed
 3. **Project Structure** — only non-obvious parts
@@ -111,6 +117,8 @@ Default to full format if the user has agent-loom skills installed.
 6. **Boundaries** — Allowed / Ask First / Never (tuned to user's comfort)
 7. **User Context** — where user is strong (agents defer) vs where agents lead
 8. **Orchestration Map** — phase-based skill routing (see Step 5)
+9. **Session Lifecycle — Mandatory** — only if memory suite is installed (skill-finder check on `memory`). Covers BOTH session start (invoke `memory-startup`, read latest handoff, confirm git state, state recovered context in 2–4 lines before acting) AND session-end / producer-event checkpoints. Template ships with this block; remove only if the user opted out in Axis 1 Q5.
+10. **Agent-Led Architecture & Design** — include when `owner_mode` is non-technical/hybrid; wires architecture + design decisions to mandatory rigor skills (verbatim from template).
 
 **4c. Multi-file mode** (if `agents_md_mode: multi` from Step 1c):
 - Generate a **root `AGENTS.md`** with project-wide sections: Project Overview, User Context, Orchestration Map, shared Boundaries.
@@ -126,30 +134,30 @@ Structure as phase-based flow. Customise based on user's skill gaps:
 - **Solo founder:** all phases; emphasise pre-mortem and assumption-mapping
 - **Team:** tune boundaries per role if multiple AGENTS.md files needed
 
-If `sdd_mode: on`, add the SDD chain to the Orchestration Map:
-```
-project-constitution → brainstorming (optional design exploration)
-→ feature-spec /specify → feature-spec /clarify → implementation-plan /plan
-→ implementation-plan /tasks → spec-crosscheck /analyze
-→ test-driven-development /implement
-```
-Also add a rule to AGENTS.md: "When behavior changes, update the feature-spec first; the plan and tasks regenerate from it. Never edit code that violates the latest crosscheck PASS."
+If `sdd_mode: on`, add the SDD chain to the Orchestration Map: `project-constitution → brainstorming (optional) → feature-spec /specify → /clarify → implementation-plan /plan → /tasks → spec-crosscheck /analyze → test-driven-development /implement`. Add AGENTS.md rule: "When behavior changes, update feature-spec first; never edit code that violates the latest crosscheck PASS."
 
 ### Step 6 — Present, Iterate, Save
 
-Show the AGENTS.md (all files if multi-file mode). Ask: "Are the boundaries right? Does the Orchestration Map match your workflow? Anything missing?"
+**Quality gate (before showing):** self-score the draft against the rubric in `references/architecture-design-rigor.md`. Ship only at ≥12/14 with no starred-row zero; otherwise revise and re-score. Show the user the AGENTS.md (all files if multi-file mode) with the rubric result. Ask: "Are the boundaries right? Does the Orchestration Map match your workflow? Anything missing?"
 
 **Single mode:** Save to project root `AGENTS.md`.
 **Multi mode:** Save root `AGENTS.md` + scoped files (e.g., `frontend/AGENTS.md`, `backend/AGENTS.md`). Stage all files together.
 
-If updating existing: show diff, get approval.
+If merging into an existing AGENTS.md: preserve all project-specific content, inject any missing mandatory blocks (Skill Invocation, Session Lifecycle), keep under 150 lines, show diff, get approval — no regression on either side.
 
-Append to `docs/skill-outputs/SKILL-OUTPUTS.md`. Tell the user:
-> "AGENTS.md saved. Every agent tool will read this automatically. Re-run `project-setup` after writing a PRD or changing the stack."
+Append to `docs/skill-outputs/SKILL-OUTPUTS.md` and tell the user: "AGENTS.md saved. Every agent tool reads it automatically. Re-run `project-setup` after writing a PRD or changing the stack."
+
+**6b. Knowledge graph bootstrap (when `knowledge-graph` installed):** Run initial project map:
+```bash
+python3 .agents/skills/knowledge-graph/scripts/build_graph.py
+```
+Add `docs/knowledge-graph/GRAPH_INDEX.md` to `docs/memory/project-index.md` if memory suite is present. Tell user: "Project knowledge graph bootstrapped — query before deep scans in any skill that touches structure."
 
 ---
 
 ## Update Mode (called by project-orchestrator)
+
+**Sibling skill — Retroactive Bootstrap:** For an existing, already-coded project with no AGENTS.md, route to `retroactive-project-setup` (surveys repo, infers from manifests/README/git, asks only about gaps, never modifies code). When invoked by that skill, run in `RETROACTIVE=true` mode: skip interview, accept inferred matrix + gap answers, emit AGENTS.md only.
 
 When invoked with `UPDATE_ONLY=true`, skip the full interview. Only update sections of AGENTS.md that are actually affected. The orchestrator calls this only when it detects a change that affects agent behaviour — not for every new artefact.
 
@@ -160,7 +168,7 @@ When invoked with `UPDATE_ONLY=true`, skip the full interview. Only update secti
 - **Boundaries** — if new protected dirs, "never touch" files, or permission gates emerged from architectural decisions
 
 **What to preserve (never touch in update mode):**
-User Context, Code Style, Project Overview, Boundaries (unless explicitly affected).
+User Context, Code Style, Project Overview, Boundaries (unless explicitly affected), Session Lifecycle.
 
 **Process:** Read existing AGENTS.md → update only affected sections → show brief diff → commit.
 
@@ -173,41 +181,26 @@ User Context, Code Style, Project Overview, Boundaries (unless explicitly affect
 
 ## Gotchas
 
-- **The interview is the highest-leverage step.** 3 minutes of interview → 10x better AGENTS.md. Never skip it.
+- **The interview is the highest-leverage step.** 3 minutes of interview → 10x better AGENTS.md. Never skip it (except in `RETROACTIVE=true` mode).
 - **Skill gaps are the secret sauce.** A PM's AGENTS.md looks completely different from an engineer's.
-- **150-line limit is non-negotiable.** Longer files increase inference costs 20%+ and reduce success rates.
-- **The Orchestration Map ages fastest.** Re-run after major milestones.
-- **Never auto-generate without the interview.** LLM-generated context files without human input reduce task success ~3%.
+- **Orchestration Map ages fastest; never auto-generate without interview.** Re-run after milestones. LLM-generated context without human input reduces task success ~3%.
 
 ---
 
 ## Example
 
-<examples>
-  <example>
-    <input>Set up agents for my project. I'm a PM building a React Native habit tracker. Not confident in architecture, testing, or security.</input>
-    <output>
-[Interview: 3 questions — PM role, strong in product/UX, gaps in arch+testing+security, RN+Expo+Supabase, solo]
-
-Writing AGENTS.md with: architecture autonomy HIGH, testing autonomy HIGH, product decisions LOW (user is strong). Orchestration Map emphasises implementation-plan and test-driven-development phases. Boundaries: agents can create components and write tests without asking; must ask before architecture changes or schema changes.
-
-AGENTS.md saved. 127 lines. Orchestration Map covers 5 phases with 8 skills.
-    </output>
-  </example>
-</examples>
+**Input:** "Set up agents. I'm a PM building a React Native habit tracker. Not confident in architecture, testing, or security."
+**Output:** `owner_mode: non-technical`. AGENTS.md includes the Agent-Led Architecture & Design block (arch+design autonomy HIGH, wired to brainstorming/deep-thinking/api-and-interface-design/frontend-design with plain-language trade-offs). Boundaries: agents create components/tests freely; ADR every arch choice. Session Lifecycle + Skill Invocation blocks included. Rubric self-score 13/14, no starred zero. Saved, 134 lines.
 
 ---
 
 ## Impact Report
 
 ```
-Project setup complete: [project name]
-Platform: [Codex/Ampcode/Cursor/Copilot/Generic]
-Mode: [single | multi]
-Files saved: [list of AGENTS.md paths] ([line count] lines each)
-Commands auto-extracted: [yes/no] from [manifest files]
-User role: [role]
-Skill gaps filled: [list]
-Skills in Orchestration Map: [count] across [phase count] phases
+Project setup complete: [name] | Platform: [target] | Mode: [single|multi]
+Files saved: [paths] ([line counts]) | Commands auto-extracted from: [manifests]
+User role: [role] | Owner mode: [technical|hybrid|non-technical] | Skill gaps filled: [list]
+Orchestration Map: [skill count] across [phase count] phases
+Session Lifecycle + Agent-Led blocks: [yes/no] | Rubric self-score: [n/14]
 Logged to: docs/skill-outputs/SKILL-OUTPUTS.md
 ```

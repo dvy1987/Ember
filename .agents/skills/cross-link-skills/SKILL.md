@@ -75,6 +75,14 @@ Run `validate-skills` on every SKILL.md that was edited. If any skill drops belo
 
 Deliver the cross-link report (see Impact Report below).
 
+### Step 5b — Reconcile knowledge graph
+
+If `docs/knowledge-graph/graph.json` exists, run:
+```bash
+python3 .agents/skills/knowledge-graph/scripts/build_graph.py --incremental
+```
+Compare registry `calls[]` from Step 1 against `call-graph.json`. Flag invoke edges in registry missing from graph (stale graph) or graph edges with no SKILL.md backing (report only — graph may include SKILL-INDEX authoritative edges).
+
 ---
 
 ## Gotchas

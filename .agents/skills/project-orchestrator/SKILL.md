@@ -54,6 +54,7 @@ Always present the plan before executing — user approves, then it runs.
 | Tests exist and pass | Review / release phase |
 
 Also read: `AGENTS.md` Orchestration Map (if present), `docs/skill-outputs/SKILL-OUTPUTS.md`.
+If `docs/knowledge-graph/GRAPH_INDEX.md` exists, query hub nodes and communities for skill-routing hints before Step 2.
 
 ### Step 2 — Route the Request
 
@@ -65,7 +66,7 @@ Invoke `skill-routing` with the user's request and the project state from Step 1
 - **New complex request:** No process entry → route to `process-decomposer` for triage + decomposition.
 - **Phase recommendation:** `skill-routing` returned `project-orchestrator` for a "what next?" request → recommend based on Step 1.
 
-If `process-decomposer` returns `agent-chain`: wait for `agent-builder` and `setup-evaluator` to complete before proceeding to execution.
+If `process-decomposer` returns `agent-chain`: wait for `agent-builder` and `setup-evaluation` to complete before proceeding to execution.
 
 ### Step 3 — Plan and Present
 

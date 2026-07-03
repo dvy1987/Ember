@@ -75,11 +75,33 @@ This notification should be a single line — not disruptive. Skip the notificat
     → `setup-evaluation`
     Also auto-invoked by setup-evaluator agent after `agent-builder` writes the architecture spec for agent-chain tasks.
 
+## Spec-Driven Development Layer
+
+- "spec-driven development" | "SDD" | "specs-first" | "/specify" | "/clarify" | "/plan" | "/tasks" | "/analyze" | "/implement" | "GitHub Spec Kit workflow" | "Kiro workflow"
+    → `spec-driven-development` (thin orchestrator — it routes the slash to the right leaf skill)
+
+- "write a feature spec" | "executable spec" | "write the spec for this feature" | "machine-readable spec"
+    → `feature-spec`
+    NOT `prd-writing` (PRDs frame the product) and NOT `brainstorming` (design docs).
+
+- "write a constitution" | "set engineering invariants" | "non-negotiable rules" | "project policy" | "set our standards"
+    → `project-constitution`
+    NOT into AGENTS.md (agent behavior) or product-soul (strategy) — they are different artifacts.
+
+- "cross-check spec vs plan" | "trace requirements to tasks" | "is this spec implementation-ready" | "spec readiness gate"
+    → `spec-crosscheck`
+    Read-only audit. Returns PASS/FAIL with file:line evidence.
+
 ## Hard Boundaries
 
 - `process-decomposer` does NOT replace `brainstorming`.
   brainstorming = design approval (upstream). process-decomposer = execution planning (downstream).
 - `setup-evaluator` agent is auto-spawned by `agent-builder` after the architecture spec exists for agent-chain only (not keyword-routed).
+- `feature-spec` does NOT replace `brainstorming` or `prd-writing`.
+  brainstorming = approach + architecture. prd-writing = product/stakeholder framing. feature-spec = executable WHAT/WHY contract for agents.
+- `problem-to-plan` is the tactical fast path (bugs, narrow refactors). Feature-sized work routes through `spec-driven-development` instead.
+- `spec-driven-development` is a thin router. It NEVER writes constitution/spec/plan content directly — always delegates.
+- SDD phase order is enforced: constitution → specify → clarify → plan → tasks → analyze → implement. Later phases refuse to run when earlier ones are missing or unsatisfied.
 
 ## Triage Short-Circuits (process-decomposer Step 0)
 
@@ -93,3 +115,22 @@ This notification should be a single line — not disruptive. Skip the notificat
 ## Full Firing Order (agent-chain)
 
 brainstorming (if needed) → process-decomposer → agent-builder → setup-evaluator → project-orchestrator → execution → execution feedback
+
+---
+
+## Ember-Specific Overrides
+
+**Scope:** This Ember repo — see `.agents/EMBER-SKILLS.md` for merge notes.
+
+### Frontend design pipeline
+
+| Context | Route |
+|---------|-------|
+| Ember product UI (`docs/visual-direction.md`, Ember in product-soul, "dragon UI") | `frontend-design` **Ember path** → `design-archetype` → `design-tokens-craft` → `icon-craft` → build → `design-review` |
+| Generic / non-Ember UI | `frontend-design` **default path** → `design-direction` → `design-system` → build → `design-review` |
+
+Do not deprecate `design-archetype`, `design-tokens-craft`, or `icon-craft` in this repo — they are Ember-active despite upstream deprecation.
+
+### Required project context
+
+Before Ember feature work, read root `AGENTS.md` and docs listed there (architecture-guard, visual-direction, build-plan, etc.).

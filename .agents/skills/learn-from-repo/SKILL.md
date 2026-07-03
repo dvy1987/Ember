@@ -90,6 +90,7 @@ Applied: [what was extracted and where it was applied]
 - **Project-specific conventions.** Repo conventions may be team preferences or legacy constraints — flag when a pattern seems context-dependent.
 - **Archived repos.** Patterns may use deprecated APIs — check dates and current practices.
 - **Monorepo bias.** Large monorepos have inconsistent patterns — scope to relevant package/module.
+- **Awesome lists rot.** Curated link directories go stale silently — extract taxonomy and workflow patterns only. **Never embed external URLs into skills** (dead links, tracking pixels, supply-chain risk). Distill patterns into local `references/` files.
 
 ---
 

@@ -1,23 +1,16 @@
 ---
 name: universal-skill-creator
 description: >
-  Design, build, validate, and ship production-grade agent skills that work
-  across OpenAI Codex, Ampcode, Factory.ai Droids, Google Gemini, Warp, Bolt.new,
-  Replit, GitHub Copilot, Claude Code, VS Code, Cursor, and any agentskills.io
-  compliant platform. Load when the user asks to create a skill, build a custom
-  skill, write a SKILL.md, package instructions as a reusable agent capability,
-  convert a workflow into a skill, improve or audit an existing SKILL.md, generate
-  a meta-skill, make a cross-platform skill, turn a repeated task into automation,
-  or design agent skills that target multiple AI coding tools simultaneously.
-  Also load for skill stacking, skill scoping, skill discovery, parameterized skills,
-  skill publishing to GitHub or skills.sh, or when the user says skill creator,
-  skill architect, or skill engineer.
+  Design, build, validate, and ship cross-platform agent skills. Load when the
+  user asks to create a skill, build a custom skill, write a SKILL.md, package a
+  workflow as reusable agent capability, improve or audit a skill, publish a
+  skill, or build a planned skill suite.
 license: MIT
 metadata:
   author: dvy1987
-  version: "2.1"
+  version: "2.3"
   spec: agentskills.io/specification
-  sources: anthropics/skills, openai/skills, warpdotdev/oz-skills, agentskills.io, arXiv:2602.12430, arXiv:2603.29919, NeurIPS-2025
+  sources: anthropics/skills, openai/skills, warpdotdev/oz-skills, agentskills.io, arXiv:2602.12430, arXiv:2603.29919, NeurIPS-2025, addyosmani/agent-skills anti-rationalization tables
   resources:
     references:
       - platform-matrix.md
@@ -41,13 +34,15 @@ You are a Senior AI Skill Engineer. Your skills work on every major AI agent pla
 Always produce complete, non-truncated output — never use `[...]` placeholders in a deliverable skill.
 Always include at least one realistic example. Always state the install directory.
 Never put API keys, passwords, or secrets in skill files.
+Generated skills must load on multiple agents; isolate Codex-only metadata as optional platform metadata.
 
 ---
 
 ## Workflow
 
 ### Step 1 — Discover the Core Job
-Identify: one-sentence outcome, top 3 trigger phrases, top 3 failure modes, complexity tier needed.
+Identify: one-sentence outcome, 2 realistic task examples, top 3 trigger phrases, top 3 failure modes, and complexity tier.
+Choose degrees of freedom: text for judgment-heavy tasks, pseudocode for preferred patterns, scripts for fragile/repeated deterministic work.
 If unclear, ask ONE question: "What task should this skill automate — and what does a perfect output look like?"
 
 ### Step 2 — Run research-skill (with security gate)
@@ -61,9 +56,9 @@ Wait for the findings report, then use GOTCHAS → Gotchas section, WORKFLOW PAT
 | Atomic | `SKILL.md` only |
 | Standard | + `references/` |
 | Advanced | + `scripts/` |
-| System | + `assets/` + `agents/openai.yaml` |
+| System | + `assets/` + optional platform metadata |
 
-Start Atomic. Promote only if the user explicitly needs more.
+Start Atomic. Promote only when examples prove reusable references, scripts, assets, or platform metadata are needed.
 
 ### Step 4 — Write Frontmatter
 ```yaml
@@ -83,6 +78,7 @@ metadata:
 ---
 ```
 Description formula: `[Domain verb phrase] + [trigger conditions] + [synonyms]`
+Keep the folded description under 1024 characters. Put long trigger catalogs in the body, `AGENTS.md`, or `docs/SKILL-INDEX.md`, not frontmatter.
 Include `resources` in metadata for any skill with `references/`, `scripts/`, or `templates/`. Omit for Atomic tier.
 
 Category rules:
@@ -92,7 +88,9 @@ Category rules:
 
 ### Step 5 — Write the Body
 Required sections: Role definition · Numbered workflow (imperative one-liners) · Output format schema · 1–2 examples · Constraints.
-Optional: Gotchas (from research-skill findings) · Verification checklist · Parameterization (`$ARGUMENTS[1]`).
+**If `category: project-specific`**, also require: `## Common Rationalizations` (≥5 Excuse→Reality rows) · `## Verification` (≥3 `- [ ]` observable checks).
+Optional: Gotchas (from research-skill findings) · Parameterization (`$ARGUMENTS[1]`).
+If resources exist, state exactly when to read or execute each one. Avoid nested references; link direct children from SKILL.md.
 Read `references/advanced-patterns.md` for XML tags (Claude), openai.yaml (Codex), Factory frontmatter, Warp arguments.
 If the draft starts getting bloated while writing, stop and classify the excess immediately instead of finishing a 250-line first draft.
 
@@ -105,70 +103,83 @@ Classify every block before finalising. Over 60% of skill bodies in the wild are
 | Output format / schema | Extra examples beyond 2 | — |
 
 ### Step 7 — Size Check and Resize
-Run `wc -l .agents/skills/<skill-name>/SKILL.md`. If ≤200 → Step 8.
-If over 200: (1) excess is BACKGROUND/EDGE_CASE/rationale → `compress-skill`, (2) distinct sub-capability → `split-skill`, (3) unsure → `compress-skill` first, it escalates to `split-skill` if CORE still exceeds 200.
+Run `wc -l .agents/skills/<skill-name>/SKILL.md`. If ≤200 → Step 8. Over 200: BACKGROUND/EDGE_CASE excess → `compress-skill`; distinct sub-capability → `split-skill`; unsure → `compress-skill` first (it escalates to `split-skill` if CORE still over).
 
 ### Step 8 — Deconflict Name and Triggers
-Invoke `skill-deconflict` in single-skill mode on the new skill. If verdict is RENAME — rename before proceeding. If REVISE — fix trigger overlap or add missing triggers. Only proceed on PASS.
+Invoke `skill-deconflict` in single-skill mode. RENAME → rename before proceeding; REVISE → fix trigger overlap or add missing triggers; only proceed on PASS.
 
 ### Step 9 — Validate and Security-Scan Output
-Invoke `validate-skills` on the new skill. Must score ≥10/14.
-Then invoke ALL `secure-*` skills (discover via `ls .agents/skills/secure-*`) to scan the GENERATED skill — not just the inputs. This catches cases where external patterns were absorbed into the output. BLOCKED = revise and re-scan before committing.
-
+Invoke `validate-skills` (must score ≥10/14), then ALL `secure-*` skills (discover via `ls .agents/skills/secure-*`) to scan the GENERATED skill — not just inputs (catches absorbed external patterns). BLOCKED = revise and re-scan before committing.
 ```bash
 agentskills validate .agents/skills/<skill-name>/
 ```
 
 ### Step 10 — Cross-Link Repair
-Invoke `cross-link-skills` with trigger `created — <skill-name>`. It scans all SKILL.md files for missing or stale cross-references involving the new skill and fixes them.
+Invoke `cross-link-skills` with trigger `created — <skill-name>` to repair missing or stale cross-references involving the new skill.
 
-### Step 11 — Publish (Optional)
-Ask the user: "Would you like to publish this skill to skills.sh?"
-If yes — invoke `publish-skill`. It handles packaging, README, and registry submission.
+### Step 11 — Library Sync (Mandatory)
+Invoke `library-skill` with trigger `new skill added — <skill-name>`. Syncs `docs/SKILL-INDEX.md`, `AGENTS.md`, `README.md`, `docs/skill-graph.md`, `docs/architecture.md`, `docs/prd/PRD.md`, then auto-invokes `generate-changelog`. Skipping rots the library — see Common Rationalizations.
 
----
+**11b. Graph sync:** `library-skill` Step 5b runs `knowledge-graph` incremental rebuild when installed. For consumer projects, confirm `docs/knowledge-graph/` exists after first skill install.
 
-## Output Format
+### Step 12 — Publish (Optional)
+If user opts in, invoke `publish-skill` (handles packaging, README, registry submission).
 
-After generating, always state:
-- Complexity tier used and why
-- Compatible platforms
-- Install path: `.agents/skills/<skill-name>/`
-- Test prompt to verify activation
-
-Read `references/examples.md` for complete worked examples of Atomic and Advanced skills.
+### Step 13 — Memory Checkpoint (Mandatory)
+Per `memory/SKILL.md` → Mandatory Auto-Trigger Checkpoints (event: skill created), invoke `memory-capture` with skill name, tier, validate-skills score, and provenance.
 
 ---
 
-## Mandatory Requirements for Every Skill You Create
+## Output Format & Mandatory Requirements
+
+After generating, always state: tier + why · compatible platforms · install path `.agents/skills/<skill-name>/` · test trigger phrase.
 
 Every skill MUST include:
-1. **`## Impact Report`** section — skill-specific format, delivered in-chat after run. See `references/examples.md`.
-2. **File-output logging** — if the skill generates files, append `| YYYY-MM-DD HH:MM | [skill-name] | [path] | [description] |` to `docs/skill-outputs/SKILL-OUTPUTS.md` and tell the user. Applies to project files only, not skill files.
-3. **Learnings provenance** — if created from `docs/learnings/*.md`, update source entry with skill name, path, date.
+1. **`## Impact Report`** — skill-specific format, in-chat after every run.
+2. **File-output logging** — if skill writes project files, append `| YYYY-MM-DD HH:MM | [skill-name] | [path] | [description] |` to `docs/skill-outputs/SKILL-OUTPUTS.md` and notify user.
+3. **Learnings provenance** — if from `docs/learnings/*.md`, update source entry with skill name + path + date.
+
+---
+
+## Gotchas
+
+- **NEVER write `.agents/skills/<name>/SKILL.md` directly outside this skill.** Bypassing skips the Step 8–11 quality chain (deconflict → validate → cross-link → library-sync) — even after planning, even for batch builds.
+- **`secure-*` gates run twice (Steps 2 and 9).** Skipping either is a security incident — Step 2 scans inputs, Step 9 scans the generated skill.
+- **Description triggers are additive.** Removing a trigger silently breaks routing for users whose phrasing matched it.
+- **Frontmatter is loader-critical.** UTF-8 no BOM, `---` at byte 0, closing `---`, description <1024 chars, `metadata.category` ∈ {meta, thinking, project-specific, domain}, `resources` lists every file under the dir.
+- **Atomic tier first; promote on demand.** Bloat hurts routing and tokens.
+- **Skill name must match directory exactly** (lowercase, hyphens, 1–64 chars). Mismatch breaks every cross-link silently.
+
+---
+
 ## Verification Checklist
-- [ ] Starts with `---` on line 1, name matches directory
-- [ ] Description has trigger keywords and action verbs
-- [ ] Expert role in first paragraph, workflow steps are imperative one-liners
-- [ ] At least 1 complete (non-truncated) example
-- [ ] Output format is a schema or template, not prose
-- [ ] Under 200 lines, `agentskills validate` passes
-- [ ] `## Impact Report` section present at end of SKILL.md
-- [ ] If skill generates files: file-output logging to `docs/skill-outputs/SKILL-OUTPUTS.md` included
-- [ ] If skill has references/scripts/templates: `resources` field in frontmatter metadata
-- [ ] If sourced from `docs/learnings/*.md`: source learning entry updated with created skill provenance
+- [ ] Loader-safe: starts with `---` line 1 (no BOM), name matches dir, closing `---`, description <1024 chars
+- [ ] Role + workflow + complete example + schema-format output + `## Impact Report` all present
+- [ ] Under 200 lines; `agentskills validate` passes; `validate-skills` ≥10/14
+- [ ] `resources` lists every reference/script/template; file-output logging present if skill writes project files
+- [ ] If from `docs/learnings/*.md`: source entry updated; Step 11 (`library-skill`) invoked
 ---
 
 ## Reference Files
 
-- **`references/platform-matrix.md`**: Read when asked "where do I install this?"
-- **`references/advanced-patterns.md`**: Read for Advanced/System tier (XML tags, openai.yaml, Factory frontmatter, skill stacking)
-- **`references/github-repo-research.md`**: Read for community patterns
-- **`references/research-papers.md`**: Read for architectural decisions
-- **`references/examples.md`**: Read when user wants a full skill output example
-- **`scripts/skill_scaffold.py`**: CLI scaffolder (`--name`, `--tier`, `--platform`)
-- **`templates/SKILL-template.md`**: Starting point for all new skills
-- **`templates/SKILL-OUTPUTS-template.md`**: Template for project output tracking
+Load only on matching trigger:
+- `references/platform-matrix.md` — install-target / platform.
+- `references/advanced-patterns.md` — Advanced/System tier (XML, openai.yaml, Factory, Warp, stacking).
+- `references/github-repo-research.md`, `references/research-papers.md` — community survey / paper grounding.
+- `references/examples.md` — full worked example.
+- `scripts/skill_scaffold.py` — CLI scaffolder.
+- `templates/SKILL-template.md`, `templates/SKILL-OUTPUTS-template.md` — copy on new skill / new outputs log.
+
+---
+
+## Common Rationalizations
+
+| "Reason to bypass the workflow" | Reality |
+|---------------------------------|---------|
+| "User said 'go ahead build' after planning — skip Steps 8–11" | Bypassing skips deconflict/validate/cross-link/library-sync. Re-route through here even for batch builds (AGENTS.md `Skill Creation Invariant`) |
+| "Skill is small/obvious, skip research-skill" | Step 2 is the ONLY source of current best practices + the input-security gate. Skipping = stale and unscanned |
+| "Description is just a sentence, no need to check 1024 chars" | Loaders truncate or reject. Validator P0 (validate-skills Step 2a) |
+| "Library-skill is just docs, can skip" | Without Step 11 the new skill is invisible in SKILL-INDEX, README, graph, PRD — discoverability dies on the vine |
 
 ---
 
