@@ -1,13 +1,13 @@
 {
   "version": "2.0",
-  "generated_at": "2026-07-03T14:32:04.259425+00:00",
+  "generated_at": "2026-07-03T14:50:42.107683+00:00",
   "mode": "skill-library",
   "root": "/Users/divya/Projects/Building-apps/Ember",
   "stats": {
-    "nodes": 108,
-    "edges": 105,
+    "nodes": 106,
+    "edges": 109,
     "authoritative_edges": 12,
-    "extracted_edges": 99,
+    "extracted_edges": 103,
     "inferred_edges": 6
   },
   "god_nodes": [
@@ -89,7 +89,7 @@
     "What depends on improve-skills, and what does improve-skills invoke?"
   ],
   "communities": {
-    "memory": [
+    "adversarial": [
       "adversarial-hat",
       "apply-paper-to-project",
       "architectural-decision-log",
@@ -153,26 +153,67 @@
       "validate-skills",
       "venture-exploration"
     ],
+    "second": [
+      "second-order"
+    ],
+    "debug": [
+      "debug-and-fix"
+    ],
     "spec": [
       "spec-crosscheck"
     ],
+    "core": [
+      "inversion",
+      "ooda",
+      "socratic"
+    ],
+    "git": [
+      "git-workflow-and-versioning"
+    ],
+    "test": [
+      "test-driven-development"
+    ],
+    "source": [
+      "source-driven-development"
+    ],
+    "ci": [
+      "ci-cd-and-automation"
+    ],
     "design": [
-      "design-archetype",
       "design-direction",
       "design-review",
       "design-system",
-      "design-tokens-craft"
+      "frontend-design"
     ],
-    "code": [
-      "code-review-crsp",
-      "code-simplification"
+    "deprecate": [
+      "deprecate-skill"
+    ],
+    "idea": [
+      "idea-generation"
+    ],
+    "agent": [
+      "agent-launcher",
+      "agent-system-architecture"
+    ],
+    "deep": [
+      "deep-thinking"
     ],
     "setup": [
       "agent-builder",
       "setup-evaluation"
     ],
-    "git": [
-      "git-workflow-and-versioning"
+    "code": [
+      "code-review-crsp",
+      "code-simplification"
+    ],
+    "first": [
+      "first-principles"
+    ],
+    "skill": [
+      "skill-finder"
+    ],
+    "context": [
+      "context-engineering"
     ],
     "eval": [
       "eval-judge",
@@ -180,71 +221,23 @@
       "eval-pipeline",
       "eval-rubric-design"
     ],
-    "deprecate": [
-      "deprecate-skill"
-    ],
-    "test": [
-      "test-driven-development"
-    ],
-    "create": [
-      "create-agent-prompt"
-    ],
-    "ci": [
-      "ci-cd-and-automation"
-    ],
-    "context": [
-      "context-engineering"
-    ],
-    "agent": [
-      "agent-launcher",
-      "agent-system-architecture"
-    ],
-    "icon": [
-      "icon-craft"
-    ],
-    "idea": [
-      "idea-generation"
-    ],
-    "core": [
-      "inversion",
-      "ooda",
-      "socratic"
-    ],
-    "debug": [
-      "debug-and-fix"
-    ],
-    "frontend": [
-      "frontend-design"
-    ],
-    "first": [
-      "first-principles"
-    ],
-    "source": [
-      "source-driven-development"
+    "api": [
+      "api-and-interface-design"
     ],
     "pre": [
       "pre-mortem"
     ],
-    "tool": [
-      "tool-finder"
-    ],
-    "api": [
-      "api-and-interface-design"
-    ],
     "technical": [
       "technical-debt-audit"
     ],
-    "second": [
-      "second-order"
-    ],
-    "skill": [
-      "skill-finder"
-    ],
-    "deep": [
-      "deep-thinking"
-    ],
     "app": [
       "app-security-hardening"
+    ],
+    "create": [
+      "create-agent-prompt"
+    ],
+    "tool": [
+      "tool-finder"
     ]
   },
   "nodes": [
@@ -295,14 +288,6 @@
       "path": ".agents/skills/learn-from-chat/SKILL.md",
       "category": "meta",
       "community": "learn"
-    },
-    {
-      "id": "skill_design_tokens_craft",
-      "label": "design-tokens-craft",
-      "type": "skill",
-      "path": ".agents/skills/design-tokens-craft/SKILL.md",
-      "category": "project-specific",
-      "community": "design"
     },
     {
       "id": "skill_publish_skill",
@@ -401,14 +386,6 @@
       "community": "spec"
     },
     {
-      "id": "skill_design_archetype",
-      "label": "design-archetype",
-      "type": "skill",
-      "path": ".agents/skills/design-archetype/SKILL.md",
-      "category": "project-specific",
-      "community": "design"
-    },
-    {
       "id": "skill_improve_skills",
       "label": "improve-skills",
       "type": "skill",
@@ -471,14 +448,6 @@
       "path": ".agents/skills/memory-audit/SKILL.md",
       "category": "project-specific",
       "community": "memory"
-    },
-    {
-      "id": "skill_icon_craft",
-      "label": "icon-craft",
-      "type": "skill",
-      "path": ".agents/skills/icon-craft/SKILL.md",
-      "category": "project-specific",
-      "community": "icon"
     },
     {
       "id": "skill_knowledge_graph",
@@ -1080,6 +1049,13 @@
     {
       "id": "handoff_2026_07_03_20_01_handoff",
       "label": "2026-07-03 20:01 — Handoff",
+      "type": "handoff",
+      "path": "docs/memory/agent-handoffs.md",
+      "community": "memory"
+    },
+    {
+      "id": "handoff_2026_07_03_20_18_handoff",
+      "label": "2026-07-03 20:18 — Handoff",
       "type": "handoff",
       "path": "docs/memory/agent-handoffs.md",
       "community": "memory"
@@ -1747,6 +1723,33 @@
       "provenance": "SKILL.md"
     },
     {
+      "source": "skill_frontend_design",
+      "target": "skill_design_direction",
+      "relation": "invokes",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": ".agents/skills/frontend-design/SKILL.md",
+      "provenance": "SKILL.md"
+    },
+    {
+      "source": "skill_frontend_design",
+      "target": "skill_design_system",
+      "relation": "invokes",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": ".agents/skills/frontend-design/SKILL.md",
+      "provenance": "SKILL.md"
+    },
+    {
+      "source": "skill_frontend_design",
+      "target": "skill_design_review",
+      "relation": "invokes",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": ".agents/skills/frontend-design/SKILL.md",
+      "provenance": "SKILL.md"
+    },
+    {
       "source": "skill_idea_evaluation",
       "target": "skill_fermi",
       "relation": "invokes",
@@ -1991,33 +1994,6 @@
     },
     {
       "source": "handoff_2026_07_03_20_01_handoff",
-      "target": "skill_design_archetype",
-      "relation": "handoff_mentions",
-      "confidence": "INFERRED",
-      "confidence_score": 0.85,
-      "source_file": "docs/memory/agent-handoffs.md",
-      "provenance": "handoff-body"
-    },
-    {
-      "source": "handoff_2026_07_03_20_01_handoff",
-      "target": "skill_design_tokens_craft",
-      "relation": "handoff_mentions",
-      "confidence": "INFERRED",
-      "confidence_score": 0.85,
-      "source_file": "docs/memory/agent-handoffs.md",
-      "provenance": "handoff-body"
-    },
-    {
-      "source": "handoff_2026_07_03_20_01_handoff",
-      "target": "skill_icon_craft",
-      "relation": "handoff_mentions",
-      "confidence": "INFERRED",
-      "confidence_score": 0.85,
-      "source_file": "docs/memory/agent-handoffs.md",
-      "provenance": "handoff-body"
-    },
-    {
-      "source": "handoff_2026_07_03_20_01_handoff",
       "target": "skill_frontend_design",
       "relation": "handoff_mentions",
       "confidence": "INFERRED",
@@ -2037,6 +2013,42 @@
     {
       "source": "handoff_2026_07_03_20_01_handoff",
       "target": "skill_design_system",
+      "relation": "handoff_mentions",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "docs/memory/agent-handoffs.md",
+      "provenance": "handoff-body"
+    },
+    {
+      "source": "handoff_2026_07_03_20_18_handoff",
+      "target": "memory_docs_memory_agent_handoffs_md",
+      "relation": "recorded_in",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/memory/agent-handoffs.md",
+      "provenance": "agent-handoffs.md"
+    },
+    {
+      "source": "handoff_2026_07_03_20_18_handoff",
+      "target": "skill_design_direction",
+      "relation": "handoff_mentions",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "docs/memory/agent-handoffs.md",
+      "provenance": "handoff-body"
+    },
+    {
+      "source": "handoff_2026_07_03_20_18_handoff",
+      "target": "skill_design_system",
+      "relation": "handoff_mentions",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "docs/memory/agent-handoffs.md",
+      "provenance": "handoff-body"
+    },
+    {
+      "source": "handoff_2026_07_03_20_18_handoff",
+      "target": "skill_frontend_design",
       "relation": "handoff_mentions",
       "confidence": "INFERRED",
       "confidence_score": 0.85,

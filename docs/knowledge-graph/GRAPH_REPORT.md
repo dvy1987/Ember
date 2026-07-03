@@ -1,7 +1,7 @@
 # Knowledge Graph Report
 
-Generated: 2026-07-03T14:32:04.259425+00:00
-Mode: skill-library | Nodes: 108 | Edges: 105
+Generated: 2026-07-03T14:50:42.107683+00:00
+Mode: skill-library | Nodes: 106 | Edges: 109
 
 ## God nodes (skill connectivity)
 - memory
@@ -35,6 +35,6 @@ Mode: skill-library | Nodes: 108 | Edges: 105
 
 ## Provenance
 - Authoritative invokes: 12
-- EXTRACTED: 99 | INFERRED: 6
+- EXTRACTED: 103 | INFERRED: 6
 
 Query: `python3 .agents/skills/knowledge-graph/scripts/query_graph.py path <A> <B>`

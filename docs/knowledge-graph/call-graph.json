@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-03T14:32:04.259425+00:00",
+  "generated_at": "2026-07-03T14:50:42.107683+00:00",
   "edges": [
     {
       "source": "skill_experiment_backlog",
@@ -638,6 +638,33 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": ".agents/skills/universal-skill-creator/SKILL.md",
+      "provenance": "SKILL.md"
+    },
+    {
+      "source": "skill_frontend_design",
+      "target": "skill_design_direction",
+      "relation": "invokes",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": ".agents/skills/frontend-design/SKILL.md",
+      "provenance": "SKILL.md"
+    },
+    {
+      "source": "skill_frontend_design",
+      "target": "skill_design_system",
+      "relation": "invokes",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": ".agents/skills/frontend-design/SKILL.md",
+      "provenance": "SKILL.md"
+    },
+    {
+      "source": "skill_frontend_design",
+      "target": "skill_design_review",
+      "relation": "invokes",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": ".agents/skills/frontend-design/SKILL.md",
       "provenance": "SKILL.md"
     },
     {

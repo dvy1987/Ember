@@ -37,19 +37,36 @@ mv .agents/skills/.deprecated/design-tokens-craft-deprecated-2026-06-30/ .agents
 **Recovery command:**
 mv .agents/skills/.deprecated/icon-craft-deprecated-2026-06-30/ .agents/skills/icon-craft/
 
+### design-archetype — archived in Ember 2026-07-03
+
+**Reason:** Ember adopted standard loom pipeline; product identity moved to `ember-design-constraints.md`.
+**Migration:** `design-direction` + `ember-design-constraints.md`
+**Archive path:** `.agents/skills/.deprecated/design-archetype-deprecated-2026-07-03/`
+
+### design-tokens-craft — archived in Ember 2026-07-03
+
+**Reason:** Ember adopted `design-system`; `--color-ember-*` mapping documented in constraints reference.
+**Migration:** `design-system` + `ember-design-constraints.md`
+**Archive path:** `.agents/skills/.deprecated/design-tokens-craft-deprecated-2026-07-03/`
+
+### icon-craft — archived in Ember 2026-07-03
+
+**Reason:** Folded into `design-system` per loom; Ember icon rules in `ember-design-constraints.md`.
+**Migration:** `design-system`
+**Archive path:** `.agents/skills/.deprecated/icon-craft-deprecated-2026-07-03/`
+
 ---
 
-## Ember Repo Retention (not deprecated in Ember)
+## Ember Repo Retention (superseded 2026-07-03)
 
-The following skills are deprecated in upstream agent-loom (2026-06-30) but **remain active**
-in the Ember project. See `.agents/EMBER-SKILLS.md`.
+The following skills were briefly kept active in Ember after the agent-loom merge, then
+**archived** when Ember adopted the standard `design-direction` + `design-system` pipeline.
+Ember identity now lives in `docs/visual-direction.md` and
+`frontend-design/references/ember-design-constraints.md`.
 
-- `design-archetype` — Ember visual identity pipeline
-- `design-tokens-craft` — `--color-ember-*` token conventions
-- `icon-craft` — anti-generic icon strategy for dragon-forge UI
-
-`frontend-design` v2.1-ember routes to these for Ember UI work; default path uses
-`design-direction` + `design-system`.
+- `design-archetype` → `.agents/skills/.deprecated/design-archetype-deprecated-2026-07-03/`
+- `design-tokens-craft` → `.agents/skills/.deprecated/design-tokens-craft-deprecated-2026-07-03/`
+- `icon-craft` → `.agents/skills/.deprecated/icon-craft-deprecated-2026-07-03/`
 
 ---
 

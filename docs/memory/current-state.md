@@ -9,10 +9,10 @@ Pre-PMF local-first ADHD productivity app (dragon metaphor). Core repo on `main`
 ## Agent infrastructure
 
 - `.agents/` merged from upstream **agent-loom** (98 skills + upgrades)
-- Ember retains **3 legacy design skills**: `design-archetype`, `design-tokens-craft`, `icon-craft`
-- `frontend-design` v2.1-ember dual-pipeline: Ember path vs default (design-direction + design-system)
-- Root `AGENTS.md` restored; `docs/visual-direction.md` restored from migration backup
-- Merge docs: `.agents/EMBER-SKILLS.md`, `.agents/ROUTING.md` (Ember overrides section)
+- Design pipeline: `design-direction` → `design-system` (loom standard)
+- Ember constraints: `frontend-design/references/ember-design-constraints.md` + `docs/visual-direction.md`
+- Legacy design trio archived under `.agents/skills/.deprecated/*-deprecated-2026-07-03/`
+- Root `AGENTS.md` restored; `docs/visual-direction.md` in `docs/`
 
 ## Next recommended work
 
@@ -21,4 +21,4 @@ Product/feature implementation per `docs/build-plan.md` (when restored from migr
 ## Revisit triggers
 
 - Syncing from agent-loom again → follow merge checklist in `.agents/EMBER-SKILLS.md`
-- Ember UI work → use Ember design pipeline, not design-direction alone
+- Ember UI work → `design-direction` + `design-system` + `ember-design-constraints.md`

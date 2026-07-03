@@ -120,16 +120,17 @@ brainstorming (if needed) → process-decomposer → agent-builder → setup-eva
 
 ## Ember-Specific Overrides
 
-**Scope:** This Ember repo — see `.agents/EMBER-SKILLS.md` for merge notes.
+**Scope:** This Ember repo — see `.agents/EMBER-SKILLS.md`.
 
 ### Frontend design pipeline
 
-| Context | Route |
-|---------|-------|
-| Ember product UI (`docs/visual-direction.md`, Ember in product-soul, "dragon UI") | `frontend-design` **Ember path** → `design-archetype` → `design-tokens-craft` → `icon-craft` → build → `design-review` |
-| Generic / non-Ember UI | `frontend-design` **default path** → `design-direction` → `design-system` → build → `design-review` |
+All Ember UI work uses the standard chain:
 
-Do not deprecate `design-archetype`, `design-tokens-craft`, or `icon-craft` in this repo — they are Ember-active despite upstream deprecation.
+`frontend-design` → `design-direction` → `design-system` → build → `design-review`
+
+Read `docs/visual-direction.md` and `skills/frontend-design/references/ember-design-constraints.md`
+before exploring directions. Legacy skills `design-archetype`, `design-tokens-craft`, `icon-craft`
+are archived under `.agents/skills/.deprecated/` — do not invoke them.
 
 ### Required project context
 

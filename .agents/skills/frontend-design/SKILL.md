@@ -2,20 +2,20 @@
 name: frontend-design
 description: >
   Orchestrator + builder for distinctive, production-grade frontends that don't look
-  AI-generated. Derives stack and design context from product-soul/PRD/specs, then runs
-  the anti-slop chain. Default path: design-direction → design-system → build → review.
-  Ember path (when docs/visual-direction.md or Ember product context applies): design-archetype
-  → design-tokens-craft → icon-craft → build → review. Load when the user asks to build a
-  UI, design a frontend, build a landing page or dashboard or web app, beautify or redesign
-  a page, make a UI look premium/playful/editorial, says "build me a frontend", "make this
-  not look AI-generated", "design this interface", "give this real polish", or "frontend
-  design".
+  AI-generated. Derives stack and design context from product-soul/PRD/specs, then runs the
+  anti-slop chain — explore distinct directions, lock a DESIGN.md system, build from golden
+  examples with mandatory polish + every interactive/empty/loading/error state, then review.
+  Load when the user asks to build a UI, design a frontend, build a landing page or dashboard
+  or web app, beautify or redesign a page, make a UI look premium/playful/editorial, says
+  "build me a frontend", "make this not look AI-generated", "design this interface", "give
+  this real polish", or "frontend design". Routes to design-direction, design-system,
+  design-review.
 license: MIT
 metadata:
   author: dvy1987
-  version: "2.1-ember"
+  version: "2.0"
   category: project-specific
-  sources: Anthropic frontend-design skill, Superdesign anti-slop chain, v0/Lovable practice, addyosmani frontend-ui-engineering, Ember visual-direction (archetype pipeline)
+  sources: Anthropic frontend-design skill, Superdesign anti-slop chain, v0/Lovable practice, addyosmani frontend-ui-engineering
   resources:
     references:
       - stack-selection.md
@@ -23,7 +23,7 @@ metadata:
       - build-conventions.md
       - anti-vibecoded-checklist.md
       - one-shot-flow.md
-      - ember-design-flow.md
+      - ember-design-constraints.md
       - golden-examples/components.md
       - golden-examples/states.md
       - golden-examples/composition.md
@@ -31,112 +31,132 @@ metadata:
 
 # Frontend Design
 
-You are the Lead Frontend Designer & Engineer. You refuse generic, unpolished output.
-You pick the right design pipeline for the project, then ship real working code that looks
+You are the Lead Frontend Designer & Engineer. You refuse generic, unpolished output. You
+run the proven chain — **context → direction (explore) → system (DESIGN.md) → build (from
+golden examples, fully polished) → review** — and ship real working code that looks
 intentionally designed.
 
-## Pipeline Selection (Step 0 — mandatory)
+## Hard Rules
 
-| Signal | Pipeline |
-|--------|----------|
-| `docs/visual-direction.md` exists, OR `docs/product-soul.md` names **Ember**, OR user says "Ember UI" / "dragon app" / "cozy productivity" | **Ember path** — `references/ember-design-flow.md` |
-| Everything else | **Default path** — direction → system → build → review (loom v2) |
+- **Direction before code.** Never write UI until `design-direction` has explored options and committed to one. No drafting before that gate.
+- **Build from golden examples, not from memory.** Read `references/golden-examples/*` and match that level of craft. Positive examples beat bans for escaping the generic mean.
+- **Tokens are law.** Every color/type/space/motion value comes from the DESIGN.md `tokens.css`. No hex literals, no `slate-*`, no magic numbers in components.
+- **Every state ships.** Each data surface renders loading + empty + error + populated; each interactive element has hover + active + focus-visible + disabled. Missing states = not done. See `references/polish-playbook.md`.
+- **One orchestrated polish moment.** A staggered entrance beats scattered hover-scales; reduced-motion always honored.
+- **Real content + APCA.** No Lorem Ipsum in deliverables; contrast meets APCA (checked in review). Dark mode hand-set, not inverted.
+- **Single DESIGN.md.** One source of truth, not four scattered docs.
 
-State which pipeline you chose in one line before proceeding. Do not mix pipelines mid-build.
+## Ember (this repo)
 
----
+When `docs/visual-direction.md` exists, read `references/ember-design-constraints.md` at
+Step 0 and pass its token naming, Resume Card hierarchy, and dragon-accent rules to
+`design-direction` and `design-system`. Ember uses the **same pipeline** as every other
+project — product constraints replace the deprecated archetype skill chain.
 
-## Default Path (design-direction → design-system)
+## Common Rationalizations
 
-### Hard Rules
-
-- **Direction before code.** Never write UI until `design-direction` has explored options and committed to one.
-- **Build from golden examples, not from memory.** Read `references/golden-examples/*` and match that level of craft.
-- **Tokens are law.** Every color/type/space/motion value comes from the DESIGN.md `tokens.css`.
-- **Every state ships.** Loading + empty + error + populated; hover + active + focus-visible + disabled. See `references/polish-playbook.md`.
-- **Single DESIGN.md.** One source of truth.
-
-### Workflow
-
-1. **Derive context + stack** — read product-soul, PRD, specs; recommend stack via `references/stack-selection.md`.
-2. **Diagnose the ask** — fast / full / refactor / direct (see loom one-shot-flow for single artifacts).
-3. **`design-direction`** → `.design/<feature>/DIRECTION.md`
-4. **`design-system`** → canonical `DESIGN.md` + `tokens.css` + icon strategy
-5. **Build** — golden examples + build-conventions + polish-playbook gates
-6. **`design-review`** — max 2 loops
+| Excuse | Reality |
+|--------|---------|
+| "Skip exploration, I know the look" | First idea = corpus mean. Explore via design-direction or ship slop. |
+| "Happy path is enough for now" | Empty/loading/error are the polish. Their absence is what reads as unfinished. |
+| "shadcn defaults look fine" | Default shadcn is generic by definition. Use it for a11y/behavior; restyle via tokens. |
+| "Accessibility/polish later" | Retrofit costs 3×. States + APCA + focus rings are baked in from tokens + examples. |
+| "Prototype, styling doesn't matter" | Prototypes ship. Use the direction + tokens now. |
 
 ---
 
-## Ember Path (design-archetype → design-tokens-craft → icon-craft)
+## Workflow
 
-Use when Ember's visual identity must be preserved: cozy dark UI, dragon metaphor, ember
-orange accents, microinteractions that reward focus sessions. Read `docs/visual-direction.md`
-when present; otherwise read `docs/product-soul.md` for emotional goals.
+### Step 0 — Derive context + stack
+Read `docs/product-soul.md`, PRD, specs, and existing manifests. For Ember, also read
+`docs/visual-direction.md` and `references/ember-design-constraints.md`. Extract audience,
+emotional goal, brand, `owner_mode`. Recommend the stack via `references/stack-selection.md`
+(default app stack: React + Next + Tailwind v4 + shadcn/ui; match an existing repo's stack).
+State the recommendation in one line.
 
-### Hard Rules
+### Step 1 — Diagnose the ask
+| Signal | Path |
+|---|---|
+| Single artifact (one page/component/poster) | Fast: direction → system → build → review |
+| Full app / multi-page product | Full: Step 0 → direction → system → build → review |
+| Beautify / redesign existing UI | Refactor: read existing → fit a direction → system diff → build → review |
+| One isolated step ("just tokens", "just review") | Direct: invoke that sub-skill only |
+For single artifacts, read `references/one-shot-flow.md`.
 
-- **Archetype before code.** Never write UI until `design-archetype` has produced a named, justified archetype.
-- **Tokens are the source of truth.** All styling from `design-tokens-craft` output — no hardcoded hex.
-- **Icons are intentional.** Stock Lucide/Heroicons only after `icon-craft`.
-- **Mobile-first, dark-mode-first.** Ember is a cozy night-forge product — dark mode is primary.
-- **Dragon metaphor is load-bearing.** UI should feel like tending a living creature, not managing tasks.
+### Step 2 — Run `design-direction`
+Invoke `design-direction`. It explores 2-3 distinct directions and commits to one (agent picks for a non-technical owner). Output: `.design/<feature>/DIRECTION.md`.
 
-### Workflow
+### Step 3 — Run `design-system`
+Invoke `design-system` with the direction + chosen stack/token-format. Output: canonical `DESIGN.md` + `tokens.css` (state-level, APCA-checked) + icon strategy + component contracts.
 
-Follow `references/ember-design-flow.md` (archetype → tokens → icons → build → review).
-
----
-
-## Shared Build Gates (both paths)
-
-Before declaring done:
-
-- [ ] No banned default without justification (`references/anti-vibecoded-checklist.md`)
+### Step 4 — Build
+Implement using ONLY the DESIGN.md tokens, the component contracts, and the icon strategy. Match `references/golden-examples/*`. Apply `references/build-conventions.md`. Mandatory gates before "done":
+- [ ] No banned default present (run `references/anti-vibecoded-checklist.md`)
 - [ ] All values via tokens; no hex/`slate-*`/magic numbers in components
-- [ ] Every data surface: loading + empty + error + populated (Ember: Resume Card, session states, dragon neglect states)
-- [ ] Dark mode rendered and tested at 375px
-- [ ] ≥1 distinctive move — generic = fail
-- [ ] `design-review` verdict SHIP (or ≤2 loops then escalate)
+- [ ] Every data surface: loading + empty + error + populated rendered
+- [ ] Every interactive el: hover + active + focus-visible + disabled
+- [ ] One orchestrated entrance; reduced-motion honored (`references/polish-playbook.md`)
+- [ ] Dark mode rendered (hand-set), tested at 375px
+- [ ] ≥1 distinctive move (signature layout/type/color/interaction) — generic = fail
+- [ ] Ember: Resume Card hierarchy + dragon-accent rules when applicable (`ember-design-constraints.md`)
 
----
+### Step 5 — Run `design-review`
+Invoke `design-review` against the build. On REVISE, loop back to Step 4 with the specific findings. Max 2 loops, then escalate (the direction or brief is the problem).
 
-## Sub-Skills
-
-**Default path:** `design-direction`, `design-system`, `design-review`
-
-**Ember path:** `design-archetype`, `design-tokens-craft`, `icon-craft`, `design-review`
+### Step 6 — Deliver
+Output the file tree, the running route, and the impact report.
 
 ---
 
 ## Output Format
-
 ```
 ## Frontend Design Report
-Feature: [name] | Pipeline: [default | ember] | Stack: [derived]
-Direction/Archetype: [name] — feels like [ref]
+Feature: [name] | Stack: [derived] | Direction: [name] — feels like [ref]
 Path: [fast | full | refactor | direct]
-Files: [list]
+Files: DESIGN.md, src/styles/tokens.css, src/... , .design/<feature>/{DIRECTION,REVIEW}.md
 Distinctive moves: [list]
-State coverage: [✓] | Anti-slop gates: [N/N] | Review loops: [N]
+State coverage: [loading/empty/error/populated all ✓]
+Anti-slop gates: [N/N] | APCA: [pass] | Review loops: [N]
 ```
 
 ---
 
-## File Output
-
-Append to `docs/skill-outputs/SKILL-OUTPUTS.md`:
-```
-| YYYY-MM-DD HH:MM | frontend-design | .design/<feature>/ + src/... | [what was built] |
-```
+## Verification
+- [ ] Stack derived from product docs (or matched existing) and stated
+- [ ] design-direction explored options; one DESIGN.md is the single source of truth
+- [ ] Build matches golden-examples craft; tokens-only; ≥1 distinctive move
+- [ ] All states present; reduced-motion honored; 375px + dark mode pass
+- [ ] design-review verdict SHIP (or ≤2 loops then escalation noted)
 
 ---
 
 ## Reference Files
+- `references/ember-design-constraints.md` — Ember token names, Resume Card, dragon UI (this repo)
+- `references/stack-selection.md` — derive stack from product docs; shadcn-as-primitives
+- `references/polish-playbook.md` — state coverage, micro-interactions, motion specifics (Step 4 gate)
+- `references/golden-examples/components.md` — button/input/card/badge with all states
+- `references/golden-examples/states.md` — empty / loading / error patterns
+- `references/golden-examples/composition.md` — non-default hero, app shell, staggered entrance
+- `references/build-conventions.md` — framework conventions, layout, a11y, file structure
+- `references/anti-vibecoded-checklist.md` — banned defaults + distinctive-moves list
+- `references/one-shot-flow.md` — compressed flow for single artifacts
 
-- `references/ember-design-flow.md` — Ember archetype pipeline (Steps 1–8)
-- `references/stack-selection.md` — derive stack from product docs
-- `references/polish-playbook.md` — state coverage, motion, micro-interactions
-- `references/golden-examples/*` — craft benchmarks (default path build step)
-- `references/build-conventions.md` — framework conventions, file structure
-- `references/anti-vibecoded-checklist.md` — banned defaults
-- `references/one-shot-flow.md` — compressed flow for single artifacts (default path)
+---
+
+## File Output
+Append to `docs/skill-outputs/SKILL-OUTPUTS.md`:
+```
+| YYYY-MM-DD HH:MM | frontend-design | .design/<feature>/ + DESIGN.md + src/... | [what was built] |
+```
+
+---
+
+## Impact Report
+```
+Frontend design complete: [feature]
+Stack: [derived] | Direction: [name]
+Path: [fast | full | refactor | direct]
+Sub-skills: design-direction, design-system, design-review
+State coverage: [✓] | Distinctive moves: [count] | APCA: [pass] | Review loops: [N]
+Files created: [count]
+```

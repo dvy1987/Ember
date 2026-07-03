@@ -57,10 +57,10 @@ so the model never fills seams from the corpus mean — that is what kills gener
 ## Workflow
 
 ### Step 1 — Read inputs
-Read `.design/<feature>/DIRECTION.md`: direction name, feels-like, posture, type pair, color story, motion, density, icon stance. Note the stack + token format passed by `frontend-design`.
+Read `.design/<feature>/DIRECTION.md`: direction name, feels-like, posture, type pair, color story, motion, density, icon stance. Note the stack + token format passed by `frontend-design`. When `docs/visual-direction.md` exists (Ember), read `../frontend-design/references/ember-design-constraints.md` and map semantic tokens to `--color-ember-*` names in DESIGN.md.
 
 ### Step 2 — Seed from the recipe
-Read `references/token-recipes.md` and `references/typography-pairings.md` for the direction's starting palette + type pairing. Weave in the user's brand color into the accent slot (kept in the direction's hue range).
+Read `references/token-recipes.md` and `references/typography-pairings.md` for the direction's starting palette + type pairing. Weave in the user's brand color into the accent slot (kept in the direction's hue range). For Ember, preserve dragon-type accent tokens (`--color-ember-cinder`, `--color-ember-moss`, `--color-ember-drift` + glow variants).
 
 ### Step 3 — Build color tokens (state-level)
 Per `references/state-tokens.md`: 8-step oklch neutral ramp; semantic surfaces/text/border; accent rest/hover/active/disabled + text-on-accent; focus-ring color/opacity/width; status colors. Light + hand-set dark. No opacity-only hover.

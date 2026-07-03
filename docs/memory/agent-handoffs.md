@@ -44,4 +44,30 @@ Session continuity log for Ember. Newest entries at top.
 
 ### Working Tree
 
-- Clean after commit (this handoff + full `.agents` merge staged)
+- Clean after commit (design pipeline switch)
+
+---
+
+## 2026-07-03 20:18 — Handoff
+
+### Done
+
+- Adopted agent-loom design pipeline fully: `design-direction` → `design-system`
+- Archived legacy skills to `.agents/skills/.deprecated/*-deprecated-2026-07-03/`
+- Added `ember-design-constraints.md` — Ember token names, Resume Card, dragon UI rules
+- Updated `frontend-design`, `design-direction`, `design-system`, `ROUTING.md`, `EMBER-SKILLS.md`
+- Removed dual-pipeline / `ember-design-flow.md`
+
+### Decisions
+
+- Ember identity preserved via product docs + constraints reference, not separate skill chain
+- `--color-ember-*` token naming must survive in DESIGN.md component contracts
+
+### Next Agent Should Know
+
+- Do not invoke `design-archetype`, `design-tokens-craft`, or `icon-craft` — archived
+- Ember UI: read `docs/visual-direction.md` + `ember-design-constraints.md` before design work
+
+### Working Tree
+
+- Clean after commit
