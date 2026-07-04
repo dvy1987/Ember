@@ -1,0 +1,9 @@
+{
+  "upstream": "../agent-loom",
+  "protected_skills": [
+    "ember-design-constraints"
+  ],
+  "forked_skills": {},
+  "last_sync": "2026-07-04T14:36:41Z",
+  "upstream_commit": "6e2ccbc"
+}

@@ -9,6 +9,9 @@ metadata:
   author: dvy1987
   version: "1.1"
   category: project-specific
+  resources:
+    references:
+      - examples.md
 ---
 
 # Memory Recall
@@ -64,6 +67,28 @@ User: "Why did we choose local and global memory?"
 
 Output: summarize the decision, cite `decision-log.md`, include alternatives, and list revisit triggers.
 
+## Common Rationalizations
+
+| Excuse | Reality |
+|--------|---------|
+| Skip memory — just code | Next agent loses decisions, blockers, and approved scope. |
+| Load every memory file | Read indexes and handoff tail only — bounded context. |
+| Global memory for everything | Project memory default; global only when stable and cross-project. |
+| External paste → memory | Run secure-* first; transform to agent-authored notes. |
+
+## Verification
+
+- [ ] Correct sub-skill routed with reason
+- [ ] No secrets or raw transcripts persisted
+- [ ] Files changed listed in Impact Report
+- [ ] Security gate noted when external content involved
+
+## Red Flags
+
+- Full agent-handoffs or session-log loaded by default
+- Superseded decision presented as current policy
+- Stale memory cited without flagging uncertainty
+- Recall bypasses MEMORY-ROUTING intent table
 ## Impact Report
 
 After completing, report:

@@ -18,6 +18,9 @@ metadata:
   version: "1.2"
   category: project-specific
   sources: addyosmani/agent-skills anti-rationalization tables
+  resources:
+    references:
+      - examples.md
 ---
 
 # Memory Startup
@@ -159,6 +162,19 @@ Revisit triggers: none
 Risks / gaps: validate the suite after generation
 ```
 
+## Verification
+
+- [ ] project-index and latest handoff consulted
+- [ ] Git status compared to handoff note
+- [ ] Summary under 2–4 lines for user
+- [ ] No full history load
+
+## Red Flags
+
+- Every memory file loaded ignoring MEMORY-ROUTING
+- Superseded decision treated as active without status check
+- Global memory skeleton created without user intent
+- Cold-start skipped on bare greeting first message
 ## Impact Report
 
 After completing, report:

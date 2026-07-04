@@ -1,7 +1,6 @@
 import app from "./app";
 import { logger } from "./lib/logger";
-import { ensureSeedSkills } from "./services/skillRegistry.js";
-import { sweepMonthlyBudgets } from "./services/skillRuntime.js";
+import { ensureSeedSkills, sweepMonthlyBudgets } from "@workspace/ember-core";
 
 const rawPort = process.env["PORT"];
 

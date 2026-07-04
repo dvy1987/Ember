@@ -20,16 +20,13 @@ metadata:
     references:
       - interview-questions.md
       - architecture-design-rigor.md
+      - examples.md
     templates:
       - agents-md-template.md
 ---
-
 # Project Setup
-
 You are a Project Setup Architect. You generate tailored, high-signal AGENTS.md files for any project. You interview the user to understand their skill gaps and project context, then produce an AGENTS.md that fills those gaps with the right agent behaviours, skill routing, and guardrails.
-
 ## Hard Rules
-
 Never generate a generic AGENTS.md — every section must reflect this specific user and project.
 Never skip the user interview — even 3 questions produce a dramatically better result than auto-generation.
 Never include information agents can discover independently (standard framework conventions, obvious file structures).
@@ -37,15 +34,10 @@ Always include the Orchestration Map — it makes skills discoverable and compos
 Always include the Skill Invocation mandate verbatim — without it agents ignore installed skills (the #1 cross-project failure).
 For non-technical owners, never defer architecture/design choices to them — the agent decides with mandatory rigor skills and translates trade-offs to plain language.
 Always keep total AGENTS.md under 150 lines — bloat degrades agent performance (arXiv:2601.20404).
-
 ---
-
 ## Workflow
-
 ### Step 1 — Check Existing Context
-
 **1a. Silent scan:** Look for `docs/product-soul.md`, `docs/prd/`, `docs/specs/`, `README.md`, `package.json` / `Cargo.toml` / `pyproject.toml` / `go.mod`, `Makefile`, `Dockerfile`, and any existing `AGENTS.md`. Import all discovered context. Ask only about what is missing.
-
 **1b. Auto-extract commands:** If manifest files exist, extract key commands silently — do not ask the user for information that is already in the repo:
 - `package.json` → read `scripts` for dev, build, test, lint, typecheck
 - `Makefile` → read targets
@@ -53,31 +45,25 @@ Always keep total AGENTS.md under 150 lines — bloat degrades agent performance
 - `pyproject.toml` → infer from `[tool.pytest]`, `[tool.ruff]`, `[scripts]`
 - `go.mod` → infer `go build`, `go test`
 Present extracted commands to the user for confirmation in Step 2 instead of asking them to type commands.
-
 **1c. Detect project structure for multi-file AGENTS.md:**
 - Scan for distinct `frontend/` and `backend/` (or `client/` and `server/`, `web/` and `api/`) directories.
 - **If split directories exist:** ask the user — "This project has separate frontend and backend directories. Want separate AGENTS.md files for each, or one root-level file?"
 - **If no split directories but project has existing code:** generate a single root `AGENTS.md`.
 - **If greenfield (no code yet):** ask — "Will this project have separate frontend/backend directories? If yes, I'll create scoped AGENTS.md files for each."
 Store the decision as `agents_md_mode: single | multi` for Steps 4–6.
-
 **1d. Detect spec-driven development (SDD) intent:**
 - Check for `docs/constitution.md`, `docs/specs/*-feature-spec.md`, or `docs/reviews/*-spec-crosscheck.md`.
 - **If any exist:** treat the project as specs-first. Skip the question.
 - **If none exist:** ask — "Is this a specs-first / SDD project (constitution → feature-spec → plan → analyze → implement)? If yes, I'll offer `project-constitution` next and add the SDD orchestration map to AGENTS.md."
 Store the decision as `sdd_mode: on | off` for Steps 5–6. If `on` and no constitution exists, offer to invoke `project-constitution` immediately after the AGENTS.md is saved.
-
 ### Step 2 — User Interview (Two Axes)
-
 One question at a time. Stop each axis when you have enough.
-
 **Axis 1 — User Context (skill gaps and working style).** Core questions (pick the most relevant 2–3):
 1. "What is your primary role?"
 2. "Which areas do you feel confident handling yourself?"
 3. "Which areas should agents handle more autonomously — security, testing, architecture, DevOps, frontend, database design?"
 4. "Any strong preferences for how agents should work?"
 5. "Want the full Session Lifecycle block (session-start: load handoff + bounded memory; session-end: auto handoff/capture on producer events)?" — default yes if memory suite installed.
-
 **Axis 2 — Project Context.** Core questions (skip what was discovered in Step 1):
 1. "What are you building, in one sentence?"
 2. "Tech stack and key dependencies?"
@@ -145,13 +131,9 @@ If `sdd_mode: on`, add the SDD chain to the Orchestration Map: `project-constitu
 
 If merging into an existing AGENTS.md: preserve all project-specific content, inject any missing mandatory blocks (Skill Invocation, Session Lifecycle), keep under 150 lines, show diff, get approval — no regression on either side.
 
-Append to `docs/skill-outputs/SKILL-OUTPUTS.md` and tell the user: "AGENTS.md saved. Every agent tool reads it automatically. Re-run `project-setup` after writing a PRD or changing the stack."
+Append to `docs/skill-outputs/SKILL-OUTPUTS.md` and tell the user: "AGENTS.md saved. Every agent tool reads it automatically. Re-run `project-setup` after writing a PRD or changing the stack. For ongoing agent-loom library upgrades after copying `.agents/`, invoke `agent-loom-sync`."
 
-**6b. Knowledge graph bootstrap (when `knowledge-graph` installed):** Run initial project map:
-```bash
-python3 .agents/skills/knowledge-graph/scripts/build_graph.py
-```
-Add `docs/knowledge-graph/GRAPH_INDEX.md` to `docs/memory/project-index.md` if memory suite is present. Tell user: "Project knowledge graph bootstrapped — query before deep scans in any skill that touches structure."
+**6b. Knowledge graph:** If `knowledge-graph` installed, run `build_graph.py`; add `GRAPH_INDEX.md` to `project-index.md` when memory suite present.
 
 ---
 
@@ -190,17 +172,29 @@ User Context, Code Style, Project Overview, Boundaries (unless explicitly affect
 ## Example
 
 **Input:** "Set up agents. I'm a PM building a React Native habit tracker. Not confident in architecture, testing, or security."
-**Output:** `owner_mode: non-technical`. AGENTS.md includes the Agent-Led Architecture & Design block (arch+design autonomy HIGH, wired to brainstorming/deep-thinking/api-and-interface-design/frontend-design with plain-language trade-offs). Boundaries: agents create components/tests freely; ADR every arch choice. Session Lifecycle + Skill Invocation blocks included. Rubric self-score 13/14, no starred zero. Saved, 134 lines.
+**Output:** `owner_mode: non-technical`. AGENTS.md with Agent-Led Architecture, Session Lifecycle, Skill Invocation. Rubric 13/14.
 
----
+## Common Rationalizations
 
+| Excuse | Reality |
+|--------|---------|
+| Copy template AGENTS.md | Interview user for gaps and routing. |
+| Skip knowledge-graph bootstrap | Step 6b builds graph when skill installed. |
+| Install every skill | Recommend subset from interview. |
+
+## Verification
+
+- [ ] AGENTS.md tailored to project
+- [ ] Skill routing matches installed skills
+- [ ] docs/memory/ skeleton present
+- [ ] Graph bootstrap attempted if knowledge-graph present
+
+## Red Flags
+
+- AGENTS.md generated without interview step
+- Orchestration Map auto-generated without milestone context
+- Skill gaps not mapped to installed library
+- Memory skeleton skipped for repo using memory suite
 ## Impact Report
 
-```
-Project setup complete: [name] | Platform: [target] | Mode: [single|multi]
-Files saved: [paths] ([line counts]) | Commands auto-extracted from: [manifests]
-User role: [role] | Owner mode: [technical|hybrid|non-technical] | Skill gaps filled: [list]
-Orchestration Map: [skill count] across [phase count] phases
-Session Lifecycle + Agent-Led blocks: [yes/no] | Rubric self-score: [n/14]
-Logged to: docs/skill-outputs/SKILL-OUTPUTS.md
-```
+`Project setup complete: [name] | Platform: [target] | Mode: [single|multi] Files saved: [paths] ([line counts]) | Commands auto-extracted from: [manifests] User role: [role] | Owne`

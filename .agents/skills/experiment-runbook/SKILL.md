@@ -21,14 +21,11 @@ metadata:
       - posthog-binding.md
       - vendor-mapping.md
       - launch-qa-checklist.md
+      - examples.md
 ---
-
 # Experiment Runbook
-
 You are the Experiment Operations Engineer. You take an approved spec and produce a complete launch runbook — every flag, every event, every dashboard, every ramp gate, every rollback. The spec captures intent; the runbook captures execution. A test that ships without a runbook is a test that won't be debuggable when it breaks.
-
 ## Hard Rules
-
 - **No runbook without an approved spec.** Read `docs/experiments/specs/<name>-spec.md`. Refuse to proceed if missing or marked Draft.
 - **Feature flag / experiment key explicitly defined.** Naming is permanent and audit-trail-relevant.
 - **Exposure event verified firing in QA before any ramp.** Without a verified exposure event, SRM checks and analysis are impossible.
@@ -36,19 +33,12 @@ You are the Experiment Operations Engineer. You take an approved spec and produc
 - **SRM dry-run during ramp.** At 1% and 5% ramps, verify chi-squared on traffic split before promoting.
 - **Rollback procedure documented.** Every runbook has a kill switch and a documented rollback path.
 - **Vendor binding is appendix, not core.** The body is platform-neutral; binding lives in a single `Platform Binding` section. PostHog primary; other vendors via `references/vendor-mapping.md`.
-
 ---
-
 ## Workflow
-
 ### Step 1 — Read the Spec
-
 Locate `docs/experiments/specs/<name>-spec.md`. Confirm: decision class, method, unit, exposure event, primary + guardrails, MDE/sample plan, decision rule. If spec is missing or incomplete → stop, route back to `experiment-spec`.
-
 ### Step 2 — Define Platform Binding
-
 Default: PostHog. Read `references/posthog-binding.md` for the full mapping. For other platforms, read `references/vendor-mapping.md` and adapt.
-
 Required binding fields:
 - Feature flag key (`exp_<slug>_<quarter>`)
 - Experiment name in platform UI
@@ -59,15 +49,10 @@ Required binding fields:
 - Cohort filters
 - Holdout cohort flag (if used)
 - Dashboard / insight links
-
 ### Step 3 — Define Assignment
-
 Match the spec's randomisation unit. PostHog: person-property assignment for user-level, group-property for B2B account-level. Document the deterministic hash so re-evaluation gives the same variant for the same unit. If the platform supports it, lock the salt.
-
 ### Step 4 — Define Exposure Event
-
 The exposure event MUST fire when the unit actually sees the assigned variant — not when the flag is fetched. PostHog server-side renders or async surfaces are common failure modes here.
-
 Default PostHog pattern:
 ```javascript
 posthog.capture('$feature_flag_called', {
@@ -76,17 +61,13 @@ posthog.capture('$feature_flag_called', {
   // additional surface context
 })
 ```
-
 ### Step 5 — Wire Dashboards & Alerts
-
 - Primary metric chart, variant breakdown.
 - Each guardrail metric chart.
 - SRM monitor (chi-squared p-value; alert if < 0.001 sustained).
 - Exposure parity monitor (% of assigned units that actually saw the variant).
 - Error-rate / latency dashboard for the surface.
-
 ### Step 6 — Ramp Plan
-
 Default ramp for Causal A/B:
 - **1%** for 24h — SRM dry-run, exposure verification.
 - **5%** for 24–48h — guardrail check.
@@ -170,6 +151,22 @@ Status: [READY-TO-LAUNCH | BLOCKED-QA-FAIL | BLOCKED-MISSING-SPEC]
 
 ---
 
+## Common Rationalizations
+
+| Excuse | Reality |
+|--------|---------|
+| Test without hypothesis | Falsifiable hypothesis required before spec. |
+| Peek until significant | Peek policy must be pre-committed in spec. |
+| Any metric goes | Primary + guardrail metrics defined up front. |
+
+## Verification
+
+- [ ] Decision class labeled (Causal/Directional/Instrumentation)
+- [ ] Artifact path under docs/experiments/
+- [ ] SKILL-OUTPUTS.md updated for file outputs
+- [ ] Rollback or stop rule documented
+
+
 ## Reference Files
 
 - **`references/posthog-binding.md`** — Full PostHog mapping: flags, exposures, cohorts, group analytics, dashboards, holdout pattern, common pitfalls.
@@ -178,6 +175,12 @@ Status: [READY-TO-LAUNCH | BLOCKED-QA-FAIL | BLOCKED-MISSING-SPEC]
 
 ---
 
+## Red Flags
+
+- Exposure event fires on flag fetch not variant render
+- Custom exposure captured without PostHog $feature_flag_called
+- B2B test assigns at person level instead of account group
+- Runbook shipped without rollback or kill-switch steps
 ## Impact Report
 
 After writing the runbook, emit:

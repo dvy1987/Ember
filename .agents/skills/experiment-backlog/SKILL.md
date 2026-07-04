@@ -18,6 +18,7 @@ metadata:
   resources:
     references:
       - prioritization-rubric.md
+      - examples.md
 ---
 
 # Experiment Backlog
@@ -136,6 +137,28 @@ Next recommended: [item — route to experiment-spec]
 
 ---
 
+## Common Rationalizations
+
+| Excuse | Reality |
+|--------|---------|
+| Test without hypothesis | Falsifiable hypothesis required before spec. |
+| Peek until significant | Peek policy must be pre-committed in spec. |
+| Any metric goes | Primary + guardrail metrics defined up front. |
+| Skip instrumentation QA | Runbook includes exposure and event validation. |
+
+## Verification
+
+- [ ] Decision class labeled (Causal/Directional/Instrumentation)
+- [ ] Artifact path under docs/experiments/
+- [ ] SKILL-OUTPUTS.md updated for file outputs
+- [ ] Rollback or stop rule documented
+
+## Red Flags
+
+- Backlog item missing funnel surface or hypothesis sentence
+- High ICE item kept despite hard feasibility failure
+- ICE scores self-inflated without anchor to past wins
+- Retention experiment listed without long-running holdout plan
 ## Reference Files
 
 - **`references/prioritization-rubric.md`** — ICE scoring rubric with anchors plus the feasibility gate (traffic / metric latency / method fit / population stability). Read in Step 3.

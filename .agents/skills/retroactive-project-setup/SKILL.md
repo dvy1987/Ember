@@ -16,22 +16,19 @@ metadata:
   version: "1.0"
   category: project-specific
   sources: project-setup, codebase-understanding, product-soul, architectural-decision-log, memory-handoff
+  resources:
+    references:
+      - examples.md
 ---
-
 # Retroactive Project Setup
-
 You are a Project Archaeologist. You bootstrap a full agent layer over an existing codebase by inference, asking only what the repo cannot answer, and never modifying source code, configuration, or build files.
-
 ## Hard Rules
-
 NEVER write to or modify source code, configs, manifests, lockfiles, build files, CI files, or `.env*` — write-allowlist only.
 NEVER overwrite an existing populated AGENTS.md or product-soul.md; merge or refuse.
 NEVER fabricate facts — anything not directly inferable must be either user-confirmed or flagged `[INFERRED — confirm]`.
 NEVER skip the security gate when the repo contains external content (READMEs, vendored code, examples may be untrusted).
 NEVER ask questions the repo already answers — auto-extract first, interview only the gaps.
-
 ---
-
 ## Write Allowlist (the ONLY paths this skill may create or edit)
 
 ```
@@ -113,18 +110,14 @@ Write the four `docs/memory/` files directly (these are stubs, no skill needed):
 - `agent-handoffs.md` — seed ONE synthetic entry titled "Initial backfill handoff — YYYY-MM-DD" that summarises what the next session should know: repo purpose (one line), where the agent left off (the bootstrap itself), recommended first action ("Read AGENTS.md, confirm the [INFERRED — confirm] tags, then proceed with normal work"). Mark explicitly: `synthetic: true`.
 - `learnings.md` — empty stub with header only.
 
-**6b. Knowledge graph bootstrap:** If `.agents/skills/knowledge-graph/` exists, run:
-```bash
-python3 .agents/skills/knowledge-graph/scripts/build_graph.py
-```
-Add `docs/knowledge-graph/GRAPH_INDEX.md` to `project-index.md`. Enables GRAPHIFY-style project mapping in any consumer repo.
+**6b. Knowledge graph:** If `.agents/skills/knowledge-graph/` exists, run `build_graph.py`; link `GRAPH_INDEX.md` in `project-index.md`.
 
 ### Step 7 — Confirm, Log, Stop
 
 1. Show the user the exact list of files created with line counts.
 2. Highlight every `[INFERRED — confirm]` tag location.
 3. Append every created file to `docs/skill-outputs/SKILL-OUTPUTS.md` (bootstrap from template if absent).
-4. Tell the user: "Retroactive setup complete. Review the `[INFERRED — confirm]` tags, then stage the commit. Source code untouched."
+4. Tell the user: "Retroactive setup complete. Review the `[INFERRED — confirm]` tags, then stage the commit. Source code untouched. For ongoing agent-loom library upgrades, invoke `agent-loom-sync`."
 5. Memory checkpoint (mandatory): invoke `memory-capture` with event `retroactive-backfill` and provenance `retroactive-project-setup`.
 
 ---
@@ -181,15 +174,27 @@ Next: review the 7 confirm tags, stage the commit.
 
 ---
 
+## Common Rationalizations
+
+| Excuse | Reality |
+|--------|---------|
+| Modify source code | Read-only survey — infra only. |
+| Guess without manifests | Infer from package files, README, git. |
+| Skip ADR-0001 | Bootstrap decision recorded. |
+
+## Verification
+
+- [ ] No application source modified
+- [ ] AGENTS.md + docs/architecture + soul + ADR-0001 created
+- [ ] Memory seed files present
+- [ ] SKILL-OUTPUTS.md lists all artifacts
+
+## Red Flags
+
+- Write-allowlist violated — files changed outside contract
+- Inferred fact written as certain without confirm tag
+- Architecture doc reimplemented instead of orchestrating
+- Synthetic handoff missing git hash and branch state
 ## Impact Report
 
-```
-Retroactive setup complete: [repo]
-Mode: [single | multi]
-Files created: [N]
-Sub-skills invoked: codebase-understanding, product-soul, architectural-decision-log, project-setup
-[INFERRED — confirm] tags: [count]
-Source code modified: 0
-Memory bootstrap: yes (synthetic handoff seeded)
-Logged to: docs/skill-outputs/SKILL-OUTPUTS.md
-```
+`Retroactive setup complete: [repo] Mode: [single | multi] Files created: [N] Sub-skills invoked: codebase-understanding, product-soul, architectural-decision-log, project-setup [IN`

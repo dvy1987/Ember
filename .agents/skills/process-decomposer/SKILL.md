@@ -17,6 +17,9 @@ metadata:
   sources: >
     agent-loom design spec 2026-04-10,
     AlphaEval 2026 (credibility 8/12 — see docs/learnings/papers/alphaeval-2026-lu-et-al.md)
+  resources:
+    references:
+      - examples.md
 ---
 
 # Process Decomposer
@@ -139,6 +142,28 @@ This needs planning deliverables (spec + plan + TODO). Routing to `problem-to-pl
 
 ---
 
+## Common Rationalizations
+
+| Excuse | Reality |
+|--------|---------|
+| Decompose without triage | Triage first — maybe a single skill handles it. |
+| Too many parallel tracks | Cap parallelism to what user can review. |
+| Skip skill-finder | Name concrete skills, not vague workstreams. |
+| No exit criteria | Each subtask needs done definition. |
+
+## Verification
+
+- [ ] Triage outcome stated (single skill vs decompose)
+- [ ] Subtasks map to named skills
+- [ ] Dependencies between subtasks explicit
+- [ ] User confirmed scope before dispatch
+
+## Red Flags
+
+- Triage read only first process volume not all
+- Partial cluster match treated as exact process hit
+- skill-chain task launched outside project-orchestrator
+- Decomposition skips triage on complex multi-skill request
 ## Impact Report
 
 ```

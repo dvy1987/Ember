@@ -10,6 +10,9 @@ metadata:
   author: dvy1987
   version: "1.0"
   category: project-specific
+  resources:
+    references:
+      - examples.md
 ---
 
 # Memory Promote
@@ -70,6 +73,28 @@ Project learning: "User prefers concise, direct engineering updates."
 
 Verdict: promote to `user-preferences.md` if repeatedly confirmed and not already present.
 
+## Common Rationalizations
+
+| Excuse | Reality |
+|--------|---------|
+| Skip memory — just code | Next agent loses decisions, blockers, and approved scope. |
+| Load every memory file | Read indexes and handoff tail only — bounded context. |
+| Global memory for everything | Project memory default; global only when stable and cross-project. |
+| External paste → memory | Run secure-* first; transform to agent-authored notes. |
+
+## Verification
+
+- [ ] Correct sub-skill routed with reason
+- [ ] No secrets or raw transcripts persisted
+- [ ] Files changed listed in Impact Report
+- [ ] Security gate noted when external content involved
+
+## Red Flags
+
+- Low-confidence maybe promoted to global memory
+- Internal URLs or private project facts promoted globally
+- Global memory used as unstructured journal dump
+- Promote executed without user intent confirmation
 ## Impact Report
 
 After completing, report:

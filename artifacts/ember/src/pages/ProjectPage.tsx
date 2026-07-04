@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useRoute, useLocation, Link } from 'wouter';
 import { Project, Task, Session, DragonType, ResumeContext, RitualSuggestion } from '@/lib/types';
 import { getDragonAccentVar } from '@/lib/dragonAssets';
@@ -13,12 +13,18 @@ import ChatPanel from '@/components/ChatPanel';
 import InboxRail from '@/components/InboxRail';
 import AutonomousTriggerModal from '@/components/AutonomousTriggerModal';
 import SuggestionBanner, { Suggestion } from '@/components/SuggestionBanner';
+import MoreTendingSection from '@/components/MoreTendingSection';
+import { formatSessionFocusLabel } from '@/lib/sessionFocusLabel';
+import { useDemoMode } from '@/lib/DemoModeContext';
+import { trackRitualEvent } from '@/lib/ritualMetrics';
+import { sessionPath } from '@/lib/sessionNavigation';
 import { ArrowLeftIcon, InsightsIcon, CheckIcon, ArchiveIcon, FeatherIcon, SparkIcon } from '@/components/Icons';
 
 type BrainDumpStatus = 'idle' | 'extracting' | 'ai-success' | 'fallback';
 type ArchiveState = 'idle' | 'confirming' | 'archiving';
 
 export default function ProjectPage() {
+  const demoMode = useDemoMode();
   const [, params] = useRoute('/project/:id');
   const projectId = params?.id ?? '';
   const [, navigate] = useLocation();
@@ -125,14 +131,15 @@ export default function ProjectPage() {
   // F4 — fetch the highest-priority unblocked suggestion for this dragon.
   // Best-effort: any failure leaves the banner hidden.
   const refreshSuggestion = useCallback(async () => {
+    if (demoMode) return;
     try {
       const res = await fetch(`/api/dragons/${projectId}/suggestion`);
       if (res.ok) {
         const data = await res.json();
         setSuggestion(data.suggestion ?? null);
       }
-    } catch { /* leave previous suggestion */ }
-  }, [projectId]);
+      } catch { /* leave previous suggestion */ }
+  }, [projectId, demoMode]);
 
   const dismissSuggestion = useCallback(
     async (s: Suggestion, snoozeDays?: number) => {
@@ -177,7 +184,11 @@ export default function ProjectPage() {
       .then(() => { refreshResumeContext(); refreshSuggestion(); });
   }, [fetchProject, fetchTasks, fetchSessions, refreshResumeContext, refreshSuggestion]);
 
-  const handleStartSession = () => navigate(`/session/${projectId}`);
+  const handleStartSession = () => {
+    trackRitualEvent('train_tap', { project_id: projectId, source: 'resume_card' });
+    navigate(sessionPath(projectId, { auto: true }));
+  };
+  const handleChooseTasks = () => navigate(sessionPath(projectId, { pick: true }));
 
   const handleCompleteTask = async (taskId: string) => {
     await fetch(`/api/tasks/${taskId}`, {
@@ -343,6 +354,11 @@ export default function ProjectPage() {
     }
   };
 
+  const sessionFocusLabel = useMemo(
+    () => formatSessionFocusLabel(activeTasks, resumeContext?.suggested_next_step),
+    [activeTasks, resumeContext?.suggested_next_step],
+  );
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -365,19 +381,13 @@ export default function ProjectPage() {
   return (
     <div className="min-h-screen relative">
       <div className="firelight-overlay" />
-      <div className="relative z-10 max-w-3xl mx-auto px-6 pb-24 pt-10">
+      <div className="relative z-10 max-w-3xl mx-auto px-6 pb-24 pt-10" style={{ paddingTop: demoMode ? '3rem' : undefined }}>
         <div className="flex items-center justify-between mb-8">
           <Link
             href="/"
             className="inline-flex items-center gap-2 font-mono-caps text-ember-text-muted hover:text-ember-text transition-colors"
           >
             <ArrowLeftIcon size={14} /> Ember Keep
-          </Link>
-          <Link
-            href={`/analytics/${project.id}`}
-            className="inline-flex items-center gap-2 font-mono-caps text-ember-text-muted hover:text-ember-text transition-colors"
-          >
-            <InsightsIcon size={14} /> Dragon stats
           </Link>
         </div>
 
@@ -388,6 +398,8 @@ export default function ProjectPage() {
             activeTasks={activeTasks}
             resumeContext={resumeContext}
             onStartSession={handleStartSession}
+            onChooseDifferentTask={activeTasks.length > 1 ? handleChooseTasks : undefined}
+            sessionFocusLabel={sessionFocusLabel}
             onRename={async (newName) => {
               try {
                 const res = await fetch(`/api/projects/${projectId}`, {
@@ -415,25 +427,7 @@ export default function ProjectPage() {
           />
         </div>
 
-        {/* F4 — mode-fluid recommendation. One quiet banner, max. Sits
-            below the resume card and above the brain dump so the keeper
-            sees it before deciding what to type. */}
-        {suggestion && (
-          <div className="mb-8">
-            <SuggestionBanner
-              suggestion={suggestion}
-              dragonName={project.name}
-              dragonType={dragonType}
-              onAccept={handleSuggestionAccept}
-              onSnooze={(s) => dismissSuggestion(s, 7)}
-              onDismiss={(s) => dismissSuggestion(s)}
-            />
-          </div>
-        )}
-
-        {/* Brain dump — the hero input, sits directly under the dragon.
-            Lowest-friction way to give the dragon context; with an AI key
-            connected, the server will draw tasks out automatically. */}
+        {!demoMode && (
         <div className="mb-8">
           <h3 className="font-mono-caps text-ember-text-muted mb-2">
             Tell your dragon what's on your mind
@@ -474,12 +468,26 @@ export default function ProjectPage() {
               to have tasks drawn out automatically.
             </p>
           )}
+        </div>
+        )}
 
-          {/* F2 + F3 — two quiet entry points sit side-by-side under the
-              brain dump. "Talk to your dragon" stays in paired chat (F2);
-              "Hand it off" hands a task to the dragon to take on alone (F3).
-              Same visual weight so neither competes with the brain dump. */}
-          <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2">
+        {!demoMode && (
+        <MoreTendingSection>
+        {suggestion && (
+          <div className="mb-8">
+            <SuggestionBanner
+              suggestion={suggestion}
+              dragonName={project.name}
+              dragonType={dragonType}
+              onAccept={handleSuggestionAccept}
+              onSnooze={(s) => dismissSuggestion(s, 7)}
+              onDismiss={(s) => dismissSuggestion(s)}
+            />
+          </div>
+        )}
+
+        <div className="mb-8">
+          <div className="flex flex-wrap gap-x-5 gap-y-2 mb-6">
             <button
               type="button"
               onClick={() => setShowChat(true)}
@@ -494,22 +502,25 @@ export default function ProjectPage() {
             >
               <SparkIcon size={13} /> Hand it off
             </button>
+            <Link
+              href={`/analytics/${project.id}`}
+              className="inline-flex items-center gap-2 font-mono-caps text-ember-text-muted hover:text-ember-text transition-colors"
+            >
+              <InsightsIcon size={14} /> Dragon stats
+            </Link>
           </div>
+
+          <InboxRail
+            dragonId={project.id}
+            projectId={project.id}
+            dragonName={project.name}
+            dragonType={project.dragon_type as DragonType}
+            refreshKey={inboxTick}
+            onActed={() => setInboxTick(t => t + 1)}
+            onOpenSkillsTrust={openSkillsTrust}
+          />
         </div>
 
-        {/* F3 — autonomous inbox. Renders nothing when empty. */}
-        <InboxRail
-          dragonId={project.id}
-          projectId={project.id}
-          dragonName={project.name}
-          dragonType={project.dragon_type as DragonType}
-          refreshKey={inboxTick}
-          onActed={() => setInboxTick(t => t + 1)}
-          onOpenSkillsTrust={openSkillsTrust}
-        />
-
-        {/* Quiet shortcuts to the structured tending below. These no longer
-            compete with the brain dump — they just scroll-link and focus. */}
         <div id="tending-affordances" className="mb-12 flex flex-wrap gap-x-5 gap-y-2">
           <a
             href="#tasks-section"
@@ -603,7 +614,7 @@ export default function ProjectPage() {
           {archiveState === 'idle' && (
             <button
               onClick={handleArchive}
-              className="inline-flex items-center gap-2 font-mono-caps text-ember-text-muted hover:text-ember-text transition-colors px-3 py-2"
+              className="inline-flex items-center gap-2 font-mono-caps text-ember-text-muted hover:text-ember-text transition-colors px-3 py-2 opacity-70"
             >
               <ArchiveIcon size={14} /> Archive this dragon
             </button>
@@ -632,6 +643,8 @@ export default function ProjectPage() {
             <span className="font-mono-caps text-ember-text-muted">Archiving…</span>
           )}
         </div>
+        </MoreTendingSection>
+        )}
       </div>
       <SettingsModal
         isOpen={showSettings}

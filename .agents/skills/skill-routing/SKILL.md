@@ -15,6 +15,9 @@ metadata:
   author: dvy1987
   version: "1.0"
   category: meta
+  resources:
+    references:
+      - examples.md
 ---
 
 # Skill Routing
@@ -126,6 +129,29 @@ Pre-req: met
 
 ---
 
+## Common Rationalizations
+
+| Excuse | Reality |
+|--------|---------|
+| "Obvious which skill" | Obvious to user ≠ obvious to router at score 6/10. |
+| "Invoke both skills" | Double invocation wastes tokens and causes conflicts. |
+| "Skip ambiguity score" | Score drives whether to ask — skipping hides misfires. |
+| "Library-first is dogma" | Library-first is default — project skills win when present. |
+| "Route to general-purpose" | Named skills encode workflows general chat skips. |
+
+## Verification
+
+- [ ] Ambiguity score 1-10 stated when multiple skills match
+- [ ] Winner skill named with one-line rationale
+- [ ] User asked to disambiguate when score ≥7
+- [ ] Project-local skill preferred over global when both match
+
+## Red Flags
+
+- Ambiguous review routed without disambiguating code vs UI
+- Plan request sent to wrong planner skill for intent
+- Non-invocable label returned instead of concrete skill name
+- Multiple candidates returned without disambiguation step
 ## Impact Report
 
 ```

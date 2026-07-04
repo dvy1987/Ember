@@ -18,6 +18,9 @@ metadata:
     Anthropic eval guide 2026, Twine rubric guide 2026,
     github/awesome-copilot/agentic-eval, DeepEval framework,
     AlphaEval 2026 (credibility 8/12 — see docs/learnings/papers/alphaeval-2026-lu-et-al.md)
+  resources:
+    references:
+      - examples.md
 ---
 
 # Eval Output
@@ -126,6 +129,28 @@ Recommendation: Add coverage of partial indexes and composite index ordering.
 
 ---
 
+## Common Rationalizations
+
+| Excuse | Reality |
+|--------|---------|
+| Judge without rubric | Rubric or dimensions required before scoring. |
+| Single score, no rationale | Every score needs cited evidence. |
+| Skip bias mitigation | Pairwise needs position-swap or length check. |
+| Eval once, never again | Pipeline skills define regression reruns. |
+
+## Verification
+
+- [ ] Rubric or dimensions referenced
+- [ ] Scores tied to observable criteria
+- [ ] Bias mitigations applied for pairwise
+- [ ] Outputs under docs/evals/ when files written
+
+## Red Flags
+
+- Scoring performed without an explicit rubric
+- Single overall score hides dimensional tradeoffs
+- Numeric score assigned before written justification
+- Two outputs compared via duplicate solo evaluations
 ## Impact Report
 
 After completing, always report:

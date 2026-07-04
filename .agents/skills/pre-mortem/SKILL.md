@@ -16,6 +16,9 @@ metadata:
   version: "1.0"
   category: thinking
   sources: Gary-Klein-prospective-hindsight, Klein-1998-Sources-of-Power
+  resources:
+    references:
+      - examples.md
 ---
 
 # Pre-mortem
@@ -129,6 +132,29 @@ Decide who owns community before writing a single line of code.
 
 ---
 
+## Common Rationalizations
+
+| Excuse | Reality |
+|--------|---------|
+| "We're optimistic for a reason" | Premortem converts optimism into preventable mitigations. |
+| "Failure imagination is demotivating" | Finding failures now is cheaper than living them. |
+| "Risks are on the roadmap" | Roadmap risks without owners are wishes. |
+| "Team would speak up" | Prospective failure beats post-mortem blame. |
+| "Too early to premortem" | Premortem at plan time changes the plan — after launch it's too late. |
+
+## Verification
+
+- [ ] At least 3 distinct failure modes imagined
+- [ ] Top risks map to mitigations or explicit accept-risk
+- [ ] Participants / perspectives named (even if solo role-play)
+- [ ] Output changes the plan or monitoring, not just a list
+
+## Red Flags
+
+- Obvious failure cause avoided because it feels embarrassing
+- Pre-mortem run mid-execution after commitment locked
+- Failure causes blame people instead of systems
+- Mitigations listed without owner or timeline
 ## Impact Report
 
 ```

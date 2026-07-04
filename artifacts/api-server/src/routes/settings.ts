@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getDb } from '../db/db.js';
+import { getDb } from '@workspace/ember-core';
 
 const router = Router();
 

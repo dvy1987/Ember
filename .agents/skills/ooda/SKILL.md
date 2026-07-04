@@ -18,6 +18,9 @@ metadata:
   version: "1.0"
   category: thinking
   sources: John-Boyd-OODA-loop, OODA-Canvas-TDHJ-2026, Boyd-competitive-advantage
+  resources:
+    references:
+      - examples.md
 ---
 
 # OODA
@@ -154,6 +157,29 @@ Observe user response to the competitor's feature in the next 2 weeks. If 3+ use
 
 ---
 
+## Common Rationalizations
+
+| Excuse | Reality |
+|--------|---------|
+| "We need more data first" | OODA decides with best available facts — waiting is also a decision. |
+| "Analysis paralysis" | Orient + Decide with explicit assumptions beats endless Observe. |
+| "One loop is enough" | Next loop trigger must be set or learning stops. |
+| "OODA is military fluff" | Fast markets punish static plans — loops adapt. |
+| "Team already aligned" | Decide step forces an owner and timeline, not consensus theater. |
+
+## Verification
+
+- [ ] Facts separated from assumptions in Observe
+- [ ] Decide step names owner, action, and timeline
+- [ ] Next loop trigger defined (metric, date, or event)
+- [ ] Completed within one session — not a multi-week framework deck
+
+## Red Flags
+
+- Stuck in Orient debating meaning while action delayed
+- Observe step skipped — acting on assumptions only
+- OODA loop never closes with explicit Act step
+- Competitive response modeled as static not adaptive
 ## Impact Report
 
 ```

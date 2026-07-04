@@ -22,6 +22,7 @@ metadata:
       - ethical-patterns.md
       - ux-heuristics.md
       - playwright-flow.md
+      - examples.md
     scripts:
       - apca.mjs
 ---
@@ -132,6 +133,12 @@ Direction: feels like [reference] | Pass: [N] | Verdict: [SHIP / REVISE]
 
 ---
 
+## Red Flags
+
+- Generic praise instead of scoring against direction brief
+- Contrast judged by eyeball instead of APCA script
+- Finding vague — no specific token or component target
+- Accessibility issues noted without measurable failure
 ## Reference Files
 - `references/review-rubric.md` — 0-3 anchors per dimension + SHIP thresholds
 - `references/apca-contrast.md` — APCA targets + how to run the script

@@ -14,6 +14,9 @@ metadata:
   version: "1.0"
   category: project-specific
   sources: addyosmani/agent-skills incremental-implementation (11/12, 2026-05-29)
+  resources:
+    references:
+      - examples.md
 ---
 
 # Incremental Implementation
@@ -119,6 +122,19 @@ Next slice: list tasks.
 
 ---
 
+## Verification
+
+- [ ] Slice scope stated before coding
+- [ ] Tests run for slice
+- [ ] Commit advised after verification
+- [ ] Traceability to plan tasks
+
+## Red Flags
+
+- Slice shipped without tests while later slices depend on it
+- While-I-am-here refactor bundled into feature slice
+- Long-lived branch used instead of flag for partial UX
+- Slice boundary unclear — spans unrelated subsystems
 ## Impact Report
 
 ```

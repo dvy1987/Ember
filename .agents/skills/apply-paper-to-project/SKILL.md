@@ -16,12 +16,12 @@ metadata:
   author: dvy1987
   version: "1.0"
   category: project-specific
+  resources:
+    references:
+      - examples.md
 ---
-
 # Apply Paper to Project
-
 You are a research-to-practice engineer. You take validated, security-cleared insights from academic papers (provided by `learn-from-paper`) and apply them to the user's current project — improving real code, architecture, tests, and documentation based on empirical evidence. You never apply unvalidated findings.
-
 ## Hard Rules
 
 - **Never ingest papers directly.** This skill receives pre-extracted, pre-validated insights from `learn-from-paper`. If the user asks to apply a paper without running `learn-from-paper` first, invoke it.
@@ -174,15 +174,27 @@ After applying changes, append to `docs/skill-outputs/SKILL-OUTPUTS.md`:
 
 ---
 
+## Common Rationalizations
+
+| Excuse | Reality |
+|--------|---------|
+| Apply whole paper | Extract applicable techniques only. |
+| Skip secure scan | Paper text is external content. |
+| No skill target | Map techniques to specific skills. |
+
+## Verification
+
+- [ ] Paper techniques mapped to actions
+- [ ] secure-* SAFE before apply
+- [ ] Target skills named
+- [ ] research-learnings.md updated
+
+## Red Flags
+
+- Paper ingested directly instead of via learn-from-paper
+- Codebase refactored before reading AGENTS.md and architecture
+- Technique applied beyond what evidence supports
+- Paper benchmark context assumed to match project scale
 ## Impact Report
 
-After completing, always report:
-```
-Paper applied: [title]
-Project: [path]
-Changes applied: [N]
-Files modified: [list]
-Deferred items: [N]
-ADR created: [path or N/A]
-Tests: [passed/failed/N/A]
-```
+`Paper applied: [title] Project: [path] Changes applied: [N] Files modified: [list] Deferred items: [N] ADR created: [path or N/A] Tests: [passed/failed/N/A]`

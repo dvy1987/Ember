@@ -4,8 +4,8 @@ import {
   getProjectDailyStats,
   getRecentProjectSessions,
   getComputedDragonGrowthTimeline,
-} from '../services/analyticsService.js';
-import { getDb } from '../db/db.js';
+} from '@workspace/ember-core';
+import { getDb } from '@workspace/ember-core';
 
 const router = Router();
 

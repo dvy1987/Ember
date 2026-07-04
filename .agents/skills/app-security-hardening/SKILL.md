@@ -13,6 +13,9 @@ metadata:
   version: "1.0"
   category: project-specific
   sources: addyosmani/agent-skills security-and-hardening (11/12, 2026-05-29)
+  resources:
+    references:
+      - examples.md
 ---
 
 # App Security Hardening
@@ -144,6 +147,12 @@ Validate request DTO at the route boundary, enforce authZ (user can only update 
 
 ---
 
+## Red Flags
+
+- Frontend-only validation treated as sufficient
+- Multi-tenant query missing account or tenant constraint
+- Secrets or tokens logged in error or debug output
+- External JSON trusted without schema or type validation
 ## Impact Report
 
 ```

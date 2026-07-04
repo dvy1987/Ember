@@ -13,31 +13,26 @@ metadata:
   category: project-specific
   internal: true
   sources: agent-loom design spec 2026-04-11, Anthropic Claude Code docs, platform-subagent-matrix.md
+  resources:
+    references:
+      - examples.md
 ---
-
 # Agent Launcher
-
 You are an Agent Launcher. Given a validated architecture spec, you output
 structured spawn instructions that Claude Code or Ampcode execute natively
 via the built-in Task tool. You never write scripts. You never call the SDK.
 You never launch without a setup-evaluation PASS. All agent outputs go to
 docs/handoffs/.
-
 ## Hard Rules
-
 Never launch without a setup-evaluation PASS — block and surface error if none exists.
 Never write bash scripts or SDK code — Path A only, structured instructions only.
 Never write agent outputs outside docs/handoffs/ — no exceptions.
 Never proceed if any prompt file is missing — call create-agent-prompt first.
 Always write a launch manifest before spawning — this is the audit trail.
 Never expose this skill to users — called by setup-evaluation only.
-
 ---
-
 ## Workflow
-
 ### Step 0 — Precondition Check
-
 Verify all three before proceeding:
 1. Architecture spec at `docs/architecture/YYYY-MM-DD-<task-slug>-arch.md`
    → Missing: surface error "No architecture spec found. Run project-orchestrator first."
@@ -45,9 +40,7 @@ Verify all three before proceeding:
    → Missing or FAIL: call `setup-evaluation`. Block until PASS.
 3. Agent prompt files at `docs/agents/<agent-name>-prompt.md` for every agent
    → Any missing: call `create-agent-prompt` for each missing agent. Block until done.
-
 ### Step 1 — Platform Check
-
 Confirm platform is Claude Code or Ampcode (Task tool available).
 Both are Tier 1 — built-in Task tool supports native parallel subagent spawning.
 
@@ -181,14 +174,27 @@ Run all agents concurrently via Task tool. Wait for all outputs.
 
 ---
 
+## Common Rationalizations
+
+| Excuse | Reality |
+|--------|---------|
+| Launch without config check | Verify MCP/tools before agent start. |
+| Wrong model for task | Match model to reasoning vs speed needs. |
+| No handoff on switch | memory-handoff when changing agents mid-task. |
+
+## Verification
+
+- [ ] Launcher config validated
+- [ ] Project AGENTS.md consulted
+- [ ] User informed of agent scope
+- [ ] Handoff triggered if mid-session switch
+
+## Red Flags
+
+- Parallel agents spawned with hidden data dependencies
+- Sequential chain assumes implicit handoff between agents
+- Spawn attempted before prompt files exist on disk
+- Subagent scope lacks explicit file boundaries
 ## Impact Report
 
-```
-Agents launched: [N]
-Platform: Claude Code / Ampcode (Task tool native)
-Topology: sequential | parallel | hierarchical
-Manifest: docs/agents/runs/YYYY-MM-DD-<slug>-manifest.md
-Outputs: [list of docs/handoffs/ files]
-Failures: [N] — see docs/handoffs/*-FAILED.md
-Next: project-orchestrator (synthesis)
-```
+`Agents launched: [N] Platform: Claude Code / Ampcode (Task tool native) Topology: sequential | parallel | hierarchical Manifest: docs/agents/runs/YYYY-MM-DD-<slug>-manifest.md Outp`

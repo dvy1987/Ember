@@ -12,15 +12,15 @@ description: >
 license: MIT
 metadata:
   author: dvy1987
-  version: "2.2"
+  version: "2.4"
   category: meta
   sources: addyosmani/agent-skills anti-rationalization tables
+  resources:
+    references:
+      - examples.md
 ---
-
 # Learn From
-
 You are the orchestrator for the learn-from skill suite. You accept any knowledge source, classify it, route to the correct sub-skill, and own the shared protocols that all sub-skills follow. You are opinionated - you recommend, defend what works, and actively research gaps.
-
 ## Hard Rules
 
 - **No application without credibility.** Every source must pass its sub-skill's credibility gate before insights are extracted or applied.
@@ -44,16 +44,7 @@ You are the orchestrator for the learn-from skill suite. You accept any knowledg
 | `CONTRADICTION` | Conflicts with existing skill hard rule/gotcha | Requires user resolution |
 | `BACKGROUND` | General knowledge LLM already has | Discard |
 
-### Extraction Confidence Rubric (maps to graph edge confidence)
-
-| Level | Criteria | Graph treatment |
-|---|---|---|
-| **HIGH** | Direct quote, reproducible method, production evidence, official docs | EXTRACTED — safe to apply |
-| **MEDIUM** | Plausible pattern, single-source, no replication | INFERRED — apply with gotcha |
-| **LOW** | Anecdotal, outdated, unverifiable | Log to learnings only; do not create edges |
-| **BLOCKED** | Failed security or credibility gate | No graph node; no application |
-
-Tag every extracted insight with confidence in the unified report. Only HIGH/MEDIUM insights may modify skills; LOW stays in `docs/learnings/research-learnings.md`.
+**Confidence:** HIGH (reproducible evidence) → apply as EXTRACTED | MEDIUM → apply with gotcha | LOW → learnings log only | BLOCKED → stop.
 
 ---
 
@@ -91,10 +82,11 @@ If the source is `docs/learnings/research-learnings.md` or `docs/learnings/chat-
 
 For every modified or newly created skill, after approved edits are applied, run this sequence in order:
 
-1. **Modified-skill security sweep.** Run ALL `secure-*` skills (discover via `ls .agents/skills/secure-*`) on the resulting `SKILL.md` and any new `references/` files created by the change. This is separate from the source-ingestion security scan — it covers the modified skill itself. SAFE only if every security skill returns SAFE. If any returns BLOCKED, revise or revert and stop.
+1. **Modified-skill security sweep.** Run ALL `secure-*` on resulting `SKILL.md` + new `references/`. SAFE only if all SAFE; BLOCKED → revise/revert.
 2. **Version + citation.** Bump `metadata.version`. Add citation with source, credibility score, and what was applied.
 3. **200-line gate.** Check final `SKILL.md` line count. Over 200 → invoke `compress-skill`. If CORE still over 200 or skill has a clean seam → invoke `split-skill`.
 4. **Validation gate.** Run `validate-skills` on every modified/created skill. Must score >=10/14. This runs AFTER any compress/split so the final form is validated.
+5. **L3 examples gate.** External worked examples → `references/examples.md`; SKILL.md keeps one teaser.
 
 ---
 
@@ -166,9 +158,7 @@ Score: [N]/[max] | Verdict: [PASS/BORDERLINE/REJECT]
 | "Reason to skip a gate" | Reality |
 |-------------------------|---------|
 | "Source is obviously credible — skip the credibility check" | Credibility scoring catches the non-obvious gaps (sample size, replication, vendor bias). Skipping is how marketing copy gets adopted as method |
-| "I'll apply this directly — skip the contradiction check" | Silent overwrites delete the prior reasoning. CONTRADICTION presentation is the only way the user can choose REPLACE / KEEP / BOTH / PARTIAL with eyes open |
-| "Insight is small, skip the hardening cycle" | Post-Application Hardening is the only audit trail that the skill still validates, still passes security, and still fits the 200-line gate after the edit |
-| "User already approved — skip writing back to the source learning entry" | Provenance is how future agents discover which skill came from which source. Missing it makes audit and rollback impossible |
+| "I'll apply this directly — skip the contradiction check" | Present CONTRADICTION choices — never silent overwrite |
 
 ## Gotchas
 
@@ -176,8 +166,6 @@ Score: [N]/[max] | Verdict: [PASS/BORDERLINE/REJECT]
 - GitHub repos can contain papers in `/docs` - route to `learn-from-repo` for the repo itself.
 - Multiple sources in one message: process each independently, combined report.
 - When recommending KEEP CURRENT, explain specifically why the current approach is stronger - don't just say "it's fine."
-
----
 
 ## Example
 
@@ -194,16 +182,19 @@ Routed to: learn-from-paper
   </example>
 </examples>
 
----
+## Verification
 
+- [ ] Correct child skill selected (paper / repo / article / chat)
+- [ ] `secure-*` SAFE before external content informs output
+- [ ] No direct SKILL.md write — routes through creator or approved edit path
+- [ ] Memory checkpoint fired when producer event occurred
+
+## Red Flags
+
+- Sub-skill credibility gate skipped before application
+- External content applied before all secure-* skills pass
+- Repo guardrail silently overwritten by external pattern
+- Multiple sources merged without per-source security scan
 ## Impact Report
 
-After completing, always report:
-```
-Source: [URL/path/conversation] | Type: [paper/repo/article/chat]
-Credibility: [score] | Security: [SAFE/BLOCKED]
-Insights: [N] GOTCHAs, [N] TECHNIQUEs, [N] FAILURE_MODEs, [N] METRICs, [N] CONTRADICTIONs
-Recommendations: [N] APPLY, [N] PARTIAL, [N] SKIP, [N] KEEP CURRENT
-Skills modified: [list] | Created: [list]
-Post-apply: [skill]: security [SAFE/BLOCKED] | resize [none/compress/split] | validate [score]/14
-```
+`Source: [URL/path/conversation] | Type: [paper/repo/article/chat] Credibility: [score] | Security: [SAFE/BLOCKED] Insights: [N] GOTCHAs, [N] TECHNIQUEs, [N] FAILURE_MODEs, [N] METRICs, [N] CONTRADICTIONs Recommendatio...`

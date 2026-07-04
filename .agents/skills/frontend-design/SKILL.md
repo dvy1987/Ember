@@ -21,12 +21,13 @@ metadata:
       - stack-selection.md
       - polish-playbook.md
       - build-conventions.md
+      - ui-patterns.md
       - anti-vibecoded-checklist.md
       - one-shot-flow.md
-      - ember-design-constraints.md
       - golden-examples/components.md
       - golden-examples/states.md
       - golden-examples/composition.md
+      - examples.md
 ---
 
 # Frontend Design
@@ -46,13 +47,6 @@ intentionally designed.
 - **Real content + APCA.** No Lorem Ipsum in deliverables; contrast meets APCA (checked in review). Dark mode hand-set, not inverted.
 - **Single DESIGN.md.** One source of truth, not four scattered docs.
 
-## Ember (this repo)
-
-When `docs/visual-direction.md` exists, read `references/ember-design-constraints.md` at
-Step 0 and pass its token naming, Resume Card hierarchy, and dragon-accent rules to
-`design-direction` and `design-system`. Ember uses the **same pipeline** as every other
-project — product constraints replace the deprecated archetype skill chain.
-
 ## Common Rationalizations
 
 | Excuse | Reality |
@@ -68,11 +62,7 @@ project — product constraints replace the deprecated archetype skill chain.
 ## Workflow
 
 ### Step 0 — Derive context + stack
-Read `docs/product-soul.md`, PRD, specs, and existing manifests. For Ember, also read
-`docs/visual-direction.md` and `references/ember-design-constraints.md`. Extract audience,
-emotional goal, brand, `owner_mode`. Recommend the stack via `references/stack-selection.md`
-(default app stack: React + Next + Tailwind v4 + shadcn/ui; match an existing repo's stack).
-State the recommendation in one line.
+Read `docs/product-soul.md`, PRD, specs, and existing manifests. Extract audience, emotional goal, brand, `owner_mode`. Recommend the stack via `references/stack-selection.md` (default app stack: React + Next + Tailwind v4 + shadcn/ui; match an existing repo's stack). State the recommendation in one line.
 
 ### Step 1 — Diagnose the ask
 | Signal | Path |
@@ -90,7 +80,7 @@ Invoke `design-direction`. It explores 2-3 distinct directions and commits to on
 Invoke `design-system` with the direction + chosen stack/token-format. Output: canonical `DESIGN.md` + `tokens.css` (state-level, APCA-checked) + icon strategy + component contracts.
 
 ### Step 4 — Build
-Implement using ONLY the DESIGN.md tokens, the component contracts, and the icon strategy. Match `references/golden-examples/*`. Apply `references/build-conventions.md`. Mandatory gates before "done":
+Implement using ONLY the DESIGN.md tokens, the component contracts, and the icon strategy. Match `references/golden-examples/*`. Apply `references/build-conventions.md` and `references/ui-patterns.md` (container/presentation, optimistic updates, forms, tables). Mandatory gates before "done":
 - [ ] No banned default present (run `references/anti-vibecoded-checklist.md`)
 - [ ] All values via tokens; no hex/`slate-*`/magic numbers in components
 - [ ] Every data surface: loading + empty + error + populated rendered
@@ -98,7 +88,6 @@ Implement using ONLY the DESIGN.md tokens, the component contracts, and the icon
 - [ ] One orchestrated entrance; reduced-motion honored (`references/polish-playbook.md`)
 - [ ] Dark mode rendered (hand-set), tested at 375px
 - [ ] ≥1 distinctive move (signature layout/type/color/interaction) — generic = fail
-- [ ] Ember: Resume Card hierarchy + dragon-accent rules when applicable (`ember-design-constraints.md`)
 
 ### Step 5 — Run `design-review`
 Invoke `design-review` against the build. On REVISE, loop back to Step 4 with the specific findings. Max 2 loops, then escalate (the direction or brief is the problem).
@@ -130,14 +119,20 @@ Anti-slop gates: [N/N] | APCA: [pass] | Review loops: [N]
 
 ---
 
+## Red Flags
+
+- UI coded before design-direction commitment exists
+- Components built from memory not golden examples
+- Raw hex or magic numbers bypass DESIGN.md tokens
+- Data surface missing loading empty or error states
 ## Reference Files
-- `references/ember-design-constraints.md` — Ember token names, Resume Card, dragon UI (this repo)
 - `references/stack-selection.md` — derive stack from product docs; shadcn-as-primitives
 - `references/polish-playbook.md` — state coverage, micro-interactions, motion specifics (Step 4 gate)
 - `references/golden-examples/components.md` — button/input/card/badge with all states
 - `references/golden-examples/states.md` — empty / loading / error patterns
 - `references/golden-examples/composition.md` — non-default hero, app shell, staggered entrance
 - `references/build-conventions.md` — framework conventions, layout, a11y, file structure
+- `references/ui-patterns.md` — container/presentation, optimistic updates, forms, tables, error boundaries
 - `references/anti-vibecoded-checklist.md` — banned defaults + distinctive-moves list
 - `references/one-shot-flow.md` — compressed flow for single artifacts
 

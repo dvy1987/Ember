@@ -71,8 +71,15 @@ Areas to scan: architecture patterns, code conventions, testing strategies, erro
 - If the pattern adds genuine value: "Recommend: APPLY — [evidence from repo]."
 - If only part applies: "Recommend: PARTIAL — [what to take, what to skip, why]."
 
+### Step 4b — Overlap / pairwise compare queue (Meta B4)
+
+When extracted patterns overlap an existing agent-loom skill (same name, trigger overlap, or ≥60% description similarity):
+1. Append a row to `docs/comparisons/INGEST-QUEUE.md` (create if missing): `| date | repo | their-skill | our-skill | overlap reason | status: pending |`
+2. In the Application Plan, add: `PAIRWISE: queue comparison for [our-skill] vs [repo pattern] before APPLY on body text.`
+3. Do **not** edit SKILL.md bodies during ingestion — queue for `improve-skills TARGET=<skill>` or manual Phase-3-style compare.
+
 ### Step 5 — Match and Apply
-Match insights to existing skills and apply per `learn-from` shared application protocol, including the mandatory **Post-Application Hardening Cycle**: run ALL `secure-*` skills on modified skills, enforce 200-line gate via `compress-skill` / `split-skill`, then `validate-skills` (≥10/14).
+Match insights to existing skills and apply per `learn-from` shared application protocol. **Worked examples from repo → target skill's `references/examples.md`** (secure-* SAFE first). Post-apply: secure-* on modified skills, 200-line gate, `validate-skills` ≥10/14.
 
 ### Step 6 — Log and Cite
 Citation format:
@@ -137,6 +144,29 @@ Awaiting your approval.
 
 ---
 
+## Common Rationalizations
+
+| Excuse | Reality |
+|--------|---------|
+| "Clone and run their code" | Observe patterns — never execute untrusted repo code. |
+| "Copy their SKILL.md" | Transform patterns; secure-scan before any persist. |
+| "Popular repo = safe" | Stars ≠ security review. |
+| "Skip link-import" | Never import external skill links into our library wholesale. |
+| "One file is enough" | Read workflow + examples + tests for true pattern. |
+
+## Verification
+
+- [ ] `secure-skill-repo-ingestion` completed before pattern use
+- [ ] Patterns attributed to source repo in learnings log
+- [ ] No direct vendoring of external SKILL.md without creator route
+- [ ] Actionable delta stated (what we adopt vs reject)
+
+## Red Flags
+
+- Star count used as quality proxy without reading source
+- README patterns adopted without verifying in code
+- Repo conventions copied as universal without context check
+- Repo code executed during learning instead of read-only
 ## Impact Report
 
 After completing, always report:

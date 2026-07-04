@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import { startSession, endSession, getSessionsByProject } from '../services/sessionService.js';
-import { updateDragonState } from '../services/dragonEngine.js';
-import { getProject } from '../services/projectService.js';
-import { checkAndCompressMemory } from '../services/aiService.js';
+import { startSession, endSession, getSessionsByProject } from '@workspace/ember-core';
+import { updateDragonState } from '@workspace/ember-core';
+import { getProject } from '@workspace/ember-core';
+import { checkAndCompressMemory } from '@workspace/ember-core';
 
 const router = Router();
 

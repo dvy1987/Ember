@@ -15,6 +15,9 @@ metadata:
   sources: >
     agent-loom design spec 2026-04-10,
     AlphaEval 2026 (credibility 8/12 — see docs/learnings/papers/alphaeval-2026-lu-et-al.md)
+  resources:
+    references:
+      - examples.md
 ---
 
 # Setup Evaluation
@@ -124,6 +127,28 @@ Handing off to agent-launcher.
 
 ---
 
+## Common Rationalizations
+
+| Excuse | Reality |
+|--------|---------|
+| Eval after launch | Design eval harness with agent. |
+| Golden set = 1 example | Minimum viable suite needs breadth. |
+| Skip regression | CI or repeat run path documented. |
+| Judge only | Combine deterministic + LLM judges. |
+
+## Verification
+
+- [ ] Eval dimensions named
+- [ ] Harness location documented
+- [ ] Regression path stated
+- [ ] Linked from agent-builder when applicable
+
+## Red Flags
+
+- Eval run from same agent that built the target — bias
+- Partial pass reported as acceptable overall pass
+- Architecture spec missing for complex multi-agent build
+- Knowledge-gap flags ignored instead of acknowledged
 ## Impact Report
 
 ```

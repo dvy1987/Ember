@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "ember": {
+      "command": "node",
+      "args": ["artifacts/ember-mcp/dist/index.mjs"],
+      "env": {}
+    }
+  }
+}

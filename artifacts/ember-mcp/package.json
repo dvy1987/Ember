@@ -1,0 +1,29 @@
+{
+  "name": "@workspace/ember-mcp",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "ember-mcp": "./dist/index.mjs"
+  },
+  "scripts": {
+    "build": "node ./build.mjs",
+    "prestart": "node ./build.mjs",
+    "start": "node --enable-source-maps ./dist/index.mjs",
+    "dev": "tsx src/index.ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.1",
+    "@workspace/ember-core": "workspace:*",
+    "better-sqlite3": "12.9.0",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "catalog:",
+    "esbuild": "^0.27.3",
+    "tsx": "catalog:",
+    "typescript": "~5.9.2"
+  }
+}

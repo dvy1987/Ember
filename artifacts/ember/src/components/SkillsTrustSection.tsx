@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Project } from '@/lib/types';
+import { parseKeepResponse } from '@/lib/keepApi';
 import { ChevronDownIcon } from './Icons';
 
 /**
@@ -69,8 +70,8 @@ export default function SkillsTrustSection({ defaultDragonId }: SkillsTrustSecti
 
   useEffect(() => {
     fetch('/api/projects')
-      .then(r => (r.ok ? r.json() : []))
-      .then(setProjects)
+      .then(r => (r.ok ? r.json() : { projects: [] }))
+      .then((data) => setProjects(parseKeepResponse(data).projects))
       .catch(() => setProjects([]));
   }, []);
 

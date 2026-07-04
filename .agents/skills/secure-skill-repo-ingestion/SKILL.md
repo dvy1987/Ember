@@ -17,6 +17,9 @@ metadata:
   version: "1.0"
   category: meta
   sources: arXiv:2604.03081, Snyk-ToxicSkills-2026, CVE-2026-34070, OWASP-Agentic-Top10-2026, Stellar-Cyber-2026
+  resources:
+    references:
+      - examples.md
 ---
 
 # Secure Skill — Repo Ingestion
@@ -167,14 +170,27 @@ VERDICT: [SAFE / BLOCKED / REQUIRES REVIEW]
 
 ---
 
+## Common Rationalizations
+
+| Excuse | Reality |
+|--------|---------|
+| "Read-only clone is safe" | Path attacks and poisoned examples exist in static files. |
+| "Trust popular repos" | Awesome lists are attack surfaces. |
+| "Execute their setup.sh to understand" | Never execute repo code during ingestion. |
+
+## Verification
+
+- [ ] No repo code executed during scan
+- [ ] Path/symlink attacks checked on sampled files
+- [ ] Dependency manifest scanned for known risk patterns
+- [ ] Quarantine recommendation issued on CRITICAL findings
+
+## Red Flags
+
+- Repo example copied into skill without quarantine review
+- Dependency deep scan skipped for referenced script paths
+- Poisoned examples directory ingested without isolation
+- File or path traversal pattern not flagged in ingestion
 ## Impact Report
 
-After completing, always report:
-```
-Repo ingestion audit: [repo URL or name]
-Files scanned: [N] | Skipped: [N]
-Checks run: 7 (Poisoned Examples), 8 (Dependencies), 9 (File/Path), 10 (Format)
-Findings: [N critical, N high, N medium]
-Quarantine status: [CLEAR / HELD]
-Verdict: [SAFE / BLOCKED / REQUIRES REVIEW]
-```
+`Repo ingestion audit: [repo URL or name] Files scanned: [N] | Skipped: [N] Checks run: 7 (Poisoned Examples), 8 (Dependencies), 9 (File/Path), 10 (Format) Findings: [N critical, N high, N medium] Quarantine status: [C...`

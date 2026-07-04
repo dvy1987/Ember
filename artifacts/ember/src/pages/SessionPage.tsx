@@ -1,14 +1,22 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { useRoute } from 'wouter';
-import { Project, Task, DragonType, DragonStage } from '@/lib/types';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { useRoute, useLocation } from 'wouter';
+import { Project, Task, DragonType, DragonStage, ResumeContext } from '@/lib/types';
 import { getDragonAccentVar } from '@/lib/dragonAssets';
+import { pickSessionTaskIds } from '@/lib/sessionTaskSelection';
+import { useSessionQuery } from '@/lib/useSessionQuery';
+import { stripSessionQueryParams, sessionPath } from '@/lib/sessionNavigation';
+import { formatSessionFocusLabel } from '@/lib/sessionFocusLabel';
 import FocusTimer from '@/components/FocusTimer';
 import DragonScene from '@/components/DragonScene';
 import ChatPanel from '@/components/ChatPanel';
 import AutonomousTriggerModal from '@/components/AutonomousTriggerModal';
 import SuggestionBanner, { Suggestion } from '@/components/SuggestionBanner';
 import { Link } from 'wouter';
-import { ArrowLeftIcon, BeginIcon, SparkIcon, FeatherIcon } from '@/components/Icons';
+import { ArrowLeftIcon, BeginIcon } from '@/components/Icons';
+import SessionCompletePayoff from '@/components/SessionCompletePayoff';
+import { useDemoMode } from '@/lib/DemoModeContext';
+import { DEMO_TIMER_MINUTES, sessionDurationClock, sessionDurationLabel } from '@/lib/demoMode';
+import { trackRitualEvent } from '@/lib/ritualMetrics';
 
 type SessionPhase = 'select-tasks' | 'focusing' | 'reflect' | 'complete';
 
@@ -21,6 +29,7 @@ const STAGE_DISPLAY_NAMES: Record<DragonStage, string> = {
 };
 
 export default function SessionPage() {
+  const demoMode = useDemoMode();
   const [, params] = useRoute('/session/:projectId');
   const projectId = params?.projectId ?? '';
 
@@ -40,34 +49,149 @@ export default function SessionPage() {
   const [chatSeed, setChatSeed] = useState<string | undefined>(undefined);
   const [showTrigger, setShowTrigger] = useState(false);
   const [triggerSeed, setTriggerSeed] = useState<string | undefined>(undefined);
+  const [sessionMinutesGained, setSessionMinutesGained] = useState<number | null>(null);
+  const [nextResumePreview, setNextResumePreview] = useState<ResumeContext | null>(null);
+  const [endSessionError, setEndSessionError] = useState<string | null>(null);
+  const [isStarting, setIsStarting] = useState(false);
+  const [startSessionError, setStartSessionError] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [isEnding, setIsEnding] = useState(false);
+  const [resumeContext, setResumeContext] = useState<ResumeContext | null>(null);
+  const autoStartGuardRef = useRef(false);
   const evolutionTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const timerStartedTrackedRef = useRef(false);
+  const sessionCompletedTrackedRef = useRef(false);
+
+  const [, navigate] = useLocation();
+  const { autoStart, forcePick } = useSessionQuery();
 
   const fetchData = useCallback(async () => {
+    setLoadError(null);
     try {
-      const [projectRes, tasksRes] = await Promise.all([
+      const [projectRes, tasksRes, resumeRes] = await Promise.all([
         fetch(`/api/projects/${projectId}`),
         fetch(`/api/tasks?project_id=${projectId}&status=active`),
+        fetch(`/api/resume?project_id=${projectId}`),
       ]);
-      if (projectRes.ok) setProject(await projectRes.json());
-      if (tasksRes.ok) {
-        const tasks = await tasksRes.json();
-        setActiveTasks(tasks);
-        setSelectedTaskIds(tasks.map((t: Task) => t.id));
+      if (!projectRes.ok) {
+        setLoadError('Dragon not found.');
+        setIsLoading(false);
+        return;
       }
-    } catch { }
+      setProject(await projectRes.json());
+      let resume: ResumeContext | null = null;
+      if (resumeRes.ok) {
+        resume = await resumeRes.json();
+        setResumeContext(resume);
+      }
+      if (tasksRes.ok) {
+        const tasks = await tasksRes.json() as Task[];
+        setActiveTasks(tasks);
+        setSelectedTaskIds(pickSessionTaskIds(tasks, resume?.suggested_next_step));
+      }
+    } catch {
+      setLoadError('Could not load session. Try again.');
+    }
     setIsLoading(false);
   }, [projectId]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
-  // F4 — fetch the highest-priority unblocked suggestion for this dragon.
   useEffect(() => {
-    if (!projectId) return;
+    setIsLoading(true);
+    setProject(null);
+    setActiveTasks([]);
+    setSelectedTaskIds([]);
+    setResumeContext(null);
+    autoStartGuardRef.current = false;
+    timerStartedTrackedRef.current = false;
+    sessionCompletedTrackedRef.current = false;
+    setPhase('select-tasks');
+    setSessionId(null);
+    setStartSessionError(null);
+    setEndSessionError(null);
+    setNextResumePreview(null);
+    setSessionMinutesGained(null);
+    setEvolvedToStage(null);
+    setIsStarting(false);
+    setIsEnding(false);
+  }, [projectId]);
+
+  const handleStartSession = useCallback(async (taskIds?: string[]) => {
+    const ids = taskIds ?? selectedTaskIds;
+    setIsStarting(true);
+    setStartSessionError(null);
+    try {
+      const res = await fetch('/api/sessions/start', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ project_id: projectId, task_ids: ids }),
+      });
+      if (res.ok) {
+        const session = await res.json();
+        setSessionId(session.id);
+        setSelectedTaskIds(ids);
+        setPhase('focusing');
+        stripSessionQueryParams(projectId);
+        navigate(sessionPath(projectId), { replace: true });
+      } else {
+        setStartSessionError('Could not start the session. Try again.');
+      }
+    } catch {
+      setStartSessionError('Could not reach the keep. Check your connection and try again.');
+    } finally {
+      setIsStarting(false);
+    }
+  }, [projectId, selectedTaskIds, navigate]);
+
+  // Sacred loop: skip the duplicate task gate when arriving from Resume Card or Home hero.
+  useEffect(() => {
+    if (isLoading || autoStartGuardRef.current || forcePick) return;
+    if (!autoStart || !project) return;
+
+    const runAutoStart = async () => {
+      autoStartGuardRef.current = true;
+      const ids = selectedTaskIds.length > 0
+        ? selectedTaskIds
+        : pickSessionTaskIds(activeTasks);
+      await handleStartSession(ids);
+    };
+
+    if (!isLoading && project) {
+      void runAutoStart();
+    }
+  }, [
+    isLoading,
+    autoStart,
+    forcePick,
+    project,
+    activeTasks,
+    selectedTaskIds,
+    handleStartSession,
+  ]);
+
+  // F4 — fetch suggestion (hidden in walkthrough mode).
+  useEffect(() => {
+    if (!projectId || demoMode) return;
     fetch(`/api/dragons/${projectId}/suggestion`)
       .then((r) => r.ok ? r.json() : null)
       .then((data) => { if (data) setSuggestion(data.suggestion ?? null); })
       .catch(() => { /* best-effort */ });
-  }, [projectId]);
+  }, [projectId, demoMode]);
+
+  useEffect(() => {
+    if (phase === 'focusing' && !timerStartedTrackedRef.current) {
+      timerStartedTrackedRef.current = true;
+      trackRitualEvent('timer_started', { project_id: projectId });
+    }
+  }, [phase, projectId]);
+
+  useEffect(() => {
+    if (phase === 'complete' && !sessionCompletedTrackedRef.current) {
+      sessionCompletedTrackedRef.current = true;
+      trackRitualEvent('session_completed', { project_id: projectId });
+    }
+  }, [phase, projectId]);
 
   const dismissSuggestion = useCallback(
     async (s: Suggestion, snoozeDays?: number) => {
@@ -110,21 +234,6 @@ export default function SessionPage() {
     };
   }, []);
 
-  const handleStartSession = async () => {
-    try {
-      const res = await fetch('/api/sessions/start', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ project_id: projectId, task_ids: selectedTaskIds }),
-      });
-      if (res.ok) {
-        const session = await res.json();
-        setSessionId(session.id);
-        setPhase('focusing');
-      }
-    } catch { }
-  };
-
   const handleTimerComplete = () => setPhase('reflect');
 
   const handleToggleCompleted = (taskId: string) => {
@@ -134,7 +243,9 @@ export default function SessionPage() {
   };
 
   const handleEndSession = async () => {
-    if (!sessionId) return;
+    if (!sessionId || isEnding) return;
+    setEndSessionError(null);
+    setIsEnding(true);
 
     try {
       for (const taskId of completedTaskIds) {
@@ -155,27 +266,36 @@ export default function SessionPage() {
         }),
       });
 
-      if (endRes.ok) {
-        const data = await endRes.json();
-        const updatedProject: Project = data.project;
-        const previousStage: DragonStage | null = data.previous_dragon_stage ?? null;
+      if (!endRes.ok) {
+        setEndSessionError('Could not save your session. Try again.');
+        return;
+      }
 
-        if (updatedProject) {
-          setProject(updatedProject);
-          if (
-            previousStage &&
-            updatedProject.dragon_stage !== previousStage &&
-            STAGE_DISPLAY_NAMES[updatedProject.dragon_stage as DragonStage]
-          ) {
-            setEvolvedToStage(updatedProject.dragon_stage as DragonStage);
-            setIsEvolving(true);
-            evolutionTimerRef.current = setTimeout(() => setIsEvolving(false), 1200);
-          }
+      const data = await endRes.json();
+      const updatedProject: Project = data.project;
+      const endedSession = data.session as { duration_minutes?: number };
+      const previousStage: DragonStage | null = data.previous_dragon_stage ?? null;
+      const gained = updatedProject.total_focus_minutes - (project?.total_focus_minutes ?? 0);
+      const minutesEarned = gained > 0
+        ? gained
+        : (endedSession.duration_minutes ?? 0);
+      if (minutesEarned > 0) setSessionMinutesGained(minutesEarned);
+
+      if (updatedProject) {
+        setProject(updatedProject);
+        if (
+          previousStage &&
+          updatedProject.dragon_stage !== previousStage &&
+          STAGE_DISPLAY_NAMES[updatedProject.dragon_stage as DragonStage]
+        ) {
+          setEvolvedToStage(updatedProject.dragon_stage as DragonStage);
+          setIsEvolving(true);
+          evolutionTimerRef.current = setTimeout(() => setIsEvolving(false), 1200);
         }
       }
 
       if (reflection?.trim()) {
-        fetch('/api/ai/process-reflection', {
+        await fetch('/api/ai/process-reflection', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -186,26 +306,64 @@ export default function SessionPage() {
         }).catch(() => {});
       }
 
+      try {
+        const resumeRes = await fetch(`/api/resume?project_id=${projectId}`);
+        if (resumeRes.ok) {
+          setNextResumePreview(await resumeRes.json() as ResumeContext);
+        }
+      } catch { /* preview is best-effort */ }
+
       setPhase('complete');
-    } catch { }
+    } catch {
+      setEndSessionError('Could not save your session. Try again.');
+    } finally {
+      setIsEnding(false);
+    }
   };
 
-  if (isLoading || !project) {
+  const sessionFocusLabel = useMemo(
+    () => formatSessionFocusLabel(activeTasks, resumeContext?.suggested_next_step),
+    [activeTasks, resumeContext?.suggested_next_step],
+  );
+
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="body text-ember-text-muted">Loading…</p>
+        <p className="body text-ember-text-muted">
+          {autoStart && !forcePick ? 'Starting your session…' : 'Loading…'}
+        </p>
+      </div>
+    );
+  }
+
+  if (loadError || !project) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-6 text-center">
+        <p className="body text-ember-text-muted">{loadError ?? 'Dragon not found.'}</p>
+        <Link href="/" className="cta-quiet px-5 py-2 font-mono-caps text-ember-text-muted">
+          Back to Ember Keep
+        </Link>
       </div>
     );
   }
 
   const dragonType = project.dragon_type as DragonType;
   const accentColor = getDragonAccentVar(dragonType);
+  const showAutoPreparing = autoStart && !forcePick && phase === 'select-tasks' && (isLoading || isStarting);
+  const showTaskPicker = phase === 'select-tasks' && !showAutoPreparing;
 
   return (
     <div className="min-h-screen relative">
       <div className="firelight-overlay" />
-      <div className="relative z-10 max-w-2xl mx-auto px-6 pb-24 pt-10">
-        {phase === 'select-tasks' && (
+      <div className="relative z-10 max-w-2xl mx-auto px-6 pb-24 pt-10" style={{ paddingTop: demoMode ? '3rem' : undefined }}>
+        {showAutoPreparing && (
+          <div className="flex flex-col items-center justify-center min-h-[50vh] animate-fade-in">
+            <DragonScene type={dragonType} stage={project.dragon_stage} size={160} intense />
+            <p className="font-mono-caps text-ember-text-muted mt-6">Preparing your focus session…</p>
+          </div>
+        )}
+
+        {showTaskPicker && (
           <div className="animate-enter">
             <Link
               href={`/project/${projectId}`}
@@ -230,7 +388,7 @@ export default function SessionPage() {
             {/* F4 — mode-fluid recommendation, sits above the task picker
                 so the dragon can offer to talk things through before the
                 keeper commits to a focus session. */}
-            {suggestion && (
+            {suggestion && !demoMode && (
               <div className="mb-8">
                 <SuggestionBanner
                   suggestion={suggestion}
@@ -271,14 +429,20 @@ export default function SessionPage() {
             </div>
 
             <button
-              onClick={handleStartSession}
+              onClick={() => handleStartSession()}
+              disabled={isStarting}
               className="cta-ember w-full py-[18px] px-6 flex items-center justify-between font-serif-body font-semibold text-[16px]"
             >
               <span className="inline-flex items-center gap-2">
-                <BeginIcon size={18} /> Begin today's focus session — 20 min
+                <BeginIcon size={18} /> Train {sessionDurationLabel()}
               </span>
-              <span className="font-mono-caps opacity-85" style={{ color: 'var(--amber-glow)' }}>20:00</span>
+              <span className="font-mono-caps opacity-85" style={{ color: 'var(--amber-glow)' }}>{sessionDurationClock()}</span>
             </button>
+            {startSessionError && (
+              <p role="alert" className="font-mono-caps mt-3 text-center" style={{ color: 'var(--ember-accent)' }}>
+                {startSessionError}
+              </p>
+            )}
           </div>
         )}
 
@@ -289,27 +453,22 @@ export default function SessionPage() {
             </div>
 
             <p className="font-mono-caps text-ember-text-muted mb-1">tending</p>
-            <h2 className="font-display text-[34px] text-ember-text leading-tight mb-6">
+            <h2 className="font-display text-[34px] text-ember-text leading-tight mb-2">
               {project.name}
             </h2>
+            {sessionFocusLabel && (
+              <p className="body-sm text-ember-text-muted mb-6 max-w-sm text-center">
+                {sessionFocusLabel}
+              </p>
+            )}
 
-            {/* Timer + co-work trigger live on the same horizontal axis so
-                "talk to your dragon" reads as a peer affordance to the timer
-                itself, not a buried action below it. The button is quiet so
-                the timer keeps the visual centre. */}
-            <div className="flex items-center gap-6">
+            <div className="flex items-center gap-6 mb-6">
               <FocusTimer
-                initialMinutes={20}
+                initialMinutes={demoMode ? DEMO_TIMER_MINUTES : 20}
+                compact={demoMode}
                 onComplete={handleTimerComplete}
                 accentColor={accentColor}
               />
-              <button
-                type="button"
-                onClick={() => setShowChat(true)}
-                className="inline-flex items-center gap-2 font-mono-caps text-ember-text-muted hover:text-ember-text transition-colors"
-              >
-                <FeatherIcon size={13} /> Talk to your dragon
-              </button>
             </div>
 
             {selectedTaskIds.length > 0 && (
@@ -339,18 +498,18 @@ export default function SessionPage() {
               <div className="flex justify-center mb-4">
                 <DragonScene type={dragonType} stage={project.dragon_stage} size={140} intense />
               </div>
-              <p className="font-mono-caps text-ember-text-muted mb-2">session complete</p>
+              <p className="font-mono-caps text-ember-text-muted mb-2">training complete</p>
               <h1 className="font-display text-[36px] text-ember-text leading-tight mb-2">
                 {project.name} grew stronger.
               </h1>
               <p className="body text-ember-text-muted">
-                How did it go?
+                A few words help your dragon remember next time.
               </p>
             </div>
 
             {selectedTaskIds.length > 0 && (
               <div className="mb-8">
-                <h3 className="font-mono-caps text-ember-text-muted mb-3">What did you complete?</h3>
+                <h3 className="font-mono-caps text-ember-text-muted mb-3">What did you tend?</h3>
                 <div className="space-y-2">
                   {activeTasks
                     .filter(t => selectedTaskIds.includes(t.id))
@@ -374,11 +533,11 @@ export default function SessionPage() {
             )}
 
             <div className="mb-8">
-              <h3 className="font-mono-caps text-ember-text-muted mb-3">Quick reflection (optional)</h3>
+              <h3 className="font-mono-caps text-ember-text-muted mb-3">Quick note (optional)</h3>
               <textarea
                 value={reflection}
                 onChange={(e) => setReflection(e.target.value)}
-                placeholder="what happened? any blockers? what should happen next?"
+                placeholder="what shifted? what should your dragon hold for next time?"
                 rows={3}
                 className="w-full input-parchment p-4 text-[15px] resize-none"
               />
@@ -387,21 +546,28 @@ export default function SessionPage() {
             <div className="flex gap-3">
               <button
                 onClick={handleEndSession}
-                className="cta-quiet flex-1 py-3 font-mono-caps text-ember-text-muted"
+                disabled={isEnding}
+                className="cta-quiet flex-1 py-3 font-mono-caps text-ember-text-muted disabled:opacity-50"
               >
-                Skip reflection
+                Skip for now
               </button>
               <button
                 onClick={handleEndSession}
-                className="cta-ember flex-1 py-3 font-mono-caps"
+                disabled={isEnding}
+                className="cta-ember flex-1 py-3 font-mono-caps disabled:opacity-50"
               >
-                Save & finish
+                {isEnding ? 'Remembering…' : 'Remember this session'}
               </button>
             </div>
+            {endSessionError && (
+              <p role="alert" className="font-mono-caps mt-4 text-center" style={{ color: 'var(--ember-accent)' }}>
+                {endSessionError}
+              </p>
+            )}
           </div>
         )}
 
-        {project && (
+        {project && !demoMode && (
           <ChatPanel
             isOpen={showChat}
             onClose={() => { setShowChat(false); setChatSeed(undefined); }}
@@ -412,7 +578,7 @@ export default function SessionPage() {
             seedPrompt={chatSeed}
           />
         )}
-        {project && (
+        {project && !demoMode && (
           <AutonomousTriggerModal
             isOpen={showTrigger}
             onClose={() => { setShowTrigger(false); setTriggerSeed(undefined); }}
@@ -424,68 +590,22 @@ export default function SessionPage() {
         )}
 
         {phase === 'complete' && (
-          <div className="flex flex-col items-center justify-center min-h-[60vh] text-center animate-fade-in">
-            {evolvedToStage ? (
-              <>
-                <div className="relative mb-8">
-                  <div className={isEvolving ? 'animate-evolution-burst' : ''}>
-                    <DragonScene type={dragonType} stage={project.dragon_stage} size={220} intense />
-                  </div>
-                  {isEvolving && (
-                    <div
-                      className="absolute inset-0 rounded-full animate-evolution-ring pointer-events-none"
-                      style={{ background: `radial-gradient(circle, ${accentColor}60 0%, transparent 70%)` }}
-                    />
-                  )}
-                </div>
-
-                <div className="animate-slide-up mb-3 inline-flex items-center gap-2 font-mono-caps" style={{ color: 'var(--amber-glow)' }}>
-                  <SparkIcon size={12} /> Evolution
-                </div>
-
-                <h1 className="font-display text-[44px] text-ember-text leading-tight mb-2">
-                  {project.name} evolved.
-                </h1>
-                <p className="body-lg text-ember-text-muted mb-1">
-                  Your dragon is now a{' '}
-                  <span className="text-ember-text font-semibold">
-                    {STAGE_DISPLAY_NAMES[evolvedToStage]}
-                  </span>.
-                </p>
-                <p className="font-mono-caps text-ember-text-muted mb-10">
-                  Keep tending to unlock the next stage.
-                </p>
-              </>
-            ) : (
-              <>
-                <div className="mb-8">
-                  <DragonScene type={dragonType} stage={project.dragon_stage} size={200} intense />
-                </div>
-                <p className="font-mono-caps text-ember-text-muted mb-2">session complete</p>
-                <h1 className="font-display text-[40px] text-ember-text leading-tight mb-3">
-                  Nicely done.
-                </h1>
-                <p className="body text-ember-text-muted mb-10 max-w-md">
-                  Your dragon has grown stronger. Keep the momentum going.
-                </p>
-              </>
-            )}
-
-            <div className="flex gap-3">
-              <Link
-                href={`/project/${projectId}`}
-                className="cta-quiet px-6 py-3 font-mono-caps text-ember-text-muted"
-              >
-                Back to project
-              </Link>
-              <Link
-                href="/"
-                className="cta-ember px-6 py-3 font-mono-caps"
-              >
-                Ember Keep
-              </Link>
-            </div>
-          </div>
+          <SessionCompletePayoff
+            projectId={projectId}
+            projectName={project.name}
+            dragonType={dragonType}
+            dragonStage={project.dragon_stage as DragonStage}
+            accentColor={accentColor}
+            evolvedToStage={evolvedToStage}
+            isEvolving={isEvolving}
+            sessionMinutesGained={sessionMinutesGained}
+            nextResumePreview={nextResumePreview}
+            reflectionTrimmed={Boolean(reflection?.trim())}
+            stageDisplayNames={STAGE_DISPLAY_NAMES}
+            fallbackMemoryLine={
+              resumeContext?.status_summary || project.project_summary || null
+            }
+          />
         )}
       </div>
     </div>

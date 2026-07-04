@@ -7,6 +7,8 @@ import ProjectAnalyticsPage from "@/pages/ProjectAnalyticsPage";
 import MenageriePage from "@/pages/MenageriePage";
 import SagaPage from "@/pages/SagaPage";
 import NotFound from "@/pages/not-found";
+import { DemoModeProvider } from "@/lib/DemoModeContext";
+import DemoModeBanner from "@/components/DemoModeBanner";
 
 // NOTE (F2): the former /dev/skills scaffold has been retired now that the
 // real co-work surface (ChatPanel) is wired into the project + session pages.
@@ -30,7 +32,10 @@ function Router() {
 function App() {
   return (
     <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-      <Router />
+      <DemoModeProvider>
+        <DemoModeBanner />
+        <Router />
+      </DemoModeProvider>
     </WouterRouter>
   );
 }

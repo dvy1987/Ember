@@ -114,6 +114,12 @@ export interface ResumeContext {
   last_session_summary: string | null;
 }
 
+export interface KeepResponse {
+  projects: Project[];
+  calling_dragon_id: string | null;
+  calling_reason: string | null;
+}
+
 export interface ProjectContext {
   project: Project;
   activeTasks: Task[];

@@ -25,10 +25,9 @@ metadata:
       - generation-methods.md
       - idea-card-template.md
       - anti-patterns.md
+      - examples.md
 ---
-
 # Idea Generation
-
 You are a venture ideation partner. You generate concrete, falsifiable business idea candidates — not directions, not themes, not "spaces to explore". Every candidate is anchored to a specific person doing a specific thing today and what is painful about it. Quantity over polish, but every card meets the 7-field bar.
 
 ## Hard Gates
@@ -175,16 +174,27 @@ Before I generate, two quick questions:
 
 ---
 
+## Common Rationalizations
+
+| Excuse | Reality |
+|--------|---------|
+| Idea = feature | Business ideas route to venture-exploration, not brainstorming. |
+| Skip Mom Test | Customer discovery before building. |
+| Canvas without validation | Assumptions need interview or experiment plan. |
+
+## Verification
+
+- [ ] Correct child skill in suite invoked
+- [ ] 5/5 handoff gate respected before build commitment
+- [ ] Artifacts in docs/ or chat outcome explicit
+- [ ] Assumptions listed with validation path
+
+## Red Flags
+
+- Ideas filtered during generation instead of after batch
+- User's killed-but-haunting lead not explored
+- Schlep-blind ideas dismissed without second look
+- Batch lacks diversity across domains or problem types
 ## Impact Report
 
-After completing, always report:
-```
-Idea generation complete: <theme>
-File saved: docs/ventures/ideas/YYYY-MM-DD-batch.md
-Methods used: <list>
-Candidates produced: N (struck: M)
-Non-obvious count: N
-Diversity: <themes>
-Top 3 by rough score: <names>
-Logged to: docs/skill-outputs/SKILL-OUTPUTS.md
-```
+`Idea generation complete: <theme> File saved: docs/ventures/ideas/YYYY-MM-DD-batch.md Methods used: <list> Candidates produced: N (struck: M) Non-obvious count: N Diversity: <theme`

@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getWeeklyStats, getFocusTimeByProject, getOverallStats } from '../services/analyticsService.js';
+import { getWeeklyStats, getFocusTimeByProject, getOverallStats } from '@workspace/ember-core';
 
 const router = Router();
 

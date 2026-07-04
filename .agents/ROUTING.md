@@ -128,8 +128,7 @@ All Ember UI work uses the standard chain:
 
 `frontend-design` → `design-direction` → `design-system` → build → `design-review`
 
-Read `docs/visual-direction.md` and `skills/frontend-design/references/ember-design-constraints.md`
-before exploring directions. Legacy skills `design-archetype`, `design-tokens-craft`, `icon-craft`
+Load `ember-design-constraints` and read `docs/visual-direction.md` before exploring directions. Legacy skills `design-archetype`, `design-tokens-craft`, `icon-craft`
 are archived under `.agents/skills/.deprecated/` — do not invoke them.
 
 ### Required project context

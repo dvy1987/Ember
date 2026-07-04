@@ -17,6 +17,7 @@ metadata:
   resources:
     references:
       - source-hierarchy.md
+      - examples.md
 ---
 
 # Source-Driven Development
@@ -50,7 +51,7 @@ If versions are missing, ask the user before implementing.
 
 ### Step 2 — Fetch official documentation
 
-Fetch the relevant documentation page for the exact API or pattern. Use the source hierarchy in `references/source-hierarchy.md`.
+Fetch the relevant documentation page for the exact API or pattern. Use `references/source-hierarchy.md`. Prefer **`hooks/sdd-cache`** (Claude Code) or `python3 .agents/skills/research-skill/scripts/doc_cache.py "<url>"` — see `research-skill` → `references/doc-cache.md`.
 
 Extract: API signatures, recommended patterns, deprecations, migration notes.
 If official sources conflict, surface the discrepancy to the user.
@@ -147,6 +148,12 @@ Implement with cited comment. Reject manual useState+isPending if docs recommend
 
 ---
 
+## Red Flags
+
+- API choice made from training data not fetched docs
+- Entire docs site fetched instead of one decision page
+- Deprecated API used because snippet was memorable
+- Version in code mismatches version cited from docs
 ## Reference Files
 
 - **`references/source-hierarchy.md`**: Authority order and non-authoritative sources — read at Step 2.

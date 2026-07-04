@@ -1,2 +1,2 @@
 export * from "./generated/api";
-export * from "./generated/types";
+// Zod schemas in ./generated/api; TypeScript interfaces in ./generated/types (import directly if needed).

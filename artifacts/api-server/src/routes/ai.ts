@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { extractTasks, processReflection, summarizeProject, proposeRituals, isAiAvailable } from '../services/aiService.js';
+import { extractTasks, processReflection, summarizeProject, proposeRituals, isAiAvailable } from '@workspace/ember-core';
 
 const router = Router();
 

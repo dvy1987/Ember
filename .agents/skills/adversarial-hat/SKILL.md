@@ -20,10 +20,9 @@ metadata:
   resources:
     references:
       - adversarial-prompt.md
+      - examples.md
 ---
-
 # Adversarial Hat
-
 You are a structured adversarial critic. You find what is wrong, incomplete, or fragile — then hand the work back with specific, actionable findings. Not a pessimist. The agent that saves the team from committing to something flawed.
 
 ## Hard Rules
@@ -113,7 +112,7 @@ STRONGEST ELEMENTS (what to build on)
 
 Use when a **non-trivial** decision is about to stand (branching logic, cross-module change, unverified invariant, irreversible deploy). Skip for formatting, obvious one-liners, or pure reads.
 
-Copy the checklist from `references/adversarial-prompt.md`:
+Copy the checklist from `references/adversarial-prompt.md` (full prompt library for code, plans, architecture):
 1. **CLAIM** — decision + why it matters (2–3 lines)
 2. **EXTRACT** — smallest artifact + contract only (no your reasoning)
 3. **DOUBT** — fresh-context reviewer with adversarial prompt (never pass CLAIM)
@@ -172,19 +171,30 @@ The PMF falsification condition ("if users complete integration once and never r
 
 ---
 
-## Calling This Skill
-
-`product-soul` → after first draft | `brainstorming` → before writing design doc
-`prd-writing` → after discovery, before writing | `inversion` → complementary, run both
 
 ---
 
+## Common Rationalizations
+
+| Excuse | Reality |
+|--------|---------|
+| "We're aligned already" | Alignment theater hides unstated objections until launch. |
+| "Devil's advocate is negative" | Stress-testing now prevents expensive surprises later. |
+| "We don't have time to argue" | One structured challenge pass is cheaper than a rework cycle. |
+
+## Verification
+
+- [ ] Strongest counter-argument stated in good faith (not a strawman)
+- [ ] At least one plan change or explicit accept-risk decision recorded
+- [ ] Assumptions challenged map to testable follow-ups
+- [ ] Session ends with forward actions, not endless debate
+
+## Red Flags
+
+- Generic critique without named failure mode or evidence
+- Phase 3 run before Phase 1 foundations are challenged
+- Solutions critiqued without testing problem-solution fit
+- Critique stops at timeline noise instead of core assumptions
 ## Impact Report
 
-After completing, always report:
-```
-Adversarial review: [document]
-Phases run: [D / C / Ch — all or subset]
-Critical: N | Significant: N | Minor: N
-Integrated into document: [yes / no]
-```
+`Adversarial review: [document] Phases run: [D / C / Ch — all or subset] Critical: N | Significant: N | Minor: N Integrated into document: [yes / no]`

@@ -21,6 +21,7 @@ metadata:
       - validity-checks.md
       - readout-template.md
       - learnings-format.md
+      - examples.md
 ---
 
 # Experiment Readout
@@ -144,6 +145,28 @@ Downstream: [prd-writing | architectural-decision-log | reality-check | none]
 
 ---
 
+## Common Rationalizations
+
+| Excuse | Reality |
+|--------|---------|
+| Test without hypothesis | Falsifiable hypothesis required before spec. |
+| Peek until significant | Peek policy must be pre-committed in spec. |
+| Any metric goes | Primary + guardrail metrics defined up front. |
+| Skip instrumentation QA | Runbook includes exposure and event validation. |
+
+## Verification
+
+- [ ] Decision class labeled (Causal/Directional/Instrumentation)
+- [ ] Artifact path under docs/experiments/
+- [ ] SKILL-OUTPUTS.md updated for file outputs
+- [ ] Rollback or stop rule documented
+
+## Red Flags
+
+- Analysis proceeds despite failed SRM check
+- Significant language used for Directional decision class
+- Primary win declared while guardrail metric breached
+- Instrumentation drift mid-test ignored in validity review
 ## Reference Files
 
 - **`references/validity-checks.md`** — SRM, exposure parity, event-rate stability, novelty windows, segment hygiene. Run in Step 1.

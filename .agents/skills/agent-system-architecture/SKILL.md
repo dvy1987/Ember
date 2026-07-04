@@ -16,6 +16,9 @@ metadata:
   version: "1.0"
   category: project-specific
   sources: Azure Architecture Center, arXiv:2601.02577 (Orchestral AI), arXiv:2601.07526 (Megaflow), agentskills.io
+  resources:
+    references:
+      - examples.md
 ---
 
 # Agent System Architecture
@@ -126,6 +129,28 @@ Ready for: implementation-plan
 
 ---
 
+## Common Rationalizations
+
+| Excuse | Reality |
+|--------|---------|
+| Micro-agents everywhere | Orchestration cost — minimize hops. |
+| Shared mutable state | Document state ownership per agent. |
+| No failure modes | Timeouts, retries, human escalation required. |
+| Skip security boundary | Tool access least privilege. |
+
+## Verification
+
+- [ ] Architecture diagram or component list
+- [ ] Data flow and state ownership clear
+- [ ] Failure and escalation paths defined
+- [ ] docs/architecture/ updated
+
+## Red Flags
+
+- Shared blackboard without staleness or versioning rules
+- Parallel agents write to overlapping output paths
+- External tool calls lack per-agent rate-limit budgets
+- Termination criteria undefined — no owner decides done
 ## Impact Report
 
 After completing, always report:

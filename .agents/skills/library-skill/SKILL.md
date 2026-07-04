@@ -15,18 +15,15 @@ metadata:
   author: dvy1987
   version: "1.2"
   category: meta
+  resources:
+    references:
+      - examples.md
 ---
-
 # Library Skill
-
 You are the skill library's consistency engine. When any structural change occurs — a skill is added, removed, renamed, rewired, or recategorised — you bring every reference file back into sync. You never modify individual SKILL.md files; you only update index and reference files.
-
 ## Hard Rules
-
 **Never edit any SKILL.md file.** You read them; you never write them.
-
 **Always read before writing.** Scan every `.agents/skills/*/SKILL.md` to build ground truth before touching any reference file.
-
 **Append to SKILL-OUTPUTS.md** after every file you create or update.
 
 **Invoke `generate-changelog`** after all updates are complete — never before.
@@ -136,9 +133,7 @@ Append each updated file to `docs/skill-outputs/SKILL-OUTPUTS.md`:
 
 ### 10. Invoke `generate-changelog`
 
-Call `generate-changelog` with a summary of structural changes made. This is the final step — never skip it.
-
----
+Call `generate-changelog` with a summary of structural changes made. Final step — never skip.
 
 ## Gotchas
 
@@ -146,7 +141,7 @@ Call `generate-changelog` with a summary of structural changes made. This is the
 - **Changelog skill location:** The skill named `generate-changelog` lives in `.agents/skills/generate-changelog/` — use the directory name for path, frontmatter `name` for references.
 - **Partial runs:** If scanning finds zero skills, abort — the path is likely wrong. Never wipe reference files.
 - **Concurrent edits:** Another agent may be editing AGENTS.md simultaneously. Read → diff → write, never overwrite wholesale.
-- **Never make a heading lie about its own table.** Standalone "N skills" prose drifts silently (no row signals it) — rewrite it every run, even a deprecate-only sync changes N. But a heading like "Meta Skills (22)" labels the rows beneath it; bumping it to the registry while the table is short of rows turns a consistent-but-stale doc into an inconsistent one. Sync heading counts only alongside the rows; otherwise leave them and flag the gap.
+- **Never make a heading lie about its own table.** Sync heading counts only with matching rows; otherwise flag the gap in Impact Report.
 
 ---
 
@@ -179,21 +174,27 @@ Invoking generate-changelog...
   </example>
 </examples>
 
----
+## Common Rationalizations
 
+| Excuse | Reality |
+|--------|---------|
+| "INDEX can wait" | Drifted INDEX misroutes every agent in the library. |
+| "Bump count without rows" | Table heading counts must match rows beneath. |
+| "Edit SKILL.md while syncing" | Librarian reads skills — never writes SKILL.md bodies. |
+
+## Verification
+
+- [ ] Every on-disk skill appears in SKILL-INDEX with correct category
+- [ ] README table row counts match heading numbers
+- [ ] `docs/skill-graph.md` regenerated with dated header
+- [ ] SKILL-OUTPUTS.md + generate-changelog invoked
+
+## Red Flags
+
+- Scan aborted at zero skills without path verification
+- Category read from wrong frontmatter nesting level
+- Reference index wiped on partial or failed run
+- Changelog skill path assumed wrong directory name
 ## Impact Report
 
-After completing, always report:
-```
-Librarian sync complete: YYYY-MM-DD
-Trigger: [what caused the run]
-Skills scanned: N
-Entries added: N
-Entries removed: N
-Entries updated: N
-Files modified: [list]
-Broken cross-references: N
-Orphaned entries: N
-SKILL-OUTPUTS.md updated: yes
-generate-changelog invoked: yes
-```
+`Librarian sync complete: YYYY-MM-DD Trigger: [what caused the run] Skills scanned: N Entries added: N Entries removed: N Entries updated: N Files modified: [list] Broken cross-references: N Orphaned entries: N SKILL-O...`

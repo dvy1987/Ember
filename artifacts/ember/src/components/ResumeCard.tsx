@@ -3,6 +3,7 @@ import { Project, Task, Session, DragonType, ResumeContext } from '@/lib/types';
 import { getDragonAccentVar } from '@/lib/dragonAssets';
 import DragonScene from './DragonScene';
 import { BeginIcon, CircleDotIcon, EditIcon, CheckIcon, CloseIcon } from './Icons';
+import { sessionDurationClock, sessionDurationLabel } from '@/lib/demoMode';
 
 const PROJECT_NAME_MAX_LENGTH = 80;
 
@@ -13,6 +14,8 @@ interface ResumeCardProps {
   resumeContext?: ResumeContext | null;
   onStartSession: () => void;
   onChooseDifferentTask?: () => void;
+  /** Shown under the CTA so the keeper knows what auto-start will tend. */
+  sessionFocusLabel?: string | null;
   /** When provided, shows a pencil affordance next to the title for inline rename. */
   onRename?: (newName: string) => Promise<{ ok: true } | { ok: false; error: string }>;
 }
@@ -25,6 +28,7 @@ export default function ResumeCard({
   onStartSession,
   onChooseDifferentTask,
   onRename,
+  sessionFocusLabel,
 }: ResumeCardProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [draftName, setDraftName] = useState(project.name);
@@ -78,6 +82,9 @@ export default function ResumeCard({
   const dragonType = project.dragon_type as DragonType;
   const accentColor = getDragonAccentVar(dragonType);
 
+  const statusSummary = resumeContext?.status_summary
+    || (project.project_summary ? project.project_summary : null);
+
   const suggestedTask = resumeContext?.suggested_next_step
     || (activeTasks.length > 0 ? activeTasks[0].task_text : null);
 
@@ -85,6 +92,11 @@ export default function ResumeCard({
     || (lastSession
       ? lastSession.ai_summary || lastSession.reflection || `${lastSession.duration_minutes} minute focus session`
       : null);
+
+  const showLastSession = Boolean(
+    lastSessionInfo
+    && (!statusSummary || !lastSessionInfo.toLowerCase().includes(statusSummary.slice(0, 40).toLowerCase())),
+  );
 
   const lastSessionDate = lastSession
     ? new Date(lastSession.created_at).toLocaleDateString('en-US', {
@@ -103,7 +115,7 @@ export default function ResumeCard({
         <div className="flex flex-col items-center text-center mb-6">
           <DragonScene type={dragonType} stage={project.dragon_stage} size={180} intense />
           <p className="font-mono-caps text-ember-text-muted mt-2 mb-2">
-            Where the keeper left off
+            Your dragon remembers
           </p>
           {isEditing ? (
             <div className="w-full max-w-md">
@@ -169,7 +181,19 @@ export default function ResumeCard({
           )}
         </div>
 
-        {lastSessionInfo && (
+        {statusSummary && (
+          <div
+            className="mb-6 border-l-2 pl-4 py-1 text-left max-w-lg mx-auto"
+            style={{ borderColor: accentColor }}
+          >
+            <p className="font-mono-caps text-ember-text-muted mb-1.5">Where you left off</p>
+            <p className="body-lg text-ember-text leading-relaxed">
+              {statusSummary}
+            </p>
+          </div>
+        )}
+
+        {showLastSession && (
           <div className="mb-5 border-l-2 pl-4 py-1" style={{ borderColor: 'var(--border-subtle)' }}>
             <p className="font-mono-caps text-ember-text-muted mb-1">
               Last session{lastSessionDate ? ` · ${lastSessionDate}` : ''}
@@ -197,17 +221,23 @@ export default function ResumeCard({
           className="cta-ember w-full py-[18px] px-6 flex items-center justify-between font-serif-body font-semibold text-[16px]"
         >
           <span className="flex items-center gap-2">
-            <BeginIcon size={18} /> Begin today's focus session — 20 min
+            <BeginIcon size={18} /> Train {sessionDurationLabel()}
           </span>
-          <span className="font-mono-caps opacity-85" style={{ color: 'var(--amber-glow)' }}>20:00</span>
+          <span className="font-mono-caps opacity-85" style={{ color: 'var(--amber-glow)' }}>{sessionDurationClock()}</span>
         </button>
+
+        {sessionFocusLabel && (
+          <p className="body-sm text-ember-text-muted text-center mt-3">
+            {sessionFocusLabel}
+          </p>
+        )}
 
         {onChooseDifferentTask && activeTasks.length > 1 && (
           <button
             onClick={onChooseDifferentTask}
             className="w-full mt-3 body-sm text-ember-text-muted hover:text-ember-text transition-colors"
           >
-            or tend a different task
+            or choose different tasks
           </button>
         )}
       </div>

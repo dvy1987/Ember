@@ -22,6 +22,7 @@ metadata:
     references:
       - metrics-frameworks.md
       - prd-schemas.md
+      - examples.md
 ---
 
 # PRD Writing
@@ -140,6 +141,28 @@ Read `references/metrics-frameworks.md` when the user needs help choosing succes
 
 ---
 
+## Common Rationalizations
+
+| Excuse | Reality |
+|--------|---------|
+| PRD before product-soul | Soul is north star — PRD implements a slice of it. |
+| Interview skipped | Discovery questions precede document structure. |
+| Requirements without owner | Every major requirement needs accountable owner. |
+| PRD = spec | PRD is product layer; feature-spec is executable agent layer. |
+
+## Verification
+
+- [ ] Discovery completed or gaps explicit
+- [ ] PRD file path under docs/prd/ with date
+- [ ] Success metrics measurable
+- [ ] SKILL-OUTPUTS.md updated
+
+## Red Flags
+
+- PRD drafted without discovery or evidence section
+- Out of scope section empty or missing
+- Requirements stated as untestable aspirations
+- PRD marked Approved on first draft without iteration
 ## Reference Files
 
 - **`references/prd-schemas.md`**: Complete schemas for Full PRD, Lean PRD, One-Pager, Technical PRD. Read when writing any PRD.

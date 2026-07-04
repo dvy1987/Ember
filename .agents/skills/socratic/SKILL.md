@@ -16,6 +16,9 @@ metadata:
   version: "1.0"
   category: thinking
   sources: EMNLP-2023-Socratic-Questioning-arXiv:2303.09014
+  resources:
+    references:
+      - examples.md
 ---
 
 # Socratic
@@ -107,6 +110,29 @@ Then the real question isn't community vs. core product. The question is: do you
 
 ---
 
+## Common Rationalizations
+
+| Excuse | Reality |
+|--------|---------|
+| "Just answer me" | Questions uncover assumptions answers would cement. |
+| "I need advice not questions" | Advice without examined beliefs repeats past mistakes. |
+| "Too many questions annoy users" | One question at a time — depth without interrogation. |
+| "I already explained" | Explanation often masks unstated premises. |
+| "Socratic is slow" | Five sharp questions beat a wrong hour-long plan. |
+
+## Verification
+
+- [ ] One question at a time (no question stacks)
+- [ ] User's assumptions surfaced before recommendations
+- [ ] Questions tie to the decision at hand, not generic coaching
+- [ ] Session converges toward clarity or explicit uncertainty
+
+## Red Flags
+
+- User's surface question answered before probing
+- Short answer accepted without one deeper follow-up
+- Socratic used for simple binary decision
+- Session ends without surfacing deepest unresolved question
 ## Impact Report
 
 ```

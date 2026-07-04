@@ -9,7 +9,7 @@ import {
   getRecentLogs,
   RitualCadence,
   VALID_CADENCES,
-} from '../services/ritualService.js';
+} from '@workspace/ember-core';
 
 const router = Router();
 

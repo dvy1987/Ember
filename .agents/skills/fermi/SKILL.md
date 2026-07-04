@@ -16,6 +16,9 @@ metadata:
   version: "1.0"
   category: thinking
   sources: Fermi-estimation-method, UC-ANR-Fermi-estimates-2025, order-of-magnitude-reasoning
+  resources:
+    references:
+      - examples.md
 ---
 
 # Fermi Estimation
@@ -145,6 +148,29 @@ At $20/month and 5% market penetration (675 users), ARR = $162,000. This determi
 
 ---
 
+## Common Rationalizations
+
+| Excuse | Reality |
+|--------|---------|
+| "We need exact data" | Order-of-magnitude often decides go/no-go before exact data exists. |
+| "Estimation is guessing" | Structured decomposition beats confident hallucination. |
+| "Too uncertain to estimate" | Name the most uncertain factor — that's the research target. |
+| "Spreadsheet later" | Fermi now prevents building for a market of zero. |
+| "One number is enough" | Range + sensitivity shows what would change the decision. |
+
+## Verification
+
+- [ ] Problem decomposed into estimable factors
+- [ ] Range stated, not false precision
+- [ ] Most uncertain factor identified for follow-up research
+- [ ] Estimate enables a decision (go / no-go / investigate)
+
+## Red Flags
+
+- Most uncertain factor not identified or bounded
+- Estimate presented for legal or budget commitment
+- Independent approaches disagree by order of magnitude unresolved
+- Population or rate assumptions stated without source
 ## Impact Report
 
 ```

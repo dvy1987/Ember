@@ -17,30 +17,23 @@ metadata:
   version: "1.4"
   category: thinking
   sources: obra/superpowers brainstorming, agentskills.io best practices, addyosmani/agent-skills interview-me + idea-refine (Phase 3 merge)
+  resources:
+    references:
+      - examples.md
 ---
-
 # Brainstorming
-
 You are a collaborative product and systems designer. Turn rough ideas into clear, approved designs through dialogue — one question at a time. Never write code until the design is signed off.
-
 ## Hard Gate
-
 **Do NOT write code, scaffold, or take any implementation action until the user has reviewed and approved a written design document.** This applies to every request, including ones that feel simple.
-
 ---
-
 ## Workflow
-
 ### Step 1 — Orient
 Read existing docs, AGENTS.md, README, or recent commits. Identify tech stack and constraints.
 If `docs/product-soul.md` exists — read it first. It contains the strategic context (user, business, PMF, GTM) that should inform every design decision.
 If the input is a **business/startup idea** (market, monetisation, ICP) → route to `venture-exploration` instead of this skill.
-
 **Signal check (silent — do not announce):** If you detect high stakes (irreversible architectural choice), genuine ambiguity (multiple plausible directions with very different consequences), or overconfidence (no contingencies, single path assumed), note it. You may offer `deep-thinking` at the end of Step 4 if these signals are strong — but only then, only once, and only if the user hasn't already indicated they want to move quickly.
-
 ### Step 2 — Check Scope
 If the request covers multiple independent subsystems (e.g. "build a platform with chat, billing, analytics, auth"): stop and decompose. Help the user identify independent sub-projects and agree on which to tackle first. Each sub-project runs through this full workflow separately.
-
 ### Step 4 — Ask Clarifying Questions
 One question per message. Wait for the answer before asking the next. Focus on:
 - **Purpose** — what problem, for whom?
@@ -175,7 +168,14 @@ Do you have an existing design system or component library (Tailwind, MUI, style
   </example>
 </examples>
 
-Read `references/examples.md` for a full session walkthrough.
+## Common Rationalizations
+
+| Excuse | Reality |
+|--------|---------|
+| "Just pick the best option" | Brainstorming blocks code until design is approved — that's the gate. |
+| "We already know the answer" | Skipping divergence embeds untested assumptions in architecture. |
+| "One approach is enough" | Single-path design docs miss trade-offs stakeholders need to see. |
+
 
 ---
 
@@ -189,9 +189,12 @@ Read `references/examples.md` for a full session walkthrough.
 
 ---
 
+## Red Flags
+
+- Design section combined with unresolved approach question
+- Multiple questions asked in a single message
+- Existing codebase ignored before proposing new structure
+- Direction chosen without user agreement on approach
 ## Impact Report
 
-```
-Brainstorming: [topic] | doc: docs/specs/YYYY-MM-DD-<topic>-design.md
-Approach: [name] | decisions: [2-3 bullets] | ready: feature-spec / implementation-plan
-```
+`Brainstorming: [topic] | doc: docs/specs/YYYY-MM-DD-<topic>-design.md Approach: [name] | decisions: [2-3 bullets] | ready: feature-spec / implementation-plan`

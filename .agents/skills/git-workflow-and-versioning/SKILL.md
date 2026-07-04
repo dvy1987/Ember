@@ -13,6 +13,9 @@ metadata:
   version: "1.0"
   category: project-specific
   sources: addyosmani/agent-skills git-workflow-and-versioning (11/12, 2026-05-29)
+  resources:
+    references:
+      - examples.md
 ---
 
 # Git Workflow and Versioning
@@ -128,6 +131,19 @@ Run: `npm test` → pass, then commit.
 
 ---
 
+## Verification
+
+- [ ] Commit message follows convention
+- [ ] Scope is single logical change
+- [ ] Handoff completed if user triggered via commit/push
+- [ ] No secrets in committed files
+
+## Red Flags
+
+- All work squashed into one commit losing slice narrative
+- Formatting-only changes mixed with behavior commits
+- .env or secrets committed before gitignore exists
+- Conventional commit type mismatches actual change nature
 ## Impact Report
 
 ```

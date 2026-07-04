@@ -1,0 +1,21 @@
+{
+  "name": "@workspace/ember-sdk",
+  "version": "0.1.0",
+  "description": "Optional HTTP client for remote api-server access. MCP uses @workspace/ember-core directly.",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "typescript": "~5.9.2"
+  }
+}

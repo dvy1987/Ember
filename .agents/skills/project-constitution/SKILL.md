@@ -16,6 +16,9 @@ metadata:
   version: "1.0"
   category: project-specific
   sources: GitHub Spec Kit (constitution command), AWS Kiro (specs-first), agentskills.io
+  resources:
+    references:
+      - examples.md
 ---
 
 # Project Constitution
@@ -155,6 +158,28 @@ Saved to `docs/constitution.md` v1. Every feature-spec must now reference `const
 
 ---
 
+## Common Rationalizations
+
+| Excuse | Reality |
+|--------|---------|
+| Constitution is boilerplate | C-N rules must be project-specific and testable. |
+| Skip version bump | Amendments need version + date for spec linkage. |
+| Copy from template only | Interview user for real non-negotiables. |
+| One page is enough | Depth on gates beats vague values. |
+
+## Verification
+
+- [ ] Version and date in constitution header
+- [ ] C-N items are observable and enforceable
+- [ ] Linked from feature-spec workflow
+- [ ] Amendment process documented
+
+## Red Flags
+
+- Rule stated as preference — routinely waived in practice
+- Unenforceable rule like code should be clean
+- Constitution changed without version bump and amendment
+- Spec approved against outdated constitution version
 ## Impact Report
 
 ```

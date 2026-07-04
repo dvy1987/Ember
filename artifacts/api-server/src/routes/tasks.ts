@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createTask, getTasksByProject, getTask, updateTask, completeTask, moveTaskToActive, moveTaskToBacklog, deleteTask, TaskStatus, TaskSource } from '../services/taskService.js';
+import { createTask, getTasksByProject, getTask, updateTask, completeTask, moveTaskToActive, moveTaskToBacklog, deleteTask, TaskStatus, TaskSource } from '@workspace/ember-core';
 
 const router = Router();
 
@@ -43,7 +43,13 @@ router.post('/tasks', (req, res) => {
 router.patch('/tasks/:id', (req, res) => {
   try {
     const { id } = req.params;
-    const body = req.body as { action?: string };
+    const body = req.body as {
+      action?: string;
+      task_text?: string;
+      status?: TaskStatus;
+      priority?: number;
+      task_order?: number;
+    };
 
     if (body.action === 'complete') {
       const task = completeTask(id);
@@ -66,7 +72,8 @@ router.patch('/tasks/:id', (req, res) => {
       return;
     }
 
-    const task = updateTask(id, body);
+    const { action: _action, ...updates } = body;
+    const task = updateTask(id, updates);
     if (!task) { res.status(404).json({ error: 'Task not found' }); return; }
     res.json(task);
   } catch {

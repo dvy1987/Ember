@@ -6,6 +6,8 @@ interface FocusTimerProps {
   onComplete: () => void;
   onTick?: (remainingSeconds: number) => void;
   accentColor?: string;
+  /** Hides time-add chips — walkthrough / demo sessions. */
+  compact?: boolean;
 }
 
 export default function FocusTimer({
@@ -13,6 +15,7 @@ export default function FocusTimer({
   onComplete,
   onTick,
   accentColor = 'var(--ember-accent)',
+  compact = false,
 }: FocusTimerProps) {
   const [totalSeconds, setTotalSeconds] = useState(initialMinutes * 60);
   const [remainingSeconds, setRemainingSeconds] = useState(initialMinutes * 60);
@@ -89,7 +92,7 @@ export default function FocusTimer({
             {String(minutes).padStart(2, '0')}<span className="opacity-50">:</span>{String(seconds).padStart(2, '0')}
           </div>
           <div className="font-mono-caps text-ember-text-muted mt-3">
-            {isComplete ? 'session complete' : isRunning ? 'tending' : 'paused'}
+            {isComplete ? 'training complete' : isRunning ? 'breathing with you' : 'paused'}
           </div>
         </div>
       </div>
@@ -101,13 +104,13 @@ export default function FocusTimer({
               {isRunning ? <><PauseIcon size={12} /> Pause</> : <><PlayIcon size={12} /> Resume</>}
             </button>
             <button onClick={endEarly} className="cta-quiet px-5 py-2 font-mono-caps text-ember-text-muted">
-              End Early
+              End early
             </button>
           </>
         )}
       </div>
 
-      {!isComplete && (
+      {!isComplete && !compact && (
         <div className="flex gap-2">
           {[5, 10, 20].map((mins) => (
             <button

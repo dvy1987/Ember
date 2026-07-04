@@ -17,14 +17,11 @@ metadata:
   resources:
     references:
       - changelog-template.md
+      - examples.md
 ---
-
 # Generate Changelog
-
 You are a Changelog Author. You synthesize raw commit history into clear, value-driven release narratives. You focus on *what changed* and *why it matters* to the user, never on internal implementation details.
-
 ## Hard Rules
-
 Never just list commit messages — synthesize them into logical groups.
 Never include internal-only changes (e.g., "fixed typo in comment") in a user-facing changelog.
 Never skip the "Breaking Changes" section — it's the most important part.
@@ -32,15 +29,11 @@ Never mention security findings, fixes, or implementation details in user-facing
 Never publish a value statement that fails the **Four-Dimension Test** — every user-facing entry MUST answer all four: WHAT changed, WHO benefits, WHY it matters, WHY act now (upgrade/install/clone/try). If you cannot answer one, the entry is incomplete.
 Never push a release tag or update the README without first running Step 2 (Significance Triage) and getting an explicit MAJOR or MINOR classification.
 Before finalizing Step 5 or Step 6, run the **Accessibility & Motivation Check** (Step 4 sub-section). If any item fails, rewrite.
-
 ---
-
 ## Workflow
-
 ### Step 1 — Gather Recent Changes
 Scan the commit history, PRs, and `docs/skill-outputs/SKILL-OUTPUTS.md`.
 Identify the time range or version tag to summarize.
-
 ### Step 2 — Significance Triage (MANDATORY GATE)
 Classify the release before drafting. This decides whether README + release push fire.
 
@@ -181,18 +174,27 @@ Ready for: release
   </example>
 </examples>
 
----
+## Common Rationalizations
 
+| Excuse | Reality |
+|--------|---------|
+| Changelog = git log dump | User-facing prose grouped by impact. |
+| Skip semver signal | MAJOR/MINOR/PATCH label when appropriate. |
+| Security details in user notes | Follow doc-policy — no security implementation in user changelogs. |
+
+## Verification
+
+- [ ] Changelog under docs/changelogs/
+- [ ] Entries grouped and readable
+- [ ] Version or date in filename
+- [ ] SKILL-OUTPUTS.md updated
+
+## Red Flags
+
+- Every commit listed verbatim instead of grouped themes
+- Breaking changes buried below Changed section
+- Internal refactors or CI fixes listed as user-facing
+- Version bump inconsistent with semver of actual changes
 ## Impact Report
 
-After completing, always report:
-```
-Changelog generated: [version]
-Significance: [MAJOR | MINOR | PATCH]
-Changes categorized: [N]
-Breaking changes found: [N]
-Four-Dimension value statements: [N]
-README updated: [yes / no / n-a]
-Release push: [proposed-awaiting-confirmation / pushed / skipped-patch]
-Ready for: release / stakeholder-update
-```
+`Changelog generated: [version] Significance: [MAJOR | MINOR | PATCH] Changes categorized: [N] Breaking changes found: [N] Four-Dimension value statements: [N] README updated: [yes `

@@ -10,7 +10,7 @@ Pre-PMF local-first ADHD productivity app (dragon metaphor). Core repo on `main`
 
 - `.agents/` merged from upstream **agent-loom** (98 skills + upgrades)
 - Design pipeline: `design-direction` → `design-system` (loom standard)
-- Ember constraints: `frontend-design/references/ember-design-constraints.md` + `docs/visual-direction.md`
+- Ember constraints: `skills/ember-design-constraints/` + `docs/visual-direction.md`
 - Legacy design trio archived under `.agents/skills/.deprecated/*-deprecated-2026-07-03/`
 - Root `AGENTS.md` restored; `docs/visual-direction.md` in `docs/`
 
@@ -21,4 +21,4 @@ Product/feature implementation per `docs/build-plan.md` (when restored from migr
 ## Revisit triggers
 
 - Syncing from agent-loom again → follow merge checklist in `.agents/EMBER-SKILLS.md`
-- Ember UI work → `design-direction` + `design-system` + `ember-design-constraints.md`
+- Ember UI work → `ember-design-constraints` + `design-direction` + `design-system`

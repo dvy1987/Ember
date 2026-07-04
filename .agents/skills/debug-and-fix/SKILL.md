@@ -13,6 +13,10 @@ metadata:
   version: "1.2"
   category: project-specific
   sources: fixing-bugs-skill-template, addyosmani/agent-skills debugging-and-error-recovery (Phase 3 merge), safishamsi/graphify (graph trace, 11/12)
+  resources:
+    references:
+      - examples.md
+      - triage-and-untrusted-output.md
 ---
 
 # Debug and Fix
@@ -59,13 +63,15 @@ If multiple bugs arrive at once:
 2. Present the numbered list for user confirmation and prioritisation.
 3. Process one at a time through the full cycle.
 
-### Step 3 — Triage (Reproduce → Localize → Reduce)
+### Step 3 — Triage (Reproduce → Localize → Reduce → Fix → Guard → Verify)
 
-1. **Reproduce** — make the failure reliable (`[project test command]` with filter if needed). If not reproducible, document environment/timing/state hypotheses before guessing.
-2. **Localize** — which layer fails (UI, API, DB, build, test, external)? Use `git bisect` for regressions when useful.
-3. **Reduce** — smallest failing case (minimal input, stripped test).
-4. Search with `Grep`; read source and nearby tests.
-5. Summarise **root cause** (not symptom) to the user — wait for acknowledgement before proceeding.
+Follow the **six-step AO triage** in `references/triage-and-untrusted-output.md` (recipes, bisect, non-repro tree, untrusted-output rules). Summary:
+1. **Reproduce** — reliable failure (`[project test command]`).
+2. **Localize** — layer (UI/API/DB/build/external).
+3. **Reduce** — smallest failing case.
+4. Present **root cause** to user — wait before fix.
+5. **Guard** — Prove-It regression test.
+6. **Verify E2E** — full suite + build + manual if UI.
 
 ### Step 4 — Apply the Fix
 
@@ -171,7 +177,6 @@ Update HID-42 status to "Done"?
 | "I know the bug, I'll just fix it" | Unreproduced fixes often miss root cause. |
 | "The test is wrong, skip it" | Verify; fix test or code — don't skip. |
 | "Works on my machine" | Compare CI, config, dependencies. |
-| "I'll add the test later" | Later never comes; guard now. |
 
 ## Verification
 
@@ -182,13 +187,12 @@ Update HID-42 status to "Done"?
 
 ---
 
+## Red Flags
+
+- Fix applied against minified path without source mapping
+- Linear ticket claims accepted without codebase verification
+- Suite green but reproduction test does not exercise bug
+- Root cause declared before minimal repro exists
 ## Impact Report
 
-```
-Bug fixed: [one-line summary]
-Root cause: [one-line explanation]
-Files changed: [list]
-Tests: [command + pass/fail count]
-Linear updated: [yes — issue ID / no / N/A]
-Next: [next bug in queue, or "all clear"]
-```
+`Bug fixed: [one-line summary] Root cause: [one-line explanation] Files changed: [list] Tests: [command + pass/fail count] Linear updated: [yes — issue ID / no / N/A] Next: [next bu`

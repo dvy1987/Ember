@@ -3,12 +3,18 @@ name: memory-handoff
 description: >
   Write concise next-agent handoff summaries across sessions, tools, and coding
   agents. Load when the user says handoff, next agent should know, save context,
-  summarize where we are, switching agents, or before ending a meaningful session.
+  summarize where we are, switching agents, before ending a meaningful session,
+  or when the user asks to commit, push, commit and push, create a git commit,
+  push to origin, or publish commits — commit/push requests MUST run this skill
+  first to prepare handoff docs, then proceed with git operations.
 license: MIT
 metadata:
   author: dvy1987
-  version: "1.1"
+  version: "1.3"
   category: project-specific
+  resources:
+    references:
+      - examples.md
 ---
 
 # Memory Handoff
@@ -22,6 +28,7 @@ Run when a future agent would lose important context:
 - End of a long session with unresolved work.
 - Before switching agents or tools.
 - User says "handoff", "summarize where we are", "save context", "memory handoff", or "next agent should know".
+- **User asks to commit and/or push** ("commit", "create a commit", "commit these changes", "prepare commit", "push", "push to origin", "git push", "commit and push", "commit and push when ready") — run full handoff workflow **before** staging/committing/pushing so the next session has continuity. Pair with `git-workflow-and-versioning` for git operations after handoff is saved.
 
 Do not run after trivial interactions.
 
@@ -76,6 +83,28 @@ User: "I'm moving this to another agent, save a handoff."
 
 Output: append a timestamped handoff with current status, unresolved tasks, and files touched.
 
+## Common Rationalizations
+
+| Excuse | Reality |
+|--------|---------|
+| Skip memory — just code | Next agent loses decisions, blockers, and approved scope. |
+| Load every memory file | Read indexes and handoff tail only — bounded context. |
+| Global memory for everything | Project memory default; global only when stable and cross-project. |
+| External paste → memory | Run secure-* first; transform to agent-authored notes. |
+
+## Verification
+
+- [ ] Correct sub-skill routed with reason
+- [ ] No secrets or raw transcripts persisted
+- [ ] Files changed listed in Impact Report
+- [ ] Security gate noted when external content involved
+
+## Red Flags
+
+- Handoff exceeds 80-line budget
+- Secrets tokens or raw private data in handoff body
+- Long decision rationale pasted instead of log link
+- Git state omitted from handoff next-agent context
 ## Impact Report
 
 After completing, report:

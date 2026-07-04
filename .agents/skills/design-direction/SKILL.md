@@ -32,6 +32,7 @@ metadata:
       - archetypes/social-feed.md
       - archetypes/conversational-ai.md
       - archetypes/spatial-canvas.md
+      - examples.md
 ---
 
 # Design Direction
@@ -64,9 +65,7 @@ before exactly one is chosen. The chosen direction is a complete philosophy that
 ## Workflow
 
 ### Step 1 — Read product reality
-Read `docs/product-soul.md`, PRD, specs (and any brand assets). When `docs/visual-direction.md`
-exists (Ember), also read `../frontend-design/references/ember-design-constraints.md` and use
-its direction seeds — do not route to deprecated `design-archetype`. Run `references/ux-context-checklist.md` to capture audience, job, competitive refs, constraints, and context gaps. Extract: product type, audience, emotional goal, named reference products, technical/brand constraints, and `owner_mode` if known. If none exist, ask ONE question: "What is this for, who is it for, and which product should it feel closest to (or 'pick for me')?" Record unchecked checklist items as gaps in DIRECTION.md — gaps do not block exploration.
+Read `docs/product-soul.md`, PRD, specs (and any brand assets). Run `references/ux-context-checklist.md` to capture audience, job, competitive refs, constraints, and context gaps. Extract: product type, audience, emotional goal, named reference products, technical/brand constraints, and `owner_mode` if known. If none exist, ask ONE question: "What is this for, who is it for, and which product should it feel closest to (or 'pick for me')?" Record unchecked checklist items as gaps in DIRECTION.md — gaps do not block exploration.
 
 ### Step 2 — Score the archetype palette
 Read `references/selection-rubric.md`. Score the 12 archetypes (`references/archetypes/<name>.md`) on audience fit, job fit, distinctive fit. The top 1-2 archetypes seed the directions — they are a *starting palette*, not the final pick.
@@ -129,6 +128,12 @@ Posture: [one sentence] | Seed archetypes: [top 1-2]
 
 ---
 
+## Red Flags
+
+- Single safe direction presented without exploration
+- Directions differ on fewer than three dimensions
+- Hybrid direction committed instead of one clear posture
+- Non-technical owner given options without a recommendation
 ## Reference Files
 - `references/exploration-method.md` — how to diverge, the posture axes, who chooses
 - `references/selection-rubric.md` — archetype scoring, tiebreakers, decision tree

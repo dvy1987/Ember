@@ -18,13 +18,12 @@ not a separate skill chain.
 
 ### Ember design constraints
 
-`skills/frontend-design/references/ember-design-constraints.md` threads into the loom pipeline:
+`skills/ember-design-constraints/` (project-local) threads into the loom pipeline:
 
+- Load `ember-design-constraints` before any Ember UI work
 - Read `docs/visual-direction.md` + `docs/product-soul.md` at Step 0
 - Preserve `--color-ember-*` token naming in `DESIGN.md`
 - Resume Card hierarchy, dragon accents, focus-session calm, state coverage
-
-`design-direction` and `design-system` include Ember hooks when `docs/visual-direction.md` exists.
 
 ---
 
@@ -42,6 +41,18 @@ Root `AGENTS.md` lists Ember-specific required reading. Do not replace with gene
 
 1. `rsync` agent-loom `.agents/` → Ember (exclude `.deprecated/`)
 2. Restore `agent_assets_metadata.toml`
-3. Re-apply `ember-design-constraints.md` and Ember hooks in `frontend-design`, `design-direction`, `design-system`
+3. Keep `ember-design-constraints` skill (project-local) — do not delete on sync
 4. Keep root `AGENTS.md` and `docs/visual-direction.md`
 5. Do **not** restore `design-archetype`, `design-tokens-craft`, `icon-craft` unless explicitly requested
+
+### Last sync: 2026-07-04
+
+Synced from agent-loom commit `06ced67`+ (102 skills):
+
+- Added: `api-deprecation-and-migration`, `browser-testing-with-devtools`, `performance-optimization`, `shipping-and-launch`
+- L3 `references/examples.md` enrichment across all shared skills
+- Updated `learn-from` (v2.4), `memory-handoff` (v1.3)
+- `universal-skill-creator` tooling scripts + `knowledge-graph/validate_application_mode.py`
+- Docs: `docs/SKILL-INDEX.md`, `docs/SKILL-EXAMPLES-INDEX.md`, `docs/skill-graph.md`
+- Preserved: `ember-design-constraints` skill (project-local)
+- Un-forked: `frontend-design` now syncs from loom

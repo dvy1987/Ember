@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getRecentSaga } from '../services/sagaService.js';
+import { getRecentSaga } from '@workspace/ember-core';
 
 const router = Router();
 

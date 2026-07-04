@@ -14,6 +14,9 @@ metadata:
   version: "1.1"
   category: project-specific
   sources: addyosmani/agent-skills context-engineering (11/12, 2026-05-29), safishamsi/graphify (corpus gates, 11/12)
+  resources:
+    references:
+      - examples.md
 ---
 
 # Context Engineering
@@ -162,6 +165,12 @@ Tier A. Collect: failing command, CI logs, the test file, and the code under tes
 
 ---
 
+## Red Flags
+
+- Context gathered by guessing instead of repo evidence
+- Irrelevant files included that dilute the task signal
+- Constraints unnamed so violations go unnoticed
+- Assumptions presented as facts without confirmation path
 ## Impact Report
 
 ```

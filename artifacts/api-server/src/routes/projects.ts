@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { createProject, getAllProjects, getArchivedProjects, getProject, updateProject, archiveProject, ensureDefaultHealthDragon, VALID_DRAGON_TYPES, DragonType } from '../services/projectService.js';
-import { updateDragonState } from '../services/dragonEngine.js';
+import { createProject, getAllProjects, getArchivedProjects, getProject, updateProject, archiveProject, ensureDefaultHealthDragon, ensureInvestorDemoDragon, buildKeepResponse, VALID_DRAGON_TYPES, DragonType } from '@workspace/ember-core';
+import { updateDragonState } from '@workspace/ember-core';
 
 const router = Router();
 
@@ -10,9 +10,14 @@ router.get('/projects', (req, res) => {
     if (!archived) {
       // Idempotent: only seeds the very first time per database.
       ensureDefaultHealthDragon();
+      ensureInvestorDemoDragon();
     }
     const projects = archived ? getArchivedProjects() : getAllProjects();
-    res.json(projects);
+    if (archived) {
+      res.json(projects);
+      return;
+    }
+    res.json(buildKeepResponse());
   } catch {
     res.status(500).json({ error: 'Failed to fetch projects' });
   }

@@ -22,6 +22,7 @@ metadata:
       - method-selector.md
       - funnel-surface-map.md
       - decision-class-rules.md
+      - examples.md
 ---
 
 # Experimentation
@@ -130,6 +131,28 @@ Next recommended step: [exact next action]
 
 ---
 
+## Common Rationalizations
+
+| Excuse | Reality |
+|--------|---------|
+| Test without hypothesis | Falsifiable hypothesis required before spec. |
+| Peek until significant | Peek policy must be pre-committed in spec. |
+| Any metric goes | Primary + guardrail metrics defined up front. |
+| Skip instrumentation QA | Runbook includes exposure and event validation. |
+
+## Verification
+
+- [ ] Decision class labeled (Causal/Directional/Instrumentation)
+- [ ] Artifact path under docs/experiments/
+- [ ] SKILL-OUTPUTS.md updated for file outputs
+- [ ] Rollback or stop rule documented
+
+## Red Flags
+
+- Decision class retrofitted after results are known
+- Orchestrator analyzes results instead of routing to readout
+- A/B chosen for persistent treatment needing holdout design
+- Primary metric or guardrails declared post-launch
 ## Reference Files
 
 - **`references/method-selector.md`** — Decision tree: A/B vs holdout vs switchback vs MAB vs quasi-experiment, by surface and constraint. Read in Step 1 when method is unclear.

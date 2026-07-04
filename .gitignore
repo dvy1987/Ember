@@ -52,6 +52,11 @@ Thumbs.db
 *.swp
 *.swo
 
+# Python
+__pycache__/
+*.pyc
+
 # SQLite runtime files (WAL/shared-memory — not part of source)
+data/*.db
 *.db-shm
 *.db-wal

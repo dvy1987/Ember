@@ -21,6 +21,7 @@ metadata:
       - mde-heuristics.md
       - validity-threats.md
       - spec-template.md
+      - examples.md
 ---
 
 # Experiment Spec
@@ -137,6 +138,28 @@ Status: [READY-TO-LAUNCH | DOWNGRADED-TO-DIRECTIONAL | BLOCKED-INSUFFICIENT-POWE
 
 ---
 
+## Common Rationalizations
+
+| Excuse | Reality |
+|--------|---------|
+| Test without hypothesis | Falsifiable hypothesis required before spec. |
+| Peek until significant | Peek policy must be pre-committed in spec. |
+| Any metric goes | Primary + guardrail metrics defined up front. |
+| Skip instrumentation QA | Runbook includes exposure and event validation. |
+
+## Verification
+
+- [ ] Decision class labeled (Causal/Directional/Instrumentation)
+- [ ] Artifact path under docs/experiments/
+- [ ] SKILL-OUTPUTS.md updated for file outputs
+- [ ] Rollback or stop rule documented
+
+## Red Flags
+
+- Decision class missing from line one of the spec
+- Hypothesis not falsifiable — no if-clause decision rule
+- MDE stated as absolute percent instead of relative lift
+- Exposure defined as flag fetch not user-visible variant
 ## Reference Files
 
 - **`references/mde-heuristics.md`** — Quick sample-size table by baseline conversion and relative MDE. Read in Step 6.

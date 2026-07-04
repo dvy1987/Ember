@@ -15,6 +15,9 @@ metadata:
   version: "1.1"
   category: project-specific
   sources: adolfi.dev (AI generated ADR), salesforce.com (Architectural Decisions), Nygard ADR template
+  resources:
+    references:
+      - examples.md
 ---
 
 # Architectural Decision Log (ADL)
@@ -135,6 +138,28 @@ Ready for: implementation
 
 ---
 
+## Common Rationalizations
+
+| Excuse | Reality |
+|--------|---------|
+| ADR after the fact only | Interactive mode for contemporaneous decisions. |
+| Delete old ADRs | Supersede — never erase audit trail. |
+| No alternatives | Document options rejected. |
+| SYNTHESIS without evidence | Retrospective mode cites repo findings. |
+
+## Verification
+
+- [ ] ADR under docs/adr/ with date
+- [ ] Context, decision, consequences present
+- [ ] Status set (proposed/accepted/superseded)
+- [ ] SKILL-OUTPUTS.md updated
+
+## Red Flags
+
+- ADR written retrospectively with confabulated rationale
+- Rejected alternatives omitted from the record
+- Accepted status used with no revisit or supersede path
+- Decision recorded without observable enforcement hook
 ## Impact Report
 
 After completing, always report:

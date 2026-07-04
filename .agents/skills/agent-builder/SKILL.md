@@ -15,6 +15,9 @@ metadata:
   sources: >
     agent-loom design spec 2026-04-10, arXiv:2601.02577, Addy-Osmani-Code-Agent-Orchestra,
     AlphaEval 2026 (credibility 8/12 � see docs/learnings/papers/alphaeval-2026-lu-et-al.md)
+  resources:
+    references:
+      - examples.md
 ---
 
 # Agent Builder
@@ -123,6 +126,28 @@ Running setup-evaluation before handoff to project-orchestrator.
 
 ---
 
+## Common Rationalizations
+
+| Excuse | Reality |
+|--------|---------|
+| Agent without boundaries | Define tools, memory, and escalation limits. |
+| Copy prompt from blog | secure-* scan; cite sources. |
+| Skip setup-evaluation | Eval hooks belong in agent design. |
+| One-shot mega-prompt | Split orchestrator vs worker skills. |
+
+## Verification
+
+- [ ] Agent role and boundaries documented
+- [ ] Skill/tool routing map produced
+- [ ] Memory policy stated
+- [ ] Outputs logged when files created
+
+## Red Flags
+
+- Topology designed without checking platform parallel limits
+- Single agent shipped with no role prompt or skill stack
+- Scaffold choice ignored despite large benchmark variance
+- Fan-out merge has no explicit output contract between agents
 ## Impact Report
 
 ```

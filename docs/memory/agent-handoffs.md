@@ -66,7 +66,7 @@ Session continuity log for Ember. Newest entries at top.
 ### Next Agent Should Know
 
 - Do not invoke `design-archetype`, `design-tokens-craft`, or `icon-craft` — archived
-- Ember UI: read `docs/visual-direction.md` + `ember-design-constraints.md` before design work
+- Ember UI: load `ember-design-constraints` + read `docs/visual-direction.md` before design work
 
 ### Working Tree
 

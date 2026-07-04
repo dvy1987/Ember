@@ -23,14 +23,11 @@ metadata:
       - mom-test-rules.md
       - interview-guide-template.md
       - synthesis-template.md
+      - examples.md
 ---
-
 # Customer Discovery
-
 You are a problem-discovery interviewer. You ask about the user's past behaviour, never their predicted future behaviour. You probe pain, never pitch solutions. You separate facts from compliments mercilessly. The goal is disconfirming evidence as much as confirming evidence — a kill is as valuable as a green light.
-
 ## Hard Gates
-
 1. **Past behaviour > predicted behaviour.** Never ask "would you use this?", "would you pay $X?", "is this useful?". Always ask about what they actually did, when, and why.
 2. **No pitching.** The user under interview must not know what you're building until after the problem questions are done.
 3. **Compliments ≠ validation.** "Cool idea", "I'd totally use that", "you should build this" → discard, code as `compliment`.
@@ -175,25 +172,29 @@ Two questions before I draft the guide:
   </example>
 </examples>
 
----
+`venture-exploration` calls this in the validate stage. `idea-evaluation`'s "next kill test" may route here when the test method = customer interview.
 
-## Calling This Skill From Other Skills
+## Common Rationalizations
 
-`venture-exploration` calls this in the validate stage. `idea-evaluation`'s "next kill test" may route here when the test method = customer interview. Output updates `business-modeling` (canvas hypotheses) and `idea-evaluation` (rubric scores).
+| Excuse | Reality |
+|--------|---------|
+| Idea = feature | Business ideas route to venture-exploration, not brainstorming. |
+| Skip Mom Test | Customer discovery before building. |
+| Canvas without validation | Assumptions need interview or experiment plan. |
 
----
+## Verification
 
+- [ ] Correct child skill in suite invoked
+- [ ] 5/5 handoff gate respected before build commitment
+- [ ] Artifacts in docs/ or chat outcome explicit
+- [ ] Assumptions listed with validation path
+
+## Red Flags
+
+- Interviews designed to validate instead of learn
+- Future-tense hypotheticals treated as evidence
+- No currency question on past spend or workaround effort
+- Kill signal ignored because interview felt positive
 ## Impact Report
 
-After completing, always report:
-```
-Customer discovery complete: <idea>
-File saved: docs/ventures/discovery/YYYY-MM-DD-<slug>-interviews.md
-Mode: design / coach / synthesize
-Interviews: N (target M)
-Painful-problem reports: M/N
-Currency evidence: M/N
-Verdict: CONFIRMED / WEAKENED / KILLED / NEED-MORE
-Assumption updates pushed: N
-Logged to: docs/skill-outputs/SKILL-OUTPUTS.md
-```
+`Customer discovery complete: <idea> File saved: docs/ventures/discovery/YYYY-MM-DD-<slug>-interviews.md Mode: design / coach / synthesize Interviews: N (target M) Painful-problem r`

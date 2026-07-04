@@ -16,6 +16,9 @@ metadata:
   version: "1.1"
   category: project-specific
   sources: GitHub Spec Kit, AWS Kiro, agentskills.io, addyosmani/agent-skills spec-driven-development (Phase 3 merge)
+  resources:
+    references:
+      - examples.md
 ---
 
 # Spec-Driven Development
@@ -129,11 +132,18 @@ Starting at `/specify`. Routing to `feature-spec` (mode=specify).
 
 ## Verification
 
+- [ ] Orchestrator routes child skills in correct order
 - [ ] Phase order respected (no implement without PASS analyze)
 - [ ] Correct leaf skill invoked; slug consistent across artifacts
 
 ---
 
+## Red Flags
+
+- Router writes constitution or spec content directly
+- Tactical bug fix forced through full SDD pipeline
+- Ambiguous SDD request starts at wrong phase
+- Child skill skipped for explicit slash command route
 ## Impact Report
 
 ```

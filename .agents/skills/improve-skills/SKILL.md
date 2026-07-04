@@ -17,48 +17,32 @@ metadata:
   category: meta
   sources: arXiv:2602.12430, arXiv:2603.29919, agentskills.io best practices
 ---
-
 # Improve Skills
-
 You are a Senior AI Skill Engineer running a systematic improvement pass over a skill library. For each skill: prune → fix gaps → link → research → rewrite → resize. Compression without improved quality is failure. All skills are in scope including meta skills.
-
 ## Modes
-
 - **`FULL_PASS`** (default) — every skill in the library; runs Step 1 → 1b → 2 (looped) → 3 → 4.
 - **`TARGETED`** — invoked as `improve-skills TARGET=<skill> [SKIP_RESEARCH=true]`. Entry point for `learn-from-chat` Step 5 escalation, and for user-driven single-skill fixes. Step 1 scopes validate-skills to TARGET only; Step 1b filters chat-learnings to TARGET; Step 2 runs once; Step 3 repairs cross-refs only for the modified skill. `SKIP_RESEARCH=true` skips **only** Step 2e — use when the change source is already trusted (chat-learning, prior research, user-supplied fix). Never skip 2b, 2h, 2j, 2k, 2l.
-
 ## Hard Rules
-
 **Improve before compressing.** Compressing a weak skill produces a smaller weak skill.
-
 **Split before compressing.** Check for seams and duplication before trimming prose.
-
 **Fix structural gaps before rewriting.** Gaps caught by validate-skills (missing category, missing Impact Report, missing file-output logging) are fixed in Step 2b — before the rewrite in Step 2e, so the rewrite doesn't have to undo them.
-
+**L3 examples mandate.** External repo examples (e.g. addyosmani): `secure-*` SAFE first → full pairs in `references/examples.md`; never delete for line limits. Run `build_examples_index.py`.
 **Chat learnings are an input, not a mandate.** `docs/learnings/chat-learnings.md` is consumed in Step 1b. Apply discretion — not every OPEN entry must land in a skill. Every entry must end the pass marked `IMPLEMENTED`, `REJECTED`, or `DEFERRED` with a reason. Silent skipping is a failure.
-
 ---
-
 ## Workflow
-
 ### Step 1 — Pre-flight via validate-skills
 Invoke `validate-skills` across the full library. Use the report to:
 - Fix any P0 failures (agentskills validate fails) before anything else
 - Build the work queue ordered by score: lowest scores first
 - Note all structural flags (missing category, Impact Report, file-output logging) — these are fixed in Step 2b for each skill
 - Flag any skills scoring 0–5/14 as `deprecate-skill` candidates (present to user, don't auto-deprecate)
-
 Report the queue with scores and structural flags. Ask for confirmation before starting.
-
 ### Step 1b — Ingest Chat Learnings
-
 Read `docs/learnings/chat-learnings.md` (canonical log of chat-discovered learnings). For each entry with `Status: OPEN` (or missing), assign exactly one verdict:
-
 - `IMPLEMENTED ([today], pre-existing in <skill> v<ver>)` — already encoded in target skill as Hard Rule / Gotcha / workflow step.
 - `REJECTED (<reason>)` — not generalizable; project- or context-specific.
 - `DEFERRED (<reason>)` — target skill not in queue, or needs design work first.
 - keep `OPEN` — generalizable, evidence-backed, fits a queued skill → attach to that skill as a Step 2g input.
-
 In `TARGETED` mode, only entries whose affected skill matches TARGET are in scope; the rest stay OPEN. Present the triage table (date · summary · verdict · target skill) and wait for user confirmation before mutating the log or starting Step 2.
 
 ### Step 2 — Per-Skill Improvement Cycle
@@ -76,6 +60,8 @@ From the validate-skills report, fix any structural flags for this skill:
 - Stale rubric reference (e.g., `improve-skills/references/scoring-rubric.md`) → update to `validate-skills/references/validation-rubric.md`
 - Orphaned `references/` file (not mentioned in SKILL.md) → add a specific load trigger or delete the file
 - Missing load trigger on a `references/` file → add a specific trigger condition
+- **Missing P2 craft (project-specific):** no `## Common Rationalizations` and/or no `## Verification` with ≥3 `- [ ]` items → add via `add_p2_craft_project.py` pattern or manual edit; run `fix_craft_overflow.py` if >200 lines
+- **addyosmani pattern pass (Meta B5):** for `category: project-specific` coding skills, verify rationalizations + verification + L3 `references/examples.md` ≥55 lines (not padding-only); relocate inline examples to L3, never delete
 
 **2c — Baseline Score** (rubric: `validate-skills/references/validation-rubric.md`)
 Score: Routing · Role Definition · Workflow · Gotchas · Output Format · Examples · Token Efficiency
@@ -104,7 +90,7 @@ BACKGROUND and EDGE_CASE move to `references/` with specific load triggers.
 2. Merge any chat-learnings queued for this skill in Step 1b into the matching section (GOTCHA → Gotchas, FAILURE_MODE → Hard Rules or Gotchas, TECHNIQUE → Workflow). Cite: `Chat learning [YYYY-MM-DD]`.
 3. Add gotchas from research
 4. Sharpen workflow — imperative one-liners, MUST/NEVER
-5. Replace synthetic examples with realistic ones
+5. Replace synthetic examples with realistic ones — if >1 or >15 lines total, write `references/examples.md` and keep one teaser inline; **never delete** an example without an L3 home
 6. Tighten output format schema
 7. Move BACKGROUND to `references/background.md`
 8. Bump `metadata.version`
@@ -172,6 +158,27 @@ Summary: 2 skills improved (+3 avg); chat-learnings: 4 OPEN → 1 impl · 2 pre-
 
 ---
 
+## Common Rationalizations
+
+| Excuse | Reality |
+|--------|---------|
+| "Skip validate pre-flight" | Improving blind wastes cycles on already-healthy skills. |
+| "Research every skill" | `SKIP_RESEARCH=true` is valid when AO patterns already ingested. |
+| "One skill is enough" | Batch structural gaps compound library quality. |
+
+## Verification
+
+- [ ] `validate-skills` pre-flight run before edits
+- [ ] `agentskills validate` passes on every modified skill
+- [ ] L3 `references/examples.md` present or backfilled when examples moved
+- [ ] Impact Report lists per-skill score delta and files touched
+
+## Red Flags
+
+- Gotchas moved to references/ away from pre-encounter path
+- Description rewrite removed existing trigger phrases
+- External pattern applied before secure-* SAFE clearance
+- Delegated link claimed where output transform is required
 ## Reference Files
 
 - **`validate-skills/references/validation-rubric.md`**: Scoring rubric (single source of truth). Read during Step 2c.
@@ -180,18 +187,4 @@ Summary: 2 skills improved (+3 avg); chat-learnings: 4 OPEN → 1 impl · 2 pre-
 
 ## Impact Report
 
-After completing, deliver:
-```
-Improvement cycle complete: YYYY-MM-DD
-Skills processed: N
-Skills improved: N (avg score delta: +N pts)
-Structural gaps fixed: N (list by skill)
-New skill links created: N (list relationships)
-Skills deprecated: N | split: N | compressed: N
-
-Per-skill: [skill]: X/14 → Y/14 | [lines] lines | [key change]
-Sources: [source] → [skill]
-Chat learnings: N OPEN at start → I implemented · R rejected · D deferred
-Files modified: [list]
-Files created: [list]
-```
+`Improvement cycle complete: YYYY-MM-DD Skills processed: N Skills improved: N (avg score delta: +N pts) Structural gaps fixed: N (list by skill) New skill links created: N (list re`

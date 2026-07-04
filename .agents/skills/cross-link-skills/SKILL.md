@@ -14,6 +14,9 @@ metadata:
   author: dvy1987
   version: "1.0"
   category: meta
+  resources:
+    references:
+      - examples.md
 ---
 
 # Cross-Link Skills
@@ -135,6 +138,29 @@ No edits needed.
 
 ---
 
+## Common Rationalizations
+
+| Excuse | Reality |
+|--------|---------|
+| "Skills are independent" | Orphan skills rot — callers need discoverable edges. |
+| "INDEX is enough" | SKILL.md cross-links are what agents read at invoke time. |
+| "Link everything" | Link only real invoke relationships, not keyword overlap. |
+| "One pass is enough" | New skills need reciprocal Called-by updates. |
+| "Graph replaces links" | Graph is derived; authoritative links live in SKILL.md + INDEX. |
+
+## Verification
+
+- [ ] New links reflect actual invoke paths (not aspirational)
+- [ ] Reciprocal references updated where bidirectional
+- [ ] No broken skill name references after edit
+- [ ] SKILL-OUTPUTS.md logged if files changed
+
+## Red Flags
+
+- Description edited to remove skill names used as triggers
+- Examples rewritten to break illustrative skill references
+- Functional invoke links stripped from workflow steps
+- Call graph updated without checking reverse references
 ## Impact Report
 
 ```

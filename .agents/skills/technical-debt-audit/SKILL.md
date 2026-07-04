@@ -13,6 +13,9 @@ metadata:
   version: "1.0"
   category: project-specific
   sources: agentskills.io, tech-debt-quadrant (Fowler)
+  resources:
+    references:
+      - examples.md
 ---
 
 # Technical Debt Audit
@@ -125,6 +128,28 @@ Ready for: improve-skills batch execution
 
 ---
 
+## Common Rationalizations
+
+| Excuse | Reality |
+|--------|---------|
+| Debt = style only | Include reliability, security, operability. |
+| No prioritization | Rank by interest × blast radius. |
+| Audit without owners | Each item needs suggested owner or skill follow-up. |
+| One-time report forgotten | Log to docs/reports/ and SKILL-OUTPUTS. |
+
+## Verification
+
+- [ ] Report under docs/reports/
+- [ ] Items ranked with rationale
+- [ ] Suggested remediation skill per item
+- [ ] SKILL-OUTPUTS.md updated
+
+## Red Flags
+
+- TODO count reported without weighting by risk area
+- Cosmetic debt overweighted versus structural coupling
+- Roadmap says refactor everything without time boxes
+- Authentication or payment HACK deprioritized as cosmetic
 ## Impact Report
 
 After completing, always report:

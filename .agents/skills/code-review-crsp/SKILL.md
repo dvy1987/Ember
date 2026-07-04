@@ -15,6 +15,10 @@ metadata:
   version: "1.1"
   category: project-specific
   sources: code-review-skill-builtin, addyosmani/agent-skills code-review-and-quality (Phase 3 merge)
+  resources:
+    references:
+      - examples.md
+      - review-conventions.md
 ---
 
 # Code Review
@@ -53,12 +57,14 @@ Ask ONE clarifying question if scope is ambiguous: "Which changes should I revie
 
 ### Step 3 — Evaluate Against Five Axes
 
+Read `references/review-conventions.md` for axis questions, prefix table, change sizing, and dead-code hygiene.
+
 | Axis | What to look for |
 |------|-----------------|
 | **Correctness** | Logic errors, edge cases, error paths, spec alignment |
 | **Readability** | Clear names, straightforward control flow, no unearned cleverness |
 | **Architecture** | Fits existing patterns; appropriate abstraction; no hidden coupling |
-| **Security** | Input validation, secrets, authz, injection, untrusted external data |
+| **Security** | Input validation, secrets, authz, injection, untrusted external data — escalate deep findings to `app-security-hardening` |
 | **Performance** | N+1, unbounded fetches, sync-in-hot-path, missing pagination |
 
 Also flag: missing tests for new behaviour; tests that pass for wrong reasons; dead code after refactor.
@@ -84,6 +90,8 @@ If no issues found, state that explicitly.
 ### Step 5 — Offer to Fix
 
 If issues were found, ask: "Would you like me to fix any of these? Reply with the numbers to fix."
+
+**Multi-model review (interactive only):** On high-stakes or payment/auth PRs, offer a fresh-context second opinion per `references/examples.md` Example 8; skip silently in CI/non-interactive runs.
 
 Apply fixes one at a time. Verify each fix compiles and passes tests before moving to the next.
 
@@ -170,6 +178,12 @@ Want me to fix any of these? Reply with the numbers.
 
 ---
 
+## Red Flags
+
+- Review produced on empty diff without scope confirmation
+- Test file changes skipped or given superficial pass
+- Large rename treated as logic change without diff-filter
+- Findings lack severity and concrete remediation
 ## Impact Report
 
 ```

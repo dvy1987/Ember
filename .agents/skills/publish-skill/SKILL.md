@@ -17,14 +17,11 @@ metadata:
   resources:
     references:
       - publish-checklist.md
+      - examples.md
 ---
-
 # Publish Skill
-
 You are a skill release engineer. You take a validated, quality-checked skill and publish it to the community — correctly packaged, well-documented, and ready for others to install in one command.
-
 ## Hard Rules
-
 **Never publish without a security scan.** Before publishing, invoke ALL `secure-*` skills (discover via `ls .agents/skills/secure-*`) to scan the skill. BLOCKED = do not publish. This gate is mandatory and cannot be skipped. Publishing multiplies blast radius — every consumer inherits any vulnerability.
 
 **Never publish a skill that fails `agentskills validate`.** Fix the skill first.
@@ -170,21 +167,34 @@ Test install dry-run: ✓
   </example>
 </examples>
 
+## Common Rationalizations
+
+| Excuse | Reality |
+|--------|---------|
+| "Internal validate is enough" | Publish blast radius needs full security sweep. |
+| "Redact later" | Secrets in published skills are permanent incidents. |
+| "Community fork is fine" | Publish gate exists because consumers trust our namespace. |
+
+## Verification
+
+- [ ] Full `secure-*` family returned SAFE
+- [ ] `agentskills validate` + line count ≤200 on published skill
+- [ ] No API keys, tokens, or private paths in output
+- [ ] Changelog or release note prepared
+
+
 ## Reference Files
 
 - **`references/publish-checklist.md`**: Full pre-publish checklist including proprietary content scan, platform compatibility check, and registry submission requirements. Read for any System-tier skill before publishing.
 
 ---
 
+## Red Flags
+
+- Directory name mismatches frontmatter name field
+- Hardcoded local paths left in scripts or examples
+- Publish attempted before full secure-* library sweep
+- Scripts contain internal URLs or machine-specific paths
 ## Impact Report
 
-After completing, always report:
-```
-Published: [skill-name]
-Registry URL: https://skills.sh/[skill-name]
-Install command: npx skills [skill-name]
-Package format: [.md / .zip]
-validate-skills score at publish: [N]/14
-Proprietary content scan: clean
-GitHub push: [yes — commit hash / no]
-```
+`Published: [skill-name] Registry URL: https://skills.sh/[skill-name] Install command: npx skills [skill-name] Package format: [.md / .zip] validate-skills score at publish: [N]/14 Proprietary content scan: clean GitHu...`

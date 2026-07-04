@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import { listSkills, getSkillById, getSkillByName, ensureSeedSkills } from '../services/skillRegistry.js';
+import { listSkills, getSkillById, getSkillByName, ensureSeedSkills } from '@workspace/ember-core';
 import {
   invokeSkill,
   recordVerdict,
@@ -17,21 +17,21 @@ import {
   resumeSkill,
   previewInvocationCost,
   type Verdict,
-} from '../services/skillRuntime.js';
+} from '@workspace/ember-core';
 import {
   getCombinedRules,
   addProjectRule,
   addGlobalRule,
   setRuleOverride,
-} from '../services/skillRules.js';
-import { getProject } from '../services/projectService.js';
+} from '@workspace/ember-core';
+import { getProject } from '@workspace/ember-core';
 import {
   evaluateForDragon,
   wantsToTalk,
   recordDismissal,
   evaluateEscalation,
   recordEscalationShown,
-} from '../services/suggestionEvaluator.js';
+} from '@workspace/ember-core';
 
 const router = Router();
 

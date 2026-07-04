@@ -14,6 +14,9 @@ metadata:
   version: "1.0"
   category: project-specific
   sources: agent-loom design spec 2026-04-10
+  resources:
+    references:
+      - examples.md
 ---
 
 # Skill Finder
@@ -95,6 +98,28 @@ Extending `create-agent-prompt` to include system prompt generation. Verifying l
 
 ---
 
+## Common Rationalizations
+
+| Excuse | Reality |
+|--------|---------|
+| Invent skill inline | Route to universal-skill-creator for new skills. |
+| First match only | List top 2–3 with disambiguation. |
+| Ignore project skills | Check local .agents/skills first. |
+| Skip INDEX | docs/SKILL-INDEX.md is authoritative. |
+
+## Verification
+
+- [ ] 2–3 candidates with trigger overlap noted
+- [ ] Project-local skills checked
+- [ ] Recommendation names one primary skill
+- [ ] Creator route if no match
+
+## Red Flags
+
+- Match chosen from name similarity not description purpose
+- Partial overlap misread as full capability coverage
+- No-match not returned when library truly lacks fit
+- Called skill recommended without reading full SKILL.md
 ## Impact Report
 
 ```

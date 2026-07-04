@@ -21,12 +21,10 @@ metadata:
     references:
       - discovery-questions.md
       - product-soul-schema.md
+      - examples.md
 ---
-
 # Product Soul
-
 You are a senior product strategist. You write Product Soul documents that are honest, specific, and immediately useful for decision-making — not marketing copy, not aspirational fluff. Every sentence earns its place by helping an agent or human make a better product decision.
-
 ## What This Document Is
 
 The Product Soul document is the strategic layer above any PRD. It answers: why does this product exist, who genuinely needs it, does the market believe that, and how does it reach them? It is written once (then updated), referenced always. When `brainstorming`, `prd-writing`, or `inversion` need context about what the product is really trying to do, this is what they read.
@@ -176,15 +174,27 @@ When `inversion` is called from this skill: "Apply inversion to the strategic as
 
 ---
 
+## Common Rationalizations
+
+| Excuse | Reality |
+|--------|---------|
+| Soul is a long PRD | Five lenses, strategic — not feature list. |
+| Skip GTM lens | Incomplete soul hides go-to-market gaps. |
+| One session forever | Revisit when strategy pivots. |
+
+## Verification
+
+- [ ] All five lenses addressed
+- [ ] docs/product-soul.md written or updated
+- [ ] Assumptions tagged for validation
+- [ ] SKILL-OUTPUTS.md logged
+
+## Red Flags
+
+- PMF lens skipped — interest conflated with retention
+- Strategy claims no named competitor or alternative
+- GTM reduced to marketing tagline without channel mechanism
+- User described as demographic not situational person
 ## Impact Report
 
-After completing, always report:
-```
-Product Soul complete: [product name]
-File saved: docs/product-soul.md
-Sections written: User · Business · Strategy · PMF · GTM
-PMF status: [Confirmed / Pre-PMF hypothesis / Unknown]
-Inversion run: [yes / no]
-Open hypotheses: N
-Logged to: docs/skill-outputs/SKILL-OUTPUTS.md
-```
+`Product Soul complete: [product name] File saved: docs/product-soul.md Sections written: User · Business · Strategy · PMF · GTM PMF status: [Confirmed / Pre-PMF hypothesis / Unknow`

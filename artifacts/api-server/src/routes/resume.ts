@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { buildResumeContext } from '../services/contextBuilder.js';
-import { generateResumeSuggestion } from '../services/aiService.js';
+import { buildResumeContext } from '@workspace/ember-core';
+import { generateResumeSuggestion } from '@workspace/ember-core';
 
 const router = Router();
 

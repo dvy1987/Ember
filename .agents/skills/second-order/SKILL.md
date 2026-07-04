@@ -17,6 +17,9 @@ metadata:
   version: "1.0"
   category: thinking
   sources: Howard-Marks-Most-Important-Thing, Farnam-Street-second-order, Buffett-Munger
+  resources:
+    references:
+      - examples.md
 ---
 
 # Second-Order Thinking
@@ -149,6 +152,29 @@ This decision should be evaluated at 12 months post-launch with conversion rate 
 
 ---
 
+## Common Rationalizations
+
+| Excuse | Reality |
+|--------|---------|
+| "First-order benefit is obvious" | Second-order effects often invert the decision. |
+| "We'll deal with consequences later" | Later is when effects are irreversible. |
+| "Too hypothetical" | Name time horizons — 1mo / 1yr / 5yr makes it concrete. |
+| "Stakeholders want simplicity" | Hiding second-order risks is how surprises become crises. |
+| "One consequence chain is enough" | Multiple stakeholders see different second-order paths. |
+
+## Verification
+
+- [ ] First-order effect stated before tracing further
+- [ ] At least second-order consequences documented
+- [ ] Time horizons used (not all consequences treated as immediate)
+- [ ] One hidden risk or opportunity surfaced beyond the obvious
+
+## Red Flags
+
+- Only first-order benefits listed for the decision
+- Competitor response not modeled for strategic move
+- Human behavior change assumed instant not resisted
+- Consequence chain stops at one hop
 ## Impact Report
 
 ```

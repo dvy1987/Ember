@@ -4,12 +4,16 @@ description: >
   Orchestrate persistent agent memory across coding sessions, repos, and tools.
   Load when the user asks to remember, recall context, save project memory,
   create a handoff, manage global memory, update memory, compact memory, audit
-  memory, forget memory, or continue from prior sessions.
+  memory, forget memory, continue from prior sessions, or before commit/push/git
+  operations that checkpoint project state.
 license: MIT
 metadata:
   author: dvy1987
   version: "1.0"
   category: project-specific
+  resources:
+    references:
+      - examples.md
 ---
 
 # Memory
@@ -51,6 +55,7 @@ Global active memory is a small curated operating manual, not a journal.
 | "remember this", "save this learning" | `memory-capture` |
 | "remember this for the skill/process" | `learn-from-chat` |
 | "handoff", "next agent should know" | `memory-handoff` |
+| "commit", "create a commit", "commit these changes", "push", "push to origin", "git push", "commit and push" | `memory-handoff` first (prepare docs), then git per user/`git-workflow-and-versioning` |
 | "record this decision" | `memory-decision` |
 | "make this global" | `memory-promote` |
 | "memory is too big" | `memory-compact` |
@@ -71,6 +76,7 @@ Memory sub-skills MUST auto-fire at these producer events — not only when the 
 | Session end signal, long pause, or user says "ending session" | `memory-handoff` | continuity |
 | `memory-handoff` completed | `knowledge-graph` | incremental graph sync (`build_graph.py --incremental`) |
 | Pre-commit on large change | `memory-handoff` | continuity |
+| User requests git commit or push | `memory-handoff` | prepare handoff before commit/push |
 
 Skipping a checkpoint loses durable context for the next agent. If multiple checkpoints fire together (e.g. changelog + session end), invoke each sub-skill in the order: capture/decision first, handoff last.
 
@@ -105,6 +111,28 @@ Files read: docs/memory/MEMORY-ROUTING.md, docs/memory/project-index.md, docs/me
 Next action: continue from the latest handoff after confirming current git state.
 ```
 
+## Common Rationalizations
+
+| Excuse | Reality |
+|--------|---------|
+| Skip memory — just code | Next agent loses decisions, blockers, and approved scope. |
+| Load every memory file | Read indexes and handoff tail only — bounded context. |
+| Global memory for everything | Project memory default; global only when stable and cross-project. |
+| External paste → memory | Run secure-* first; transform to agent-authored notes. |
+
+## Verification
+
+- [ ] Correct sub-skill routed with reason
+- [ ] No secrets or raw transcripts persisted
+- [ ] Files changed listed in Impact Report
+- [ ] Security gate noted when external content involved
+
+## Red Flags
+
+- Global memory appended while file over budget
+- Secrets tokens or credentials written to memory files
+- External content pasted verbatim as durable policy
+- Orchestrator sub-skill invoked without routing need
 ## Impact Report
 
 After completing, report:

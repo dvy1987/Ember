@@ -16,6 +16,7 @@ metadata:
   resources:
     references:
       - api-patterns.md
+      - examples.md
 ---
 
 # API and Interface Design
@@ -135,6 +136,12 @@ Contract-first Task + CreateTaskInput + PaginatedResult. REST: GET/POST /api/tas
 
 ---
 
+## Red Flags
+
+- Undocumented quirks left as implicit caller contracts
+- Validation duplicated in every internal function
+- PUT used for partial updates instead of PATCH
+- List endpoints return unbounded arrays without pagination
 ## Reference Files
 
 - **`references/api-patterns.md`**: REST resource layout, pagination, PATCH, branded IDs, unions — read at Step 3.

@@ -23,14 +23,23 @@ interface SettingsModalProps {
   defaultDragonId?: string | null;
   /** When 'skills', the modal scrolls Skills & trust into view on open. */
   initialFocus?: 'ai' | 'skills';
+  /** Called after pitch demo dragon is prepared so Home can refresh. */
+  onPitchDemoReady?: () => void;
 }
 
-export default function SettingsModal({ isOpen, onClose, defaultDragonId = null, initialFocus = 'ai' }: SettingsModalProps) {
+export default function SettingsModal({
+  isOpen,
+  onClose,
+  defaultDragonId = null,
+  initialFocus = 'ai',
+  onPitchDemoReady,
+}: SettingsModalProps) {
   const [settings, setSettings] = useState<Settings>({ ai_api_key: '', ai_base_url: '', ai_model: '' });
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [savedMsg, setSavedMsg] = useState('');
   const [selectedPreset, setSelectedPreset] = useState('OpenAI');
+  const [pitchDemoStatus, setPitchDemoStatus] = useState<'idle' | 'loading' | 'done' | 'error'>('idle');
 
   useEffect(() => {
     if (!isOpen) return;
@@ -55,6 +64,22 @@ export default function SettingsModal({ isOpen, onClose, defaultDragonId = null,
     const preset = PROVIDER_PRESETS.find(p => p.label === label);
     if (preset && preset.label !== 'Custom') {
       setSettings(prev => ({ ...prev, ai_base_url: preset.baseUrl, ai_model: preset.model }));
+    }
+  };
+
+  const handlePreparePitchDemo = async () => {
+    setPitchDemoStatus('loading');
+    try {
+      const res = await fetch('/api/demo/ensure-pitch', { method: 'POST' });
+      if (res.ok) {
+        setPitchDemoStatus('done');
+        onPitchDemoReady?.();
+        setTimeout(() => setPitchDemoStatus('idle'), 3000);
+      } else {
+        setPitchDemoStatus('error');
+      }
+    } catch {
+      setPitchDemoStatus('error');
     }
   };
 
@@ -191,6 +216,32 @@ export default function SettingsModal({ isOpen, onClose, defaultDragonId = null,
         >
           <h3 className="font-display text-[22px] text-ember-text mb-1">Skills &amp; trust</h3>
           <SkillsTrustSection defaultDragonId={defaultDragonId} />
+        </div>
+
+        <div className="mt-6 pt-5" style={{ borderTop: '1px solid var(--border-subtle)' }}>
+          <h3 className="font-display text-[20px] text-ember-text mb-1">Pitch walkthrough</h3>
+          <p className="body-sm text-ember-text-muted mb-4">
+            Prepare or refresh &ldquo;The Pitch&rdquo; demo dragon with a believable resume and tasks.
+            Works without an API key.
+          </p>
+          <button
+            type="button"
+            onClick={handlePreparePitchDemo}
+            disabled={pitchDemoStatus === 'loading'}
+            className="cta-quiet w-full py-2.5 font-mono-caps text-ember-text-muted hover:text-ember-text disabled:opacity-50"
+          >
+            {pitchDemoStatus === 'loading' ? 'Preparing…' : 'Prepare pitch demo dragon'}
+          </button>
+          {pitchDemoStatus === 'done' && (
+            <p className="font-mono-caps mt-2" style={{ color: 'var(--amber-glow)' }}>
+              Demo dragon ready — check Ember Keep
+            </p>
+          )}
+          {pitchDemoStatus === 'error' && (
+            <p className="font-mono-caps mt-2" style={{ color: 'var(--ember-accent)' }}>
+              Could not prepare demo. Try again.
+            </p>
+          )}
         </div>
 
         <div className="mt-6 pt-5" style={{ borderTop: '1px solid var(--border-subtle)' }}>

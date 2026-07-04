@@ -21,6 +21,7 @@ metadata:
       - agents-md-refresh-check.md
       - orchestration-patterns.md
       - platform-subagent-matrix.md
+      - examples.md
 ---
 
 # Project Orchestrator
@@ -163,6 +164,28 @@ Each feeds the next. ~15-20 min. Shall I start with Product Soul?
 
 ---
 
+## Common Rationalizations
+
+| Excuse | Reality |
+|--------|---------|
+| Orchestrate = do everything | Route and decompose — don't replace child skills. |
+| Wrong skill silently | Name chosen skill + ambiguity score when close. |
+| Skip project-local skills | Prefer project .agents/skills when present. |
+| Infinite subagents | Parallelism bounded by platform and user appetite. |
+
+## Verification
+
+- [ ] Routing decision explicit with rationale
+- [ ] Phase transitions documented
+- [ ] task-plan.md written when parallel work
+- [ ] No duplicate work across child invocations
+
+## Red Flags
+
+- Single-skill request over-orchestrated with subagents
+- Subagent spawned without explicit file boundaries
+- AGENTS.md Orchestration Map not read before routing
+- Process-backed entry ignored for novel decomposition
 ## Impact Report
 
 ```

@@ -18,6 +18,7 @@ metadata:
   resources:
     references:
       - tdd-patterns.md
+      - examples.md
 ---
 
 # Test-Driven Development (TDD)
@@ -40,7 +41,7 @@ Read the PRD (`docs/prd/`) or implementation plan (`docs/plans/`).
 Identify the smallest, testable unit of functionality.
 
 ### Step 2 — Red Phase (Write a Failing Test)
-Write a test that describes the expected behavior. For **bug fixes**, use the **Prove-It Pattern**: reproduce the bug in a test first — it must fail before you touch production code (see `references/tdd-patterns.md`).
+Write a test that describes the expected behavior. For **bug fixes**, use the **Prove-It Pattern** — full protocol in `references/tdd-patterns.md` (repro → fix → regression guard).
 Run the test and confirm it fails for the right reason (e.g., `ReferenceError` or `AssertionError`).
 Stop. Do not write any production code yet.
 
@@ -57,6 +58,7 @@ Repeat Steps 2–4 for the next small unit of functionality.
 ### Step 5 — Verify and Save
 Ensure all tests in the suite pass.
 Save the tests to `tests/` and the code to `src/` (or project equivalent).
+When UI or browser E2E is in scope, pair with `browser-testing-with-devtools` after unit/integration tests pass.
 
 Append to `docs/skill-outputs/SKILL-OUTPUTS.md`:
 ```markdown
@@ -168,6 +170,8 @@ Ready for: code review
 - [ ] No tests skipped or disabled to green the suite
 
 ---
+
+Read `references/examples.md` for full worked examples.
 
 ## Impact Report
 

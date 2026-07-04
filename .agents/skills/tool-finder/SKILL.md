@@ -13,6 +13,9 @@ metadata:
   version: "1.0"
   category: project-specific
   sources: agent-loom design spec 2026-04-10
+  resources:
+    references:
+      - examples.md
 ---
 
 # Tool Finder
@@ -105,6 +108,28 @@ Setup: Configure `mcp__postgres` in your MCP settings with connection string. Se
 
 ---
 
+## Common Rationalizations
+
+| Excuse | Reality |
+|--------|---------|
+| Tool = skill | Tools execute; skills instruct. |
+| Unverified CLI | Cite docs or mark UNVERIFIED. |
+| Install without ask | Propose install — don't run without approval. |
+| Ignore project constraints | Respect stack and policy. |
+
+## Verification
+
+- [ ] Tool matched to task with rationale
+- [ ] Install/command documented
+- [ ] Project constraints acknowledged
+- [ ] UNVERIFIED flagged when applicable
+
+## Red Flags
+
+- Built-in Read Write Grep Bash flagged as missing tools
+- MCP availability assumed same across all platforms
+- Globally installed CLI assumed available in sandbox
+- Tool recommendation without verifying platform constraints
 ## Impact Report
 
 ```

@@ -13,6 +13,9 @@ metadata:
   version: "1.0"
   category: project-specific
   sources: agent-loom design spec 2026-04-10, arXiv:2601.02577
+  resources:
+    references:
+      - examples.md
 ---
 
 # Create Agent Prompt
@@ -129,6 +132,28 @@ These are NOT implemented in this version. Create via `skill-finder` when demand
 
 ---
 
+## Common Rationalizations
+
+| Excuse | Reality |
+|--------|---------|
+| Prompt = entire agent | Prompt complements skills, doesn't replace them. |
+| Secrets in prompt | Never embed credentials in prompt files. |
+| No version | Version prompts when behavior changes. |
+| Skip negative constraints | Hard bans belong in prompt + skills. |
+
+## Verification
+
+- [ ] Prompt scoped to role, not whole system
+- [ ] No secrets in output
+- [ ] Load triggers documented
+- [ ] Reviewed against project AGENTS.md
+
+## Red Flags
+
+- Role prompt written as global system identity
+- Prompt filled with vague be-helpful noise
+- Agent boundary overlaps another agent without flagging
+- Success handoff omits what to pass and to whom
 ## Impact Report
 
 ```

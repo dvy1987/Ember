@@ -1,13 +1,21 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Project } from '@/lib/types';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { Project, ResumeContext } from '@/lib/types';
 import DragonCard from '@/components/DragonCard';
+import HeroDragonCard from '@/components/HeroDragonCard';
 import CreateProjectModal from '@/components/CreateProjectModal';
 import SettingsModal from '@/components/SettingsModal';
-import { Link } from 'wouter';
+import { Link, useLocation } from 'wouter';
 import { ClockIcon, InsightsIcon, SettingsIcon, PlusIcon, ArchiveIcon, ChevronDownIcon } from '@/components/Icons';
 import { getKeepSeasonBlurb } from '@/lib/season';
+import { pickCallingDragon, formatCallingReason } from '@/lib/callingDragon';
+import { parseKeepResponse } from '@/lib/keepApi';
+import { useDemoMode } from '@/lib/DemoModeContext';
+import { trackRitualEvent } from '@/lib/ritualMetrics';
+import { sessionPath } from '@/lib/sessionNavigation';
 
 export default function HomePage() {
+  const demoMode = useDemoMode();
+  const [, navigate] = useLocation();
   const [projects, setProjects] = useState<Project[]>([]);
   const [archivedProjects, setArchivedProjects] = useState<Project[]>([]);
   const [showArchived, setShowArchived] = useState(false);
@@ -20,15 +28,30 @@ export default function HomePage() {
   // (low-volume per-dragon GET; no aggregate endpoint exists yet because
   // F4 is the first surface that needs one). Keyed by project id.
   const [wantsToTalk, setWantsToTalk] = useState<Record<string, boolean>>({});
+  const [heroResume, setHeroResume] = useState<ResumeContext | null>(null);
+  const [heroResumeLoading, setHeroResumeLoading] = useState(false);
+  const [heroResumeError, setHeroResumeError] = useState<string | null>(null);
+  const [callingDragonId, setCallingDragonId] = useState<string | null>(null);
+  const [callingReason, setCallingReason] = useState<string | null>(null);
+  const [fetchError, setFetchError] = useState<string | null>(null);
+  const [isBootstrapping, setIsBootstrapping] = useState(false);
+  const bootstrapAttemptedRef = useRef(false);
+  const heroTrackedRef = useRef(false);
 
   const fetchProjects = useCallback(async () => {
+    setFetchError(null);
     try {
       const res = await fetch('/api/projects');
       if (res.ok) {
-        const data = await res.json();
-        setProjects(data);
+        const keep = parseKeepResponse(await res.json());
+        setProjects(keep.projects);
+        setCallingDragonId(keep.calling_dragon_id);
+        setCallingReason(keep.calling_reason);
+      } else {
+        setFetchError('Could not load the keep. Try again.');
       }
     } catch {
+      setFetchError('Could not reach the keep. Is the server running?');
     } finally {
       setIsLoading(false);
     }
@@ -110,6 +133,25 @@ export default function HomePage() {
 
   useEffect(() => { fetchProjects(); }, [fetchProjects]);
 
+  // First-run: seed a believable dragon so the sacred loop is one tap away.
+  useEffect(() => {
+    if (isLoading || projects.length > 0 || isBootstrapping || bootstrapAttemptedRef.current) return;
+    bootstrapAttemptedRef.current = true;
+    let cancelled = false;
+    setIsBootstrapping(true);
+    fetch('/api/demo/bootstrap', { method: 'POST' })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (cancelled) return;
+        if (data?.seeded) fetchProjects();
+      })
+      .catch(() => { /* keep empty state */ })
+      .finally(() => {
+        if (!cancelled) setIsBootstrapping(false);
+      });
+    return () => { cancelled = true; };
+  }, [isLoading, projects.length, isBootstrapping, fetchProjects]);
+
   // F4 — refresh the wants-to-talk map whenever the active project list
   // changes. Best-effort and parallel; any individual failure leaves that
   // dragon's pulse off rather than spamming the keeper with retries.
@@ -150,10 +192,83 @@ export default function HomePage() {
   [now]);
   const seasonBlurb = useMemo(() => getKeepSeasonBlurb(now), [now]);
 
+  const callingDragon = useMemo(() => {
+    if (callingDragonId) {
+      const fromServer = projects.find((p) => p.id === callingDragonId);
+      if (fromServer) return fromServer;
+    }
+    return pickCallingDragon(
+      projects,
+      Object.fromEntries(
+        projects.map((p) => [p.id, {
+          wantsToTalk: wantsToTalk[p.id] ?? false,
+          readyCount: readyCounts[p.id] ?? 0,
+        }]),
+      ),
+    );
+  }, [projects, callingDragonId, wantsToTalk, readyCounts]);
+
+  const otherDragons = useMemo(
+    () => (callingDragon ? projects.filter((p) => p.id !== callingDragon.id) : projects),
+    [projects, callingDragon],
+  );
+
+  useEffect(() => {
+    if (!callingDragon) {
+      setHeroResume(null);
+      setHeroResumeError(null);
+      setHeroResumeLoading(false);
+      return;
+    }
+    let cancelled = false;
+    setHeroResumeLoading(true);
+    setHeroResumeError(null);
+    fetch(`/api/resume?project_id=${callingDragon.id}`)
+      .then(async (r) => {
+        if (!r.ok) throw new Error('resume_failed');
+        return r.json() as Promise<ResumeContext>;
+      })
+      .then((data) => {
+        if (!cancelled) {
+          setHeroResume(data);
+          setHeroResumeLoading(false);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setHeroResume(null);
+          setHeroResumeError('Could not load resume preview.');
+          setHeroResumeLoading(false);
+        }
+      });
+    return () => { cancelled = true; };
+  }, [callingDragon?.id]);
+
+  useEffect(() => {
+    if (!callingDragon || !heroResume || heroResumeLoading || heroTrackedRef.current) return;
+    heroTrackedRef.current = true;
+    trackRitualEvent('hero_visible', { project_id: callingDragon.id });
+  }, [callingDragon, heroResume, heroResumeLoading]);
+
+  const resolvedCallingReason = callingReason
+    ?? (callingDragon
+      ? formatCallingReason(callingDragon, {
+          wantsToTalk: wantsToTalk[callingDragon.id] ?? false,
+          readyCount: readyCounts[callingDragon.id] ?? 0,
+        })
+      : null);
+
+  const handleHeroTrain = () => {
+    if (callingDragon) {
+      trackRitualEvent('train_tap', { project_id: callingDragon.id, source: 'home_hero' });
+      navigate(sessionPath(callingDragon.id, { auto: true }));
+    }
+  };
+
   return (
     <div className="min-h-screen relative">
       <div className="firelight-overlay" />
-      <div className="relative z-10 max-w-5xl mx-auto px-6 pb-24 pt-12">
+      <div className="relative z-10 max-w-5xl mx-auto px-6 pb-24 pt-12" style={{ paddingTop: demoMode ? '3rem' : undefined }}>
         <header className="flex flex-col items-center text-center mb-12 animate-enter">
           <div className="font-mono-caps text-ember-text-muted opacity-90 mb-2">
             Roost <span className="mx-2">·</span> {dateLabel} <span className="mx-2">·</span> {timeOfDay}
@@ -169,13 +284,14 @@ export default function HomePage() {
             Ember Keep
           </h1>
           <p className="body-lg text-ember-text-muted max-w-md">
-            Some dragons guard a single endeavor; others tend a piece of your life. Pick the one that calls loudest today.
+            One dragon calls loudest today. Tend it first — the rest can wait.
           </p>
           <p className="font-mono-caps text-ember-text-muted mt-3 opacity-90">
             {seasonBlurb}
           </p>
         </section>
 
+        {!demoMode && (
         <div className="flex items-center justify-center gap-3 mb-12">
           <button
             onClick={() => setShowCreateModal(true)}
@@ -198,10 +314,20 @@ export default function HomePage() {
             <SettingsIcon size={16} />
           </button>
         </div>
+        )}
 
-        {isLoading ? (
-          <div className="flex items-center justify-center h-64">
-            <p className="body text-ember-text-muted">Tending the keep…</p>
+        {fetchError ? (
+          <div className="flex flex-col items-center justify-center text-center py-12 max-w-md mx-auto">
+            <p className="font-mono-caps mb-3" style={{ color: 'var(--ember-accent)' }}>{fetchError}</p>
+            <button onClick={() => { setIsLoading(true); fetchProjects(); }} className="cta-quiet px-5 py-2 font-mono-caps">
+              Try again
+            </button>
+          </div>
+        ) : isLoading || isBootstrapping ? (
+          <div className="flex flex-col items-center justify-center h-64 text-center">
+            <p className="body text-ember-text-muted">
+              {isBootstrapping ? 'Your dragon is waking…' : 'Tending the keep…'}
+            </p>
           </div>
         ) : projects.length === 0 ? (
           <div className="flex flex-col items-center justify-center text-center py-12 max-w-md mx-auto">
@@ -218,19 +344,42 @@ export default function HomePage() {
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 stagger-children">
-            {projects.map((project) => (
-              <DragonCard
-                key={project.id}
-                project={project}
-                readyCount={readyCounts[project.id] ?? 0}
-                wantsToTalk={wantsToTalk[project.id] ?? false}
-                onRename={(newName) => handleRenameProject(project.id, newName)}
+          <div className="space-y-10">
+            {callingDragon && (
+              <HeroDragonCard
+                project={callingDragon}
+                resumeContext={heroResume}
+                resumeLoading={heroResumeLoading}
+                resumeError={heroResumeError}
+                callingReason={resolvedCallingReason ?? undefined}
+                wantsToTalk={wantsToTalk[callingDragon.id] ?? false}
+                readyCount={readyCounts[callingDragon.id] ?? 0}
+                onTrain={handleHeroTrain}
               />
-            ))}
+            )}
+
+            {otherDragons.length > 0 && !demoMode && (
+              <div>
+                <p className="font-mono-caps text-ember-text-muted mb-4 text-center">
+                  {callingDragon ? 'Other dragons in the keep' : 'Your dragons'}
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 stagger-children menagerie-quiet-row">
+                  {otherDragons.map((project) => (
+                    <DragonCard
+                      key={project.id}
+                      project={project}
+                      readyCount={readyCounts[project.id] ?? 0}
+                      wantsToTalk={wantsToTalk[project.id] ?? false}
+                      onRename={(newName) => handleRenameProject(project.id, newName)}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
+        {!demoMode && (
         <div className="mt-16 flex justify-center">
           <button
             onClick={handleToggleArchived}
@@ -244,8 +393,9 @@ export default function HomePage() {
             />
           </button>
         </div>
+        )}
 
-        {showArchived && (
+        {showArchived && !demoMode && (
           <div className="mt-6">
             {isLoadingArchived ? (
               <div className="flex justify-center py-8">
@@ -274,7 +424,11 @@ export default function HomePage() {
           onClose={() => setShowCreateModal(false)}
           onCreated={fetchProjects}
         />
-        <SettingsModal isOpen={showSettings} onClose={() => setShowSettings(false)} />
+        <SettingsModal
+          isOpen={showSettings}
+          onClose={() => setShowSettings(false)}
+          onPitchDemoReady={fetchProjects}
+        />
       </div>
     </div>
   );
