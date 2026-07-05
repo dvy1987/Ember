@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'wouter';
 import { CloseIcon } from './Icons';
 import SkillsTrustSection from './SkillsTrustSection';
+import SessionDurationPicker from './SessionDurationPicker';
 
 interface Settings {
   ai_api_key: string;
@@ -161,6 +162,10 @@ export default function SettingsModal({
               <p className="body-sm text-ember-text-muted mt-2">
                 Stored locally in SQLite. Never sent to Ember servers.
               </p>
+              <p className="body-sm text-ember-text-muted mt-2">
+                No key? Use Ember from Cursor via MCP with your existing AI subscription.
+                See <span className="text-ember-text">docs/mcp-setup.md</span> in the repo — brain dump and resume work there too.
+              </p>
             </div>
 
             <div>
@@ -216,6 +221,23 @@ export default function SettingsModal({
         >
           <h3 className="font-display text-[22px] text-ember-text mb-1">Skills &amp; trust</h3>
           <SkillsTrustSection defaultDragonId={defaultDragonId} />
+        </div>
+
+        <div className="mt-6 pt-5" style={{ borderTop: '1px solid var(--border-subtle)' }}>
+          <h3 className="font-display text-[20px] text-ember-text mb-1">Default session length</h3>
+          <p className="body-sm text-ember-text-muted mb-4">
+            How long each training session runs. You can change this on any Resume Card too.
+          </p>
+          <SessionDurationPicker compact />
+        </div>
+
+        <div className="mt-6 pt-5" style={{ borderTop: '1px solid var(--border-subtle)' }}>
+          <h3 className="font-display text-[20px] text-ember-text mb-1">Use from Cursor</h3>
+          <p className="body-sm text-ember-text-muted mb-3 leading-relaxed">
+            Ember&apos;s sacred loop works inside Cursor, Codex, and other MCP clients.
+            Bring your own AI subscription — no separate Ember API key required.
+            See <span className="text-ember-text">docs/mcp-setup.md</span> in your Ember folder.
+          </p>
         </div>
 
         <div className="mt-6 pt-5" style={{ borderTop: '1px solid var(--border-subtle)' }}>

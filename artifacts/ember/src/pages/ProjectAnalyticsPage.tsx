@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useRoute, Link } from 'wouter';
 import { DRAGON_STAGES, DragonType } from '@/lib/types';
-import { ArrowLeftIcon, ArrowRightIcon, FlameIcon, SparkIcon, CheckIcon, InsightsIcon } from '@/components/Icons';
+import { ArrowLeftIcon, ArrowRightIcon, FlameIcon, SparkIcon, ClockIcon, InsightsIcon, CheckIcon } from '@/components/Icons';
 
 const DRAGON_COLORS: Record<DragonType, string> = {
   cinder: 'var(--ember-accent)',
@@ -268,10 +268,18 @@ export default function ProjectAnalyticsPage() {
         </header>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
-          <StatCard Icon={FlameIcon} value={formatMinutes(data.overall.totalFocusMinutes)} label="Total focus" />
+          <StatCard Icon={FlameIcon} value={formatMinutes(data.overall.totalFocusMinutes)} label="Focus tended" />
           <StatCard Icon={SparkIcon} value={String(data.overall.sessionsCount)} label="Sessions" />
-          <StatCard Icon={CheckIcon} value={String(data.overall.completedTasksCount)} label="Tasks done" />
-          <StatCard Icon={InsightsIcon} value={String(data.overall.insightsCount)} label="Insights" />
+          <StatCard
+            Icon={ClockIcon}
+            value={data.overall.avgSessionMinutes > 0 ? formatMinutes(data.overall.avgSessionMinutes) : '—'}
+            label="Avg session"
+          />
+          <StatCard
+            Icon={InsightsIcon}
+            value={data.overall.currentStage}
+            label="Stage"
+          />
         </div>
 
         {data.overall.avgSessionMinutes > 0 && (

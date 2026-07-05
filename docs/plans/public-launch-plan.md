@@ -1,7 +1,7 @@
 # Ember public launch — implementation plan
 
 **Created:** 2026-07-05  
-**Status:** Approved direction; execution not started  
+**Status:** Implemented (2026-07-05)  
 **North star:** A stranger installs locally, opens Ember, understands “my dragon remembers,” starts training in <30s, finishes a session, sees updated memory + ritual stats — and power users complete the same jobs from Cursor via MCP.
 
 ---

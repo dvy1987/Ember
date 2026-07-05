@@ -7,10 +7,13 @@
     "build": "pnpm run typecheck && pnpm -r --if-present run build",
     "build:mcp": "pnpm --filter @workspace/ember-core run build && pnpm --filter @workspace/ember-mcp run build",
     "typecheck:libs": "tsc --build",
-    "typecheck": "pnpm run typecheck:libs && pnpm -r --filter \"./artifacts/**\" --filter \"./scripts\" --if-present run typecheck"
+    "typecheck": "pnpm run typecheck:libs && pnpm -r --filter \"./artifacts/**\" --filter \"./scripts\" --if-present run typecheck",
+    "test:e2e": "playwright test",
+    "smoke": "./scripts/smoke-ritual.sh"
   },
   "private": true,
   "devDependencies": {
+    "@playwright/test": "^1.51.0",
     "typescript": "~5.9.2",
     "prettier": "^3.8.1"
   }

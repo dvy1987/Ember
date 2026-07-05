@@ -1,24 +1,46 @@
 # Ember — Current State
 
-**Last updated:** 2026-07-03
+**Last updated:** 2026-07-05
 
 ## Project phase
 
-Pre-PMF local-first ADHD productivity app (dragon metaphor). Core repo on `main`; app code unchanged this session.
+Pre-PMF local-first ADHD productivity app. **Public launch plan implemented** — sacred loop, configurable sessions, ritual insights, insight tray, MCP/BYOK path, launch docs.
 
-## Agent infrastructure
+## Shipped (launch plan)
 
-- `.agents/` merged from upstream **agent-loom** (98 skills + upgrades)
-- Design pipeline: `design-direction` → `design-system` (loom standard)
-- Ember constraints: `skills/ember-design-constraints/` + `docs/visual-direction.md`
-- Legacy design trio archived under `.agents/skills/.deprecated/*-deprecated-2026-07-03/`
-- Root `AGENTS.md` restored; `docs/visual-direction.md` in `docs/`
+- **Phase 0:** README, `docs/launch.md`, memory docs
+- **Phase 1:** Session length 15/20/25/45 (default 20), settings + UI picker + MCP `duration_minutes`
+- **Phase 2:** Ritual analytics API + Insights page redesign + post-session nudge
+- **Phase 3:** Insight tray service, API, `InsightTray` component, MCP resource
+- **Phase 4:** MCP tool copy, `ember_health` enrichment, Settings MCP section, BYOK copy
+- **Phase 5:** Demo mode, `docs/show-hn.md`, fetch error states
+- **Phase 6:** Core ritual tests, `scripts/smoke-ritual.sh`, Playwright spec (`tests/e2e/`)
+
+## Product spine (sacred loop)
+
+Open app → “where was I” in <3s → one tap → train (default 20 min) → reflection → better resume next time.
+
+## Architecture
+
+```
+artifacts/ember  →  api-server  →  lib/ember-core  →  SQLite
+ember-mcp        →  lib/ember-core  →  same DB
+```
 
 ## Next recommended work
 
-Product/feature implementation per `docs/build-plan.md` (when restored from migration backup) or user priority. No open blockers from this merge.
+Post-launch polish from deferred table: desktop, mobile, hosted SaaS, full MCP parity, memory admin UI.
+
+## Verification commands
+
+```bash
+cd lib/ember-core && pnpm test
+pnpm run typecheck
+./scripts/smoke-ritual.sh   # api-server on :8080
+npx playwright test         # optional e2e
+```
 
 ## Revisit triggers
 
-- Syncing from agent-loom again → follow merge checklist in `.agents/EMBER-SKILLS.md`
-- Ember UI work → `ember-design-constraints` + `design-direction` + `design-system`
+- Sync agent-loom → `.agents/EMBER-SKILLS.md`
+- Ember UI → `ember-design-constraints` + `docs/visual-direction.md`

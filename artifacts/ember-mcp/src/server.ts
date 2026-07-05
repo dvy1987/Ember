@@ -12,6 +12,7 @@ import {
   finishTraining,
   thinkOutLoud,
   dragonAsk,
+  getInsightTray,
 } from "@workspace/ember-core";
 import { McpServer, ResourceTemplate } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
@@ -81,21 +82,21 @@ export function createEmberMcpServer(): McpServer {
 
   server.tool(
     "ember_health",
-    "Local Ember health — SQLite path and AI availability. No api-server required.",
+    "Check Ember is ready — database path, AI availability, and MCP version. Call first to know if brain dump will work.",
     {},
     async () => jsonText(healthCheck()),
   );
 
   server.tool(
     "ember_list_menagerie",
-    "Menagerie — active dragons with stage, focus minutes, and pending inbox count.",
+    "See all your dragons — stage, focus minutes, and what needs your attention in the inbox.",
     {},
     async () => jsonText(listMenagerie()),
   );
 
   server.tool(
     "ember_open_project",
-    "Resume Card ritual — project state, resume, tasks, inbox, and ritual hint in one bundle.",
+    "Where was I? — resume card, tasks, memory, and ritual hint in one bundle. Start here for any project.",
     { project_id: z.string().describe("Dragon project UUID") },
     async ({ project_id }) => {
       try {
@@ -110,14 +111,18 @@ export function createEmberMcpServer(): McpServer {
 
   server.tool(
     "ember_begin_training",
-    "Begin a 20-minute focus training session. Pre-selects up to 5 active tasks unless task_ids provided.",
+    "Start a focus training session — pre-selects active tasks. Default 20 minutes; pass duration_minutes for 15, 25, or 45.",
     {
       project_id: z.string(),
       task_ids: z.array(z.string()).optional().describe("Optional subset of active task IDs"),
+      duration_minutes: z
+        .union([z.literal(15), z.literal(20), z.literal(25), z.literal(45)])
+        .optional()
+        .describe("Session length in minutes (default from settings)"),
     },
-    async ({ project_id, task_ids }) => {
+    async ({ project_id, task_ids, duration_minutes }) => {
       try {
-        const result = beginTraining(project_id, task_ids);
+        const result = beginTraining(project_id, task_ids, duration_minutes);
         if (!result) return notFound(`Project not found: ${project_id}`);
         return jsonText(result);
       } catch (err) {
@@ -128,7 +133,7 @@ export function createEmberMcpServer(): McpServer {
 
   server.tool(
     "ember_finish_training",
-    "End training — reflection updates cognition engine and dragon growth.",
+    "End training — reflection updates what your dragon remembers and grows the dragon.",
     {
       session_id: z.string(),
       reflection: z.string().describe("What happened this session"),
@@ -147,7 +152,7 @@ export function createEmberMcpServer(): McpServer {
 
   server.tool(
     "ember_think_out_loud",
-    "Brain dump — unstructured thoughts through cognition engine (tasks, insights, blockers). Requires AI.",
+    "Brain dump — unstructured thoughts become tasks and insights. Requires AI (API key or env).",
     {
       project_id: z.string(),
       user_input: z.string().describe("Raw thoughts or notes"),
@@ -163,7 +168,7 @@ export function createEmberMcpServer(): McpServer {
 
   server.tool(
     "ember_dragon_ask",
-    "Ask the dragon via skill harness — trust bands, budgets, and paired/autonomous modes.",
+    "Ask your dragon to help — skill harness with trust bands and keeper verdict when needed.",
     {
       dragon_id: z.string().describe("Dragon (project) UUID"),
       user_prompt: z.string(),
@@ -190,7 +195,7 @@ export function createEmberMcpServer(): McpServer {
 
   server.tool(
     "ember_keeper_verdict",
-    "Keeper verdict on a skill run — approve, edit, or reject dragon output.",
+    "Review dragon output — approve, edit, or reject a skill run awaiting your verdict.",
     {
       run_id: z.string(),
       verdict: z.enum(["approve", "edit", "reject"]),
@@ -288,6 +293,39 @@ export function createEmberMcpServer(): McpServer {
     },
   );
 
+  const insightsTrayTemplate = new ResourceTemplate("ember://project/{project_id}/insights-tray", {
+    list: async () => ({
+      resources: listMenagerie().map((p) => ({
+        uri: `ember://project/${p.id}/insights-tray`,
+        name: `${p.name} insights`,
+        mimeType: "application/json",
+      })),
+    }),
+    complete: {
+      project_id: async () => listMenagerie().map((p) => p.id),
+    },
+  });
+
+  server.registerResource(
+    "insights_tray",
+    insightsTrayTemplate,
+    {
+      title: "Insight tray",
+      description: "What your dragon holds — memory, insights, contradictions",
+      mimeType: "application/json",
+    },
+    async (uri, { project_id }) => {
+      const id = asId(project_id);
+      const tray = getInsightTray(id);
+      if (!tray) {
+        throw new EmberError(`Project not found: ${id}`, "not_found");
+      }
+      const result = jsonResource(tray);
+      result.contents[0]!.uri = uri.href;
+      return result;
+    },
+  );
+
   // ---- MCP prompts -----------------------------------------------------------
 
   server.registerPrompt(
@@ -332,7 +370,7 @@ export function createEmberMcpServer(): McpServer {
           ? `⚠ ${bundle.inbox.pending.length} skill run(s) need keeper verdict — check inbox resource.`
           : "Inbox clear.",
         "",
-        "Next: call ember_begin_training, work 20 minutes, then ember_finish_training with reflection.",
+        "Next: call ember_begin_training (optional duration_minutes), work the session, then ember_finish_training with reflection.",
       ]
         .filter(Boolean)
         .join("\n");

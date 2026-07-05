@@ -51,6 +51,9 @@ After opening this repo in Cursor:
 |----------|---------|-------------|
 | `EMBER_DB_PATH` | `{repo}/data/ember.db` | SQLite database path (auto-discovered from repo root) |
 | `OPENAI_API_KEY` | — | Enables AI brain dump, resume, and dragon skills |
+| `OPENROUTER_API_KEY` | — | Alternative AI provider via env |
+
+`ember_health` returns `ai_via` (`settings` | `env` | `none`), `mcp_version`, and `db_path`.
 
 ## Ritual tools
 
@@ -59,7 +62,7 @@ After opening this repo in Cursor:
 | `ember_health` | SQLite path + AI availability |
 | `ember_list_menagerie` | All active dragons + inbox counts |
 | `ember_open_project` | Resume Card bundle (ritual entry point) |
-| `ember_begin_training` | Start 20-min focus session |
+| `ember_begin_training` | Start focus session (optional `duration_minutes`: 15, 20, 25, 45) |
 | `ember_finish_training` | End session + reflection + dragon growth |
 | `ember_think_out_loud` | Brain dump → tasks/insights (AI) |
 | `ember_dragon_ask` | Skill harness invocation |
@@ -72,6 +75,7 @@ After opening this repo in Cursor:
 | `ember://projects` | Menagerie JSON |
 | `ember://project/{id}/context` | Full project context for grounding |
 | `ember://project/{id}/inbox` | Pending skill runs awaiting verdict |
+| `ember://project/{id}/insights-tray` | Insight tray — memory, insights, contradictions |
 
 ## MCP prompts
 

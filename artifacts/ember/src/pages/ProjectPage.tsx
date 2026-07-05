@@ -3,6 +3,7 @@ import { useRoute, useLocation, Link } from 'wouter';
 import { Project, Task, Session, DragonType, ResumeContext, RitualSuggestion } from '@/lib/types';
 import { getDragonAccentVar } from '@/lib/dragonAssets';
 import ResumeCard from '@/components/ResumeCard';
+import InsightTray from '@/components/InsightTray';
 import TaskList from '@/components/TaskList';
 import RitualList from '@/components/RitualList';
 import SagaTeaser from '@/components/SagaTeaser';
@@ -27,7 +28,7 @@ export default function ProjectPage() {
   const demoMode = useDemoMode();
   const [, params] = useRoute('/project/:id');
   const projectId = params?.id ?? '';
-  const [, navigate] = useLocation();
+  const [location, navigate] = useLocation();
 
   const [project, setProject] = useState<Project | null>(null);
   const [activeTasks, setActiveTasks] = useState<Task[]>([]);
@@ -58,6 +59,8 @@ export default function ProjectPage() {
   // Bumped after a ritual is added (suggested or manually) so RitualList
   // re-fetches and the new ritual appears immediately.
   const [ritualsTick, setRitualsTick] = useState(0);
+  const [fetchError, setFetchError] = useState<string | null>(null);
+  const [insightTrayTick, setInsightTrayTick] = useState(0);
 
   const openSkillsTrust = () => {
     setSettingsFocus('skills');
@@ -94,10 +97,14 @@ export default function ProjectPage() {
   }, [refreshAiStatus, showSettings]);
 
   const fetchProject = useCallback(async () => {
+    setFetchError(null);
     try {
       const res = await fetch(`/api/projects/${projectId}`);
       if (res.ok) setProject(await res.json());
-    } catch { }
+      else setFetchError('Dragon not found.');
+    } catch {
+      setFetchError('Could not reach the keep. Is the server running?');
+    }
   }, [projectId]);
 
   const fetchTasks = useCallback(async () => {
@@ -177,6 +184,18 @@ export default function ProjectPage() {
     },
     [dismissSuggestion],
   );
+
+  useEffect(() => {
+    if (location.startsWith(`/project/${projectId}`)) {
+      setInsightTrayTick((t) => t + 1);
+    }
+  }, [location, projectId]);
+
+  useEffect(() => {
+    const onFocus = () => setInsightTrayTick((t) => t + 1);
+    window.addEventListener('focus', onFocus);
+    return () => window.removeEventListener('focus', onFocus);
+  }, []);
 
   useEffect(() => {
     Promise.all([fetchProject(), fetchTasks(), fetchSessions()])
@@ -329,6 +348,7 @@ export default function ProjectPage() {
 
       if (aiRes.ok) {
         setBrainDumpStatus('ai-success');
+        setInsightTrayTick((t) => t + 1);
         const data = await aiRes.json().catch(() => null) as { ritual_suggestions?: RitualSuggestion[] } | null;
         if (data?.ritual_suggestions && data.ritual_suggestions.length > 0) {
           setRitualSuggestions(data.ritual_suggestions);
@@ -369,8 +389,10 @@ export default function ProjectPage() {
 
   if (!project) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="body text-ember-text-muted">Dragon not found.</p>
+      <div className="min-h-screen flex items-center justify-center px-6">
+        <p className="body text-ember-text-muted text-center">
+          {fetchError ?? 'Dragon not found.'}
+        </p>
       </div>
     );
   }
@@ -426,6 +448,8 @@ export default function ProjectPage() {
             }}
           />
         </div>
+
+        <InsightTray projectId={projectId} refreshKey={insightTrayTick} />
 
         {!demoMode && (
         <div className="mb-8">

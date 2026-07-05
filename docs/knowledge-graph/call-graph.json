@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-04T07:51:12.955081+00:00",
+  "generated_at": "2026-07-05T02:11:13.626877+00:00",
   "edges": [
     {
       "source": "skill_experiment_backlog",
@@ -36,6 +36,15 @@
       "confidence_score": 1.0,
       "source_file": null,
       "provenance": "skill-graph.md"
+    },
+    {
+      "source": "skill_motion_animation",
+      "target": "skill_svg_creation",
+      "relation": "invokes",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": ".agents/skills/motion-animation/SKILL.md",
+      "provenance": "SKILL.md"
     },
     {
       "source": "skill_publish_skill",
@@ -107,6 +116,15 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": ".agents/skills/split-skill/SKILL.md",
+      "provenance": "SKILL.md"
+    },
+    {
+      "source": "skill_svg_creation",
+      "target": "skill_design_system",
+      "relation": "invokes",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": ".agents/skills/svg-creation/SKILL.md",
       "provenance": "SKILL.md"
     },
     {
@@ -443,6 +461,24 @@
       "provenance": "SKILL.md"
     },
     {
+      "source": "skill_gsap_animation",
+      "target": "skill_svg_creation",
+      "relation": "invokes",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": ".agents/skills/gsap-animation/SKILL.md",
+      "provenance": "SKILL.md"
+    },
+    {
+      "source": "skill_gsap_animation",
+      "target": "skill_motion_animation",
+      "relation": "invokes",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": ".agents/skills/gsap-animation/SKILL.md",
+      "provenance": "SKILL.md"
+    },
+    {
       "source": "skill_eval_judge",
       "target": "skill_eval_rubric_design",
       "relation": "invokes",
@@ -516,6 +552,15 @@
     },
     {
       "source": "skill_project_setup",
+      "target": "skill_agent_loom_sync",
+      "relation": "invokes",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": ".agents/skills/project-setup/SKILL.md",
+      "provenance": "SKILL.md"
+    },
+    {
+      "source": "skill_project_setup",
       "target": "skill_retroactive_project_setup",
       "relation": "invokes",
       "confidence": "EXTRACTED",
@@ -561,6 +606,15 @@
     },
     {
       "source": "skill_retroactive_project_setup",
+      "target": "skill_agent_loom_sync",
+      "relation": "invokes",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": ".agents/skills/retroactive-project-setup/SKILL.md",
+      "provenance": "SKILL.md"
+    },
+    {
+      "source": "skill_retroactive_project_setup",
       "target": "skill_memory_capture",
       "relation": "invokes",
       "confidence": "EXTRACTED",
@@ -602,6 +656,15 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": ".agents/skills/memory-promote/SKILL.md",
+      "provenance": "SKILL.md"
+    },
+    {
+      "source": "skill_agent_loom_sync",
+      "target": "skill_validate_skills",
+      "relation": "invokes",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": ".agents/skills/agent-loom-sync/SKILL.md",
       "provenance": "SKILL.md"
     },
     {
@@ -747,6 +810,15 @@
       "confidence_score": 1.0,
       "source_file": null,
       "provenance": "skill-graph.md"
+    },
+    {
+      "source": "skill_design_system",
+      "target": "skill_svg_creation",
+      "relation": "invokes",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": ".agents/skills/design-system/SKILL.md",
+      "provenance": "SKILL.md"
     },
     {
       "source": "skill_feature_spec",

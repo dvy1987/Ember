@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getDb } from '@workspace/ember-core';
+import { getDb, parseSessionMinutes, setDefaultSessionMinutes } from '@workspace/ember-core';
 
 const router = Router();
 
@@ -7,6 +7,7 @@ const ALLOWED_SETTINGS_KEYS = [
   'ai_api_key',
   'ai_base_url',
   'ai_model',
+  'default_session_minutes',
   // Legacy keys kept for backward compat
   'openai_api_key',
   'openrouter_api_key',
@@ -26,7 +27,9 @@ router.get('/settings', (_req, res) => {
     }>;
 
     const settings: Record<string, string> = {};
+    const allowed = new Set<string>(ALLOWED_SETTINGS_KEYS);
     for (const row of rows) {
+      if (!allowed.has(row.key)) continue;
       if (SECRET_KEYS.has(row.key)) {
         // Indicate key is set without exposing value
         settings[row.key] = row.value ? '••••••••' : '';
@@ -34,6 +37,9 @@ router.get('/settings', (_req, res) => {
         settings[row.key] = row.value;
       }
     }
+
+    settings['default_session_minutes'] = settings['default_session_minutes'] ?? '20';
+    settings['_allowed_session_minutes'] = '15,20,25,45';
 
     res.json(settings);
   } catch {
@@ -57,6 +63,17 @@ router.post('/settings', (req, res) => {
 
     for (const [key, value] of Object.entries(body)) {
       if (!ALLOWED_SETTINGS_KEYS.includes(key as typeof ALLOWED_SETTINGS_KEYS[number])) continue;
+
+      if (key === 'default_session_minutes') {
+        const parsed = parseSessionMinutes(value);
+        if (!parsed) {
+          res.status(400).json({ error: 'default_session_minutes must be 15, 20, 25, or 45' });
+          return;
+        }
+        setDefaultSessionMinutes(parsed);
+        updated.push(key);
+        continue;
+      }
 
       // For secret keys: only overwrite if a real (non-placeholder) value is submitted
       if (SECRET_KEYS.has(key)) {

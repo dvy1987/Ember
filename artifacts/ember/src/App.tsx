@@ -8,6 +8,7 @@ import MenageriePage from "@/pages/MenageriePage";
 import SagaPage from "@/pages/SagaPage";
 import NotFound from "@/pages/not-found";
 import { DemoModeProvider } from "@/lib/DemoModeContext";
+import { SessionDurationProvider } from "@/lib/SessionDurationContext";
 import DemoModeBanner from "@/components/DemoModeBanner";
 
 // NOTE (F2): the former /dev/skills scaffold has been retired now that the
@@ -33,8 +34,10 @@ function App() {
   return (
     <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
       <DemoModeProvider>
-        <DemoModeBanner />
-        <Router />
+        <SessionDurationProvider>
+          <DemoModeBanner />
+          <Router />
+        </SessionDurationProvider>
       </DemoModeProvider>
     </WouterRouter>
   );

@@ -15,7 +15,8 @@ import { Link } from 'wouter';
 import { ArrowLeftIcon, BeginIcon } from '@/components/Icons';
 import SessionCompletePayoff from '@/components/SessionCompletePayoff';
 import { useDemoMode } from '@/lib/DemoModeContext';
-import { DEMO_TIMER_MINUTES, sessionDurationClock, sessionDurationLabel } from '@/lib/demoMode';
+import { DEMO_TIMER_MINUTES } from '@/lib/demoMode';
+import { useSessionDuration, sessionDurationClock, sessionDurationLabel } from '@/lib/SessionDurationContext';
 import { trackRitualEvent } from '@/lib/ritualMetrics';
 
 type SessionPhase = 'select-tasks' | 'focusing' | 'reflect' | 'complete';
@@ -30,6 +31,7 @@ const STAGE_DISPLAY_NAMES: Record<DragonStage, string> = {
 
 export default function SessionPage() {
   const demoMode = useDemoMode();
+  const { minutes: defaultMinutes, isLoading: durationLoading } = useSessionDuration();
   const [, params] = useRoute('/session/:projectId');
   const projectId = params?.projectId ?? '';
 
@@ -37,6 +39,7 @@ export default function SessionPage() {
   const [activeTasks, setActiveTasks] = useState<Task[]>([]);
   const [selectedTaskIds, setSelectedTaskIds] = useState<string[]>([]);
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const [plannedMinutes, setPlannedMinutes] = useState<number>(20);
   const [phase, setPhase] = useState<SessionPhase>('select-tasks');
   const [reflection, setReflection] = useState('');
   const [completedTaskIds, setCompletedTaskIds] = useState<string[]>([]);
@@ -125,11 +128,20 @@ export default function SessionPage() {
       const res = await fetch('/api/sessions/start', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ project_id: projectId, task_ids: ids }),
+        body: JSON.stringify({
+          project_id: projectId,
+          task_ids: ids,
+          duration_minutes: demoMode ? DEMO_TIMER_MINUTES : defaultMinutes,
+        }),
       });
       if (res.ok) {
-        const session = await res.json();
+        const session = await res.json() as { id: string; planned_duration_minutes?: number };
         setSessionId(session.id);
+        setPlannedMinutes(
+          demoMode
+            ? DEMO_TIMER_MINUTES
+            : session.planned_duration_minutes ?? defaultMinutes,
+        );
         setSelectedTaskIds(ids);
         setPhase('focusing');
         stripSessionQueryParams(projectId);
@@ -142,11 +154,11 @@ export default function SessionPage() {
     } finally {
       setIsStarting(false);
     }
-  }, [projectId, selectedTaskIds, navigate]);
+  }, [projectId, selectedTaskIds, navigate, demoMode, defaultMinutes]);
 
   // Sacred loop: skip the duplicate task gate when arriving from Resume Card or Home hero.
   useEffect(() => {
-    if (isLoading || autoStartGuardRef.current || forcePick) return;
+    if (isLoading || durationLoading || autoStartGuardRef.current || forcePick) return;
     if (!autoStart || !project) return;
 
     const runAutoStart = async () => {
@@ -157,11 +169,12 @@ export default function SessionPage() {
       await handleStartSession(ids);
     };
 
-    if (!isLoading && project) {
+    if (!isLoading && !durationLoading && project) {
       void runAutoStart();
     }
   }, [
     isLoading,
+    durationLoading,
     autoStart,
     forcePick,
     project,
@@ -281,6 +294,11 @@ export default function SessionPage() {
         : (endedSession.duration_minutes ?? 0);
       if (minutesEarned > 0) setSessionMinutesGained(minutesEarned);
 
+      const reflectionProcessed = Boolean(data.reflection_processed);
+      if (reflection?.trim() && !reflectionProcessed) {
+        setEndSessionError('Session saved, but your dragon could not process the reflection. Check AI settings or use MCP.');
+      }
+
       if (updatedProject) {
         setProject(updatedProject);
         if (
@@ -292,18 +310,6 @@ export default function SessionPage() {
           setIsEvolving(true);
           evolutionTimerRef.current = setTimeout(() => setIsEvolving(false), 1200);
         }
-      }
-
-      if (reflection?.trim()) {
-        await fetch('/api/ai/process-reflection', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            project_id: projectId,
-            session_id: sessionId,
-            reflection: reflection.trim(),
-          }),
-        }).catch(() => {});
       }
 
       try {
@@ -376,7 +382,9 @@ export default function SessionPage() {
               <div className="flex justify-center mb-4">
                 <DragonScene type={dragonType} stage={project.dragon_stage} size={140} />
               </div>
-              <p className="font-mono-caps text-ember-text-muted mb-2">Today · 20 minutes</p>
+              <p className="font-mono-caps text-ember-text-muted mb-2">
+                Today · {sessionDurationLabel(demoMode ? DEMO_TIMER_MINUTES : defaultMinutes)}
+              </p>
               <h1 className="font-display text-[40px] text-ember-text leading-tight mb-2">
                 Today's focus.
               </h1>
@@ -434,9 +442,9 @@ export default function SessionPage() {
               className="cta-ember w-full py-[18px] px-6 flex items-center justify-between font-serif-body font-semibold text-[16px]"
             >
               <span className="inline-flex items-center gap-2">
-                <BeginIcon size={18} /> Train {sessionDurationLabel()}
+                <BeginIcon size={18} /> Train {sessionDurationLabel(demoMode ? DEMO_TIMER_MINUTES : defaultMinutes)}
               </span>
-              <span className="font-mono-caps opacity-85" style={{ color: 'var(--amber-glow)' }}>{sessionDurationClock()}</span>
+              <span className="font-mono-caps opacity-85" style={{ color: 'var(--amber-glow)' }}>{sessionDurationClock(demoMode ? DEMO_TIMER_MINUTES : defaultMinutes)}</span>
             </button>
             {startSessionError && (
               <p role="alert" className="font-mono-caps mt-3 text-center" style={{ color: 'var(--ember-accent)' }}>
@@ -464,7 +472,7 @@ export default function SessionPage() {
 
             <div className="flex items-center gap-6 mb-6">
               <FocusTimer
-                initialMinutes={demoMode ? DEMO_TIMER_MINUTES : 20}
+                initialMinutes={demoMode ? DEMO_TIMER_MINUTES : plannedMinutes}
                 compact={demoMode}
                 onComplete={handleTimerComplete}
                 accentColor={accentColor}

@@ -1,7 +1,13 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'wouter';
 import DragonScene from './DragonScene';
 import { SparkIcon } from './Icons';
 import type { DragonStage, DragonType, ResumeContext } from '@/lib/types';
+
+interface RitualNudge {
+  sessions_this_week: number;
+  current_streak_days: number;
+}
 
 interface SessionCompletePayoffProps {
   projectId: string;
@@ -32,6 +38,17 @@ export default function SessionCompletePayoff({
   stageDisplayNames,
   fallbackMemoryLine,
 }: SessionCompletePayoffProps) {
+  const [ritualNudge, setRitualNudge] = useState<RitualNudge | null>(null);
+
+  useEffect(() => {
+    fetch('/api/analytics/ritual')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data: RitualNudge | null) => {
+        if (data && data.sessions_this_week > 0) setRitualNudge(data);
+      })
+      .catch(() => {});
+  }, []);
+
   const evolved = Boolean(evolvedToStage);
   const memoryLine = nextResumePreview?.status_summary || fallbackMemoryLine;
 
@@ -100,6 +117,16 @@ export default function SessionCompletePayoff({
           style={{ color: 'var(--amber-glow)' }}
         >
           +{sessionMinutesGained} focus minutes
+        </p>
+      )}
+
+      {ritualNudge && (
+        <p className="body-sm text-ember-text-muted mb-6 max-w-md animate-slide-up">
+          {ritualNudge.sessions_this_week} session{ritualNudge.sessions_this_week !== 1 ? 's' : ''} this week
+          {ritualNudge.current_streak_days > 1
+            ? ` · ${ritualNudge.current_streak_days}-day streak`
+            : ''}
+          . Your dragon notices the rhythm.
         </p>
       )}
 

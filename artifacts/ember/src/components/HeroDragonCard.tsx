@@ -3,7 +3,7 @@ import { getDragonAccentVar } from '@/lib/dragonAssets';
 import { Link } from 'wouter';
 import DragonScene from './DragonScene';
 import { BeginIcon, CircleDotIcon, ClockIcon } from './Icons';
-import { sessionDurationClock, sessionDurationLabel } from '@/lib/demoMode';
+import { useSessionDuration, sessionDurationClock, sessionDurationLabel } from '@/lib/SessionDurationContext';
 
 interface HeroDragonCardProps {
   project: Project;
@@ -34,6 +34,7 @@ export default function HeroDragonCard({
   readyCount = 0,
   onTrain,
 }: HeroDragonCardProps) {
+  const { minutes } = useSessionDuration();
   const dragonType = project.dragon_type as DragonType;
   const accentColor = getDragonAccentVar(dragonType);
   const stage = project.dragon_stage as DragonStage;
@@ -135,9 +136,9 @@ export default function HeroDragonCard({
                 className="cta-ember flex-1 py-4 px-5 flex items-center justify-between font-serif-body font-semibold text-[16px]"
               >
                 <span className="inline-flex items-center gap-2">
-                  <BeginIcon size={18} /> Train {sessionDurationLabel()}
+                  <BeginIcon size={18} /> Train {sessionDurationLabel(minutes)}
                 </span>
-                <span className="font-mono-caps opacity-85" style={{ color: 'var(--amber-glow)' }}>{sessionDurationClock()}</span>
+                <span className="font-mono-caps opacity-85" style={{ color: 'var(--amber-glow)' }}>{sessionDurationClock(minutes)}</span>
               </button>
               <Link
                 href={`/project/${project.id}`}

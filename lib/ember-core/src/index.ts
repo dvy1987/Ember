@@ -19,6 +19,9 @@ export * from './services/skillRuntime.js';
 export * from './services/skillRules.js';
 export * from './services/suggestionEvaluator.js';
 export * from './services/ritualMetricsService.js';
+export * from './services/settingsService.js';
+export * from './services/insightTrayService.js';
+export { localDateString, localWeekStartString } from './dateUtils.js';
 
 export * from './errors.js';
 export * from './ritual.js';

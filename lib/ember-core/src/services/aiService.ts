@@ -67,6 +67,20 @@ export function isAiAvailable(): boolean {
   return getApiConfig() !== null;
 }
 
+export type AiVia = 'settings' | 'env' | 'none';
+
+export function getAiVia(): AiVia {
+  const db = getDb();
+  const genericKey = db.prepare("SELECT value FROM settings WHERE key = 'ai_api_key'").get() as { value: string } | undefined;
+  if (genericKey?.value) return 'settings';
+  const openaiKey = db.prepare("SELECT value FROM settings WHERE key = 'openai_api_key'").get() as { value: string } | undefined;
+  if (openaiKey?.value) return 'settings';
+  const openrouterKey = db.prepare("SELECT value FROM settings WHERE key = 'openrouter_api_key'").get() as { value: string } | undefined;
+  if (openrouterKey?.value) return 'settings';
+  if (process.env['OPENAI_API_KEY'] || process.env['OPENROUTER_API_KEY']) return 'env';
+  return 'none';
+}
+
 /**
  * Re-exported for the skill runtime so it shares one provider config / call
  * path with the productivity AI flow. Do not duplicate provider wiring.

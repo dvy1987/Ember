@@ -4,6 +4,83 @@ Session continuity log for Ember. Newest entries at top.
 
 ---
 
+## 2026-07-05 09:50 — Handoff
+
+### Done
+
+- **Public launch plan (Phases 0–6)** — configurable sessions, ritual Insights, insight tray, MCP/BYOK polish, launch docs, smoke + Playwright e2e.
+- **Adversarial review fixes** — idempotent `endSession`/`finishTraining`; HTTP end unified on `finishTraining`; local-date analytics; filtered settings GET; stable insight-tray IDs; server-side ritual metrics.
+- **New:** `README.md`, `docs/launch.md`, `docs/show-hn.md`, `scripts/smoke-ritual.sh`, `InsightTray`, `SessionDurationPicker`.
+
+### Decisions
+
+- **Single completion path:** Web and MCP both use `finishTraining()` — no split reflection HTTP call from UI.
+- **Settings table:** User-facing GET filtered; internal keys (metrics, dismiss) excluded.
+
+### Next Agent Should Know
+
+- Verify: `cd lib/ember-core && pnpm test` (18 tests), `pnpm run typecheck`, `./scripts/smoke-ritual.sh`.
+- Launch plan status: `docs/plans/public-launch-plan.md` marked implemented.
+- Post-launch deferred: desktop, mobile, SaaS, full MCP parity, memory admin UI.
+
+### Working Tree
+
+- Committed and pushed this session.
+
+---
+
+## 2026-07-05 07:40 — Handoff
+
+### Done
+
+- **Sacred loop UX** — Resume Card copy, session complete payoff (`SessionCompletePayoff`), ritual copy polish, task auto-pick (partial match on `suggested_next_step`).
+- **`lib/ember-core`** — domain logic SSOT; api-server + ember-mcp are thin adapters. `ritualMetricsService` + tests.
+- **Ritual metrics** — `POST /api/ritual-metrics`, frontend `trackRitualEvent` (`hero_visible`, `train_tap`, `timer_started`, `session_completed`).
+- **Demo / walkthrough mode** — `?demo=1` (1-min timer, banner, nav trimmed, `POST /api/demo/bootstrap` for empty keep). `DemoModeContext` preserves demo across navigation.
+- **Bug fixes** — ProjectPage hooks violation; SessionPage state reset on `projectId` change; duplicate metric guards; demo query param preserved in `sessionNavigation.ts`.
+- **Agent skills** — `ember-design-constraints` standalone + protected; `frontend-design` un-forked. Synced agent-loom @ `2a796a7` (`svg-creation` + prior `613bba2` batch).
+- **Launch plan** — `docs/plans/public-launch-plan.md` (Phases 0–6, locked Q&A decisions, deferred table, success metrics).
+
+### Debated
+
+- **Feature breadth vs ritual depth** — Chose quality on sacred loop + insight tray + MCP/BYOK over platform expansion (orchestrator routing, full KG UI, MCP parity). Deferred items documented in launch plan.
+
+### Decisions
+
+- **AI:** BYOK; intelligence via **MCP** in Cursor/Codex/CLI — not bundled server AI.
+- **Cognition UI:** **Insight tray** on Project page (not built yet); not full knowledge-graph primary UI.
+- **Distribution:** Local web now; desktop / hosted SaaS / **mobile later**.
+- **Session length:** User picks 15 / 20 / 25 / 45; **20 min default** everywhere (Phase 1 not started — demo still hardcodes 1 min).
+- **Ritual metrics:** **Users** see them in Insights (Phase 2); raw events logging exists now.
+- **Launch north star:** Stranger installs → understands “my dragon remembers” → trains in <30s → completes session → sees updated memory + ritual stats; power users same jobs via MCP.
+- **Minimum viable launch if timeboxed:** Phase 0 + 1 + 4 + 5.1 + 6.2; prefer slipping Playwright over cutting Phase 3 (insight tray).
+
+### Deferred
+
+- See `docs/plans/public-launch-plan.md` § Deferred — LLM orchestrator routing, full KG UI, MCP API parity, memory admin UI, desktop/mobile/SaaS.
+- Phase 0–6 execution — **approved direction, not started** (except partial Phase 0.3 this handoff).
+
+### Next Agent Should Know
+
+- **Start here:** `docs/plans/public-launch-plan.md` then `docs/product-soul.md`.
+- **Architecture:** Web → api-server → `lib/ember-core` → SQLite; MCP → ember-mcp → same core/DB.
+- **Ember UI:** `ember-design-constraints` + `docs/visual-direction.md` before any design work.
+- **Tests:** `cd lib/ember-core && pnpm test`; full monorepo typecheck per repo scripts.
+- **Agent-loom sync:** rsync only into Ember; never edit `../agent-loom`. Checklist in `.agents/EMBER-SKILLS.md`; `agent-loom-sync.json` @ `2a796a7`.
+- **No InsightTray yet** — Phase 3; grep confirms component not created.
+
+### Revisit Triggers
+
+- User says “sync agent-loom” → `.agents/EMBER-SKILLS.md` merge checklist; preserve `ember-design-constraints`.
+- User picks a launch phase → implement PRs in plan order; update handoff per phase.
+- Investor / Show HN prep → `?demo=1` path + `docs/show-hn.md` (Phase 5.3, not written yet).
+
+### Working Tree
+
+- Clean on `main`; latest commit `da8ae9a` (svg-creation sync). Pushed to origin.
+
+---
+
 ## 2026-07-03 20:01 — Handoff
 
 ### Done

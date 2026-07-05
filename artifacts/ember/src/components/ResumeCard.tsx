@@ -3,7 +3,8 @@ import { Project, Task, Session, DragonType, ResumeContext } from '@/lib/types';
 import { getDragonAccentVar } from '@/lib/dragonAssets';
 import DragonScene from './DragonScene';
 import { BeginIcon, CircleDotIcon, EditIcon, CheckIcon, CloseIcon } from './Icons';
-import { sessionDurationClock, sessionDurationLabel } from '@/lib/demoMode';
+import SessionDurationPicker from './SessionDurationPicker';
+import { useSessionDuration, sessionDurationClock, sessionDurationLabel } from '@/lib/SessionDurationContext';
 
 const PROJECT_NAME_MAX_LENGTH = 80;
 
@@ -30,6 +31,7 @@ export default function ResumeCard({
   onRename,
   sessionFocusLabel,
 }: ResumeCardProps) {
+  const { minutes } = useSessionDuration();
   const [isEditing, setIsEditing] = useState(false);
   const [draftName, setDraftName] = useState(project.name);
   const [renameError, setRenameError] = useState<string | null>(null);
@@ -216,14 +218,16 @@ export default function ResumeCard({
           </div>
         )}
 
+        <SessionDurationPicker className="mb-5" />
+
         <button
           onClick={onStartSession}
           className="cta-ember w-full py-[18px] px-6 flex items-center justify-between font-serif-body font-semibold text-[16px]"
         >
           <span className="flex items-center gap-2">
-            <BeginIcon size={18} /> Train {sessionDurationLabel()}
+            <BeginIcon size={18} /> Train {sessionDurationLabel(minutes)}
           </span>
-          <span className="font-mono-caps opacity-85" style={{ color: 'var(--amber-glow)' }}>{sessionDurationClock()}</span>
+          <span className="font-mono-caps opacity-85" style={{ color: 'var(--amber-glow)' }}>{sessionDurationClock(minutes)}</span>
         </button>
 
         {sessionFocusLabel && (

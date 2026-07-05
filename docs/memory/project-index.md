@@ -4,5 +4,7 @@ Routing index for agent continuity. See `agent-handoffs.md` for session handoffs
 
 | Date | Topic | Handoff |
 |------|-------|---------|
+| 2026-07-05 | Public launch + adversarial hardening | [Handoff](./agent-handoffs.md#2026-07-05-0950--handoff) |
+| 2026-07-05 | Sacred loop, ember-core, public launch plan | [Handoff](./agent-handoffs.md#2026-07-05-0740--handoff) |
 | 2026-07-03 | Design pipeline switch to loom | [Handoff](./agent-handoffs.md#2026-07-03-2018--handoff) |
 | 2026-07-03 | agent-loom `.agents` merge | [Handoff](./agent-handoffs.md#2026-07-03-2001--handoff) |

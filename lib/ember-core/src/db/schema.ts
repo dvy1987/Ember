@@ -35,6 +35,7 @@ export function initializeSchema(db: Database.Database): void {
       start_time TEXT NOT NULL,
       end_time TEXT,
       duration_minutes INTEGER NOT NULL DEFAULT 0,
+      planned_duration_minutes INTEGER NOT NULL DEFAULT 20,
       reflection TEXT,
       ai_summary TEXT,
       tasks_completed_count INTEGER NOT NULL DEFAULT 0,
@@ -336,5 +337,12 @@ export function initializeSchema(db: Database.Database): void {
     .all() as Array<{ name: string }>;
   if (!ruleOverrideCols.some((c) => c.name === 'reason')) {
     db.exec(`ALTER TABLE rule_overrides ADD COLUMN reason TEXT;`);
+  }
+
+  const sessionCols = db
+    .prepare(`PRAGMA table_info(sessions)`)
+    .all() as Array<{ name: string }>;
+  if (!sessionCols.some((c) => c.name === 'planned_duration_minutes')) {
+    db.exec(`ALTER TABLE sessions ADD COLUMN planned_duration_minutes INTEGER NOT NULL DEFAULT 20;`);
   }
 }

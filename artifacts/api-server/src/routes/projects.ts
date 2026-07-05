@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createProject, getAllProjects, getArchivedProjects, getProject, updateProject, archiveProject, ensureDefaultHealthDragon, ensureInvestorDemoDragon, buildKeepResponse, VALID_DRAGON_TYPES, DragonType } from '@workspace/ember-core';
+import { createProject, getAllProjects, getArchivedProjects, getProject, updateProject, archiveProject, ensureDefaultHealthDragon, ensureInvestorDemoDragon, buildKeepResponse, VALID_DRAGON_TYPES, DragonType, getInsightTray, dismissInsightTrayItem, snoozeInsightTray, EmberError } from '@workspace/ember-core';
 import { updateDragonState } from '@workspace/ember-core';
 
 const router = Router();
@@ -41,6 +41,51 @@ router.post('/projects', (req, res) => {
     res.status(201).json(project);
   } catch {
     res.status(500).json({ error: 'Failed to create project' });
+  }
+});
+
+router.get('/projects/:id/insights-tray', (req, res) => {
+  try {
+    const tray = getInsightTray(req.params.id);
+    if (!tray) {
+      res.status(404).json({ error: 'Project not found' });
+      return;
+    }
+    res.json(tray);
+  } catch {
+    res.status(500).json({ error: 'Failed to fetch insight tray' });
+  }
+});
+
+router.post('/projects/:id/insights-tray/dismiss', (req, res) => {
+  try {
+    const { item_id } = req.body as { item_id?: string };
+    if (!item_id) {
+      res.status(400).json({ error: 'item_id is required' });
+      return;
+    }
+    dismissInsightTrayItem(req.params.id, item_id);
+    res.json({ ok: true });
+  } catch (err) {
+    if (err instanceof EmberError && err.code === 'not_found') {
+      res.status(404).json({ error: 'Project not found' });
+      return;
+    }
+    res.status(500).json({ error: 'Failed to dismiss insight' });
+  }
+});
+
+router.post('/projects/:id/insights-tray/snooze', (req, res) => {
+  try {
+    const { hours } = req.body as { hours?: number };
+    snoozeInsightTray(req.params.id, hours ?? 24);
+    res.json({ ok: true });
+  } catch (err) {
+    if (err instanceof EmberError && err.code === 'not_found') {
+      res.status(404).json({ error: 'Project not found' });
+      return;
+    }
+    res.status(500).json({ error: 'Failed to snooze insight tray' });
   }
 });
 

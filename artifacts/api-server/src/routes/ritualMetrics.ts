@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { recordRitualMetric } from '@workspace/ember-core';
+import { recordRitualMetric, isAllowedRitualEvent } from '@workspace/ember-core';
 
 const router = Router();
 
@@ -8,6 +8,14 @@ router.post('/ritual-metrics', (req, res) => {
     const { event, at, ...rest } = req.body ?? {};
     if (typeof event !== 'string' || typeof at !== 'string') {
       res.status(400).json({ error: 'event and at are required' });
+      return;
+    }
+    if (!isAllowedRitualEvent(event)) {
+      res.status(400).json({ error: `Unknown event: ${event}` });
+      return;
+    }
+    if (rest.ms_since_flow_start != null && typeof rest.ms_since_flow_start !== 'number') {
+      res.status(400).json({ error: 'ms_since_flow_start must be a number' });
       return;
     }
     recordRitualMetric({ event, at, ...rest });

@@ -5,6 +5,7 @@
 
 import {
   isAiAvailable,
+  getAiVia,
   extractTasks,
   processReflection,
   generateResumeSuggestion,
@@ -28,6 +29,8 @@ import {
   getSession,
   type Session,
 } from './services/sessionService.js';
+import { recordRitualMetric } from './services/ritualMetricsService.js';
+import { resolveSessionMinutes } from './services/settingsService.js';
 import {
   invokeSkill,
   recordVerdict,
@@ -75,6 +78,7 @@ export interface FinishTrainingResult {
   previous_dragon_stage: string | null;
   reflection_processed: boolean;
   cognition: Awaited<ReturnType<typeof processReflection>> | null;
+  already_completed?: boolean;
 }
 
 export interface DragonAskResult {
@@ -93,7 +97,7 @@ export interface MenagerieEntry {
 }
 
 const RITUAL_HINT =
-  'Sacred loop: read resume → begin 20-min training → reflect → dragon grows. ' +
+  'Sacred loop: read resume → begin training (default 20 min, configurable) → reflect → dragon grows. ' +
   'You are training a living creature, not managing a task list.';
 
 function toResumeCard(ctx: ResumeContext, source: 'ai' | 'fallback'): ResumeCard {
@@ -164,10 +168,13 @@ export async function openProject(projectId: string): Promise<OpenProjectBundle 
 export function beginTraining(
   projectId: string,
   taskIds?: string[],
+  durationMinutes?: number,
 ): BeginTrainingResult | null {
   updateDragonState(projectId);
   const project = getProject(projectId);
   if (!project) return null;
+
+  const planned = resolveSessionMinutes(durationMinutes ?? null);
 
   const active = getTasksByProject(projectId, 'active');
   const ids =
@@ -175,16 +182,23 @@ export function beginTraining(
       ? taskIds.filter((id) => active.some((t) => t.id === id))
       : active.map((t) => t.id);
 
-  const session = startSession(projectId, ids.length > 0 ? ids : undefined);
+  const session = startSession(projectId, ids.length > 0 ? ids : undefined, planned);
   const tasksInSession = ids
     .map((id) => active.find((t) => t.id === id))
     .filter((t): t is Task => Boolean(t));
+
+  recordRitualMetric({
+    event: 'train_tap',
+    at: new Date().toISOString(),
+    project_id: projectId,
+    source: 'core',
+  });
 
   return {
     session,
     project,
     tasks_in_session: tasksInSession,
-    duration_hint_minutes: 20,
+    duration_hint_minutes: planned,
   };
 }
 
@@ -198,6 +212,19 @@ export async function finishTraining(
 ): Promise<FinishTrainingResult | null> {
   const existing = getSession(sessionId);
   if (!existing) return null;
+
+  if (existing.end_time) {
+    const project = getProject(existing.project_id);
+    if (!project) return null;
+    return {
+      session: existing,
+      project,
+      previous_dragon_stage: null,
+      reflection_processed: Boolean(existing.reflection?.trim()),
+      cognition: null,
+      already_completed: true,
+    };
+  }
 
   const prevProject = getProject(existing.project_id);
   const previousStage = prevProject?.dragon_stage ?? null;
@@ -294,10 +321,18 @@ export function keeperVerdict(opts: {
   return result;
 }
 
-export function healthCheck(): { status: string; db_path: string; ai_available: boolean } {
+export function healthCheck(): {
+  status: string;
+  db_path: string;
+  ai_available: boolean;
+  ai_via: ReturnType<typeof getAiVia>;
+  mcp_version: string;
+} {
   return {
     status: 'ok',
     db_path: getDbPath(),
     ai_available: isAiAvailable(),
+    ai_via: getAiVia(),
+    mcp_version: '0.2.0',
   };
 }

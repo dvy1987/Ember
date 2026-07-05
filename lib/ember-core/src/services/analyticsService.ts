@@ -1,4 +1,5 @@
 import { getDb } from '../db/db.js';
+import { localDateString } from '../dateUtils.js';
 
 export interface DailyStat {
   date: string;
@@ -15,7 +16,7 @@ export function getWeeklyStats(): DailyStat[] {
   for (let i = 6; i >= 0; i--) {
     const d = new Date();
     d.setDate(d.getDate() - i);
-    const dateStr = d.toISOString().slice(0, 10);
+    const dateStr = localDateString(d);
 
     const row = db
       .prepare('SELECT * FROM daily_stats WHERE date = ?')
@@ -34,6 +35,7 @@ export function getFocusTimeByProject(): Array<{
   dragon_stage: string;
   total_minutes: number;
   sessions_count: number;
+  last_session_at: string | null;
 }> {
   const db = getDb();
   return db.prepare(`
@@ -43,6 +45,7 @@ export function getFocusTimeByProject(): Array<{
       p.dragon_type,
       p.dragon_stage,
       p.total_focus_minutes as total_minutes,
+      p.last_session_at,
       (SELECT COUNT(*) FROM sessions s WHERE s.project_id = p.id AND s.end_time IS NOT NULL) as sessions_count
     FROM projects p
     WHERE p.is_archived = 0
@@ -54,6 +57,7 @@ export function getFocusTimeByProject(): Array<{
     dragon_stage: string;
     total_minutes: number;
     sessions_count: number;
+    last_session_at: string | null;
   }>;
 }
 
@@ -81,7 +85,7 @@ export function getOverallStats(): {
   for (let i = 0; i < 365; i++) {
     const d = new Date(today);
     d.setDate(d.getDate() - i);
-    const dateStr = d.toISOString().slice(0, 10);
+    const dateStr = localDateString(d);
 
     const row = db
       .prepare('SELECT sessions_completed FROM daily_stats WHERE date = ?')
@@ -191,29 +195,29 @@ export function getProjectOverallStats(projectId: string): ProjectOverallStats |
 
 export function getProjectDailyStats(projectId: string, days = 30): ProjectDailyStat[] {
   const db = getDb();
-  const results: ProjectDailyStat[] = [];
+  const endedSessions = db.prepare(`
+    SELECT start_time, duration_minutes
+    FROM sessions
+    WHERE project_id = ? AND end_time IS NOT NULL
+  `).all(projectId) as Array<{ start_time: string; duration_minutes: number }>;
 
+  const byDate = new Map<string, { focus_minutes: number; sessions_completed: number }>();
+  for (const s of endedSessions) {
+    const dateStr = localDateString(new Date(s.start_time));
+    const prev = byDate.get(dateStr) ?? { focus_minutes: 0, sessions_completed: 0 };
+    byDate.set(dateStr, {
+      focus_minutes: prev.focus_minutes + s.duration_minutes,
+      sessions_completed: prev.sessions_completed + 1,
+    });
+  }
+
+  const results: ProjectDailyStat[] = [];
   for (let i = days - 1; i >= 0; i--) {
     const d = new Date();
     d.setDate(d.getDate() - i);
-    const dateStr = d.toISOString().slice(0, 10);
-
-    // Derive per-project daily stats from sessions table directly
-    const row = db.prepare(`
-      SELECT
-        COALESCE(SUM(duration_minutes), 0) as focus_minutes,
-        COUNT(*) as sessions_completed
-      FROM sessions
-      WHERE project_id = ?
-        AND end_time IS NOT NULL
-        AND date(start_time) = ?
-    `).get(projectId, dateStr) as { focus_minutes: number; sessions_completed: number };
-
-    results.push({
-      date: dateStr,
-      focus_minutes: row.focus_minutes,
-      sessions_completed: row.sessions_completed,
-    });
+    const dateStr = localDateString(d);
+    const row = byDate.get(dateStr) ?? { focus_minutes: 0, sessions_completed: 0 };
+    results.push({ date: dateStr, ...row });
   }
 
   return results;

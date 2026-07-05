@@ -48,6 +48,7 @@ export interface Session {
   start_time: string;
   end_time: string | null;
   duration_minutes: number;
+  planned_duration_minutes: number;
   reflection: string | null;
   ai_summary: string | null;
   tasks_completed_count: number;
