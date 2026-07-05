@@ -4,6 +4,7 @@ Routing index for agent continuity. See `agent-handoffs.md` for session handoffs
 
 | Date | Topic | Handoff |
 |------|-------|---------|
+| 2026-07-05 | Agent harness v0 bootstrap | [Harness manifest](../harness/manifest.json) |
 | 2026-07-05 | Planning cleanup + agent-loom sync | [Handoff](./agent-handoffs.md#2026-07-05-1018--handoff) |
 | 2026-07-05 | Public launch + adversarial hardening | [Handoff](./agent-handoffs.md#2026-07-05-0950--handoff) |
 | 2026-07-05 | Sacred loop, ember-core, public launch plan | [Handoff](./agent-handoffs.md#2026-07-05-0740--handoff) |

@@ -1,0 +1,45 @@
+{
+  "version": "1",
+  "tasks": [
+    {
+      "id": "harness-001",
+      "description": "Harness manifest exists",
+      "file_phrase": "harness_version",
+      "command": "test -f docs/harness/manifest.json",
+      "split": "held-in"
+    },
+    {
+      "id": "harness-002",
+      "description": "AGENTS.md present",
+      "file_phrase": "Ember Agent Rules",
+      "command": "test -f AGENTS.md",
+      "split": "held-in"
+    },
+    {
+      "id": "harness-003",
+      "description": "Monorepo typecheck passes",
+      "command": "pnpm run typecheck",
+      "split": "held-in"
+    },
+    {
+      "id": "harness-004",
+      "description": "ember-core unit tests pass",
+      "command": "cd lib/ember-core && pnpm test",
+      "split": "held-in"
+    },
+    {
+      "id": "harness-005",
+      "description": "Memory routing exists",
+      "file_phrase": "Memory Routing",
+      "command": "test -f docs/memory/MEMORY-ROUTING.md",
+      "split": "held-out"
+    },
+    {
+      "id": "harness-006",
+      "description": "Sacred loop smoke (api-server on :8080)",
+      "command": "./scripts/smoke-ritual.sh",
+      "split": "held-out",
+      "optional": true
+    }
+  ]
+}

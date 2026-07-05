@@ -1,0 +1,6 @@
+{
+  "version": "1",
+  "description": "Fast harness regression gate for CI",
+  "pass_threshold": 1.0,
+  "task_ids": ["harness-001", "harness-002", "harness-003", "harness-004"]
+}

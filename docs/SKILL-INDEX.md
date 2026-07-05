@@ -624,6 +624,18 @@ Install globally: `~/.agents/skills/`. Output files land inside the current proj
 
 ---
 
+### `agent-loom-sync`
+**Triggers:** "sync agent-loom", "update skills from upstream", "rsync from ../agent-loom", "pull skill library updates", "refresh .agents folder", "merge agent-loom improvements", "update my agent skills without losing custom skills"
+**What it does:** Merges upstream agent-loom library skills into the project's `.agents/skills/` via per-skill rsync while preserving project-local and forked skills. Builds a dry-run plan (add / update / unchanged / local-only / forked), requires user confirmation before apply, writes `.agents/agent-loom-sync.json`, and recommends post-sync `validate-skills`. Never deletes local-only skills or overwrites `metadata.origin: project-local` skills.
+**Calls:** `validate-skills` (post-sync)
+**Output files:** `.agents/agent-loom-sync.json` (config); updated skill directories under `.agents/skills/`
+**Logged to:** `docs/skill-outputs/SKILL-OUTPUTS.md`
+**Impact report:** Upstream commit, add/update/protected/forked counts, applied yes/no
+**References:** `references/sync-policy.md`, `references/examples.md`, `scripts/sync_agent_loom.py`, `templates/agent-loom-sync.json`
+**Pairs with:** `project-setup` / `retroactive-project-setup` (initial `.agents` install) — this skill is the ongoing upgrade path.
+
+---
+
 ### `debug-and-fix`
 **Triggers:** "this is broken", "fix this bug", "why is this failing", "debug this", "resolve this error", "what went wrong"
 **What it does:** Systematically reproduces issues, isolates root causes, applies minimal fixes, and verifies the result. Supports Linear issue integration — fetches issues, cross-references against actual codebase, and updates status with user approval. Handles batch triage for multiple bugs (one at a time, full cycle each).
@@ -756,6 +768,73 @@ Install globally: `~/.agents/skills/`. Output files land inside the current proj
 **Output file:** `.design/<feature>/REVIEW.md`
 **References:** `references/review-rubric.md` (0–3 anchors + SHIP thresholds), `references/apca-contrast.md` (targets + usage), `references/playwright-flow.md`; `scripts/apca.mjs` (APCA calculator)
 **Impact report:** Review pass, verdict (SHIP/REVISE), APCA result, state coverage, direction fidelity, findings raised
+
+---
+
+### `svg-creation`
+**Triggers:** "create SVG", "draw an SVG icon", "animate an SVG", "SVG loader", "path animation", "shape morph", "animated logo", "line drawing effect", "stroke-dashoffset", "SMIL animation", "vector illustration", "fix trashy SVG"
+**What it does:** Handcrafts static SVG graphics and performant animations (line-draw, spinners, morphs, motion paths). Picks SMIL vs CSS from delivery context (`<img>`/README vs inline DOM). Hard-bans scripts and external refs. Distills patterns from supermemoryai svg-animations and SVG-ORA prompt discipline. For token-aligned icon families inside a design build, pairs with `design-system` static craft.
+**Calls:** `design-system` (when icon set must match DESIGN.md tokens)
+**Output files:** `assets/svg/<name>.svg` (or user path)
+**Logged to:** `docs/skill-outputs/SKILL-OUTPUTS.md`
+**References:** `references/static-craft.md`, `references/animation-craft.md`, `references/ai-svg-prompts.md`, `references/svg-tooling.md`, `references/examples.md`
+**Impact report:** Asset name, static vs animated, delivery context, path count, quality gate pass/fail
+
+---
+
+### `gsap-animation`
+**Triggers:** "animate with GSAP", "GSAP timeline", "ScrollTrigger", "DrawSVG", "MorphSVG", "MotionPath", "gsap.context", "useGSAP", "scroll animation library", "GSAP React"
+**What it does:** Runtime GSAP animations for web apps — timelines, scroll-driven motion, SVG draw/morph/path plugins, React `useGSAP` integration with cleanup. Hard-bans `<img>`/README SVG targets. Pairs with `svg-creation` for static inline SVG markup; `frontend-design` for token-level motion defaults.
+**Calls:** `svg-creation` (static SVG markup), `frontend-design` (design-token motion in full UI builds)
+**Output files:** User component/hook path (e.g. `src/components/HeroAnimation.tsx`)
+**Logged to:** `docs/skill-outputs/SKILL-OUTPUTS.md`
+**References:** `references/react-integration.md`, `references/svg-plugins.md`, `references/examples.md`
+**Impact report:** Pattern, framework, plugins, cleanup method, reduced-motion handling
+
+---
+
+### `motion-animation`
+**Triggers:** "animate with Motion", "Framer Motion", "motion.div", "AnimatePresence", "layout animation", "whileInView", "motion/react", "useReducedMotion", "React enter exit animation"
+**What it does:** Declarative Motion for React animations — variants, stagger, gestures, AnimatePresence exit, layout/layoutId, whileInView, useScroll, inline SVG pathLength. React/Next client only. Pairs with `svg-creation` for static SVG markup; `gsap-animation` for scroll pin and non-React stacks.
+**Calls:** `svg-creation` (static SVG markup), `frontend-design` (motion tokens in full UI builds)
+**Output files:** User component path (e.g. `src/components/HeroReveal.tsx`)
+**Logged to:** `docs/skill-outputs/SKILL-OUTPUTS.md`
+**References:** `references/react-patterns.md`, `references/svg-and-scroll.md`, `references/examples.md`
+**Impact report:** Pattern, import path, reduced-motion method, AnimatePresence usage
+
+---
+
+### `harness-engineering`
+**Triggers:** "harness engineering", "agent keeps failing", "agent not following instructions", "make agents reliable", "agents going off rails", "same mistake again", "fix agent behavior", "agent quality", "agents ignore skills", "why is my agent bad", plus all harness/build/improve phrases
+**Proactive:** AUTO-FIRE on agent misbehavior or missing `docs/harness/manifest.json` when `AGENTS.md` exists — see `references/harness-readiness-gate.md`.
+**What it does:** Orchestrator for harness work — routes bootstrap vs evolution vs audit; separates harness from `agent-builder` topology.
+**Calls:** `harness-generation`, `harness-evolution`, `project-setup`, `retroactive-project-setup`, `eval-rubric-design`, `eval-pipeline`, `reality-check`, `agent-builder` (topology only)
+**Output:** Unified harness report in chat; child skills write `docs/harness/`
+**References:** `references/routing.md`, `references/harness-readiness-gate.md`, `references/examples.md`
+**Impact report:** Intent, child skills, harness version, eval ready
+
+---
+
+### `harness-generation`
+**Triggers:** "generate harness", "scaffold harness", "harness bootstrap", "agent bootstrap", "first time agents", "agent reliability setup", "missing agent configuration"
+**Auto-invoked:** After `project-setup` Step 6c (default on) or `retroactive-project-setup` when manifest missing; when `harness-engineering` Step 0 finds gap.
+**What it does:** Seeds minimal harness v0 — seven-component manifest, eval stub, governance, drift detection. Merges with existing `AGENTS.md` from `project-setup`. Not evolution.
+**Called by:** `harness-engineering`, `project-setup` (Step 6c), `retroactive-project-setup`, `agent-builder` (pre-setup-evaluation)
+**Output files:** `docs/harness/manifest.json`, `docs/harness/eval-interface.md`, governance stub
+**References:** `references/component-manifest.md`, `references/scaffold-patterns.md`, `references/examples.md`
+**Impact report:** Context, manifest path, eval stub, merge mode
+
+---
+
+### `harness-evolution`
+**Triggers:** "improve harness", "agent keeps failing", "same mistake again", "agents ignore skills", "fix agent behavior", "agent unreliable", "self-improving harness", "agent quality plateau"
+**Auto-routed:** From `harness-engineering` when manifest + eval exist and symptoms present.
+**What it does:** Trace-driven harness improvement — ETCLOVG diagnosis, dual-split regression gate, promote vN+1. Requires manifest + eval harness.
+**Calls:** `eval-pipeline` (regression), `memory-capture` (on promote)
+**Called by:** `harness-engineering`, `reality-check` (remediation path)
+**Output files:** `docs/harness/runs/`, `docs/harness/evolve/change_manifest.json`
+**References:** `references/evolution-loop.md`, `references/diagnosis-etclovg.md`, `references/examples.md`
+**Impact report:** Round, layer, held-out Δ, promoted version
 
 ---
 
@@ -1012,6 +1091,7 @@ User entry points:
   eval-output              ← "evaluate output" / "score this response" / "run an eval" / "LLM as judge"
   reality-check            ← "reality-check" / "evaluate claims" / "is this real"
   project-setup            ← "set up this project" / "create an AGENTS.md"
+  harness-engineering      ← "harness engineering" / "build harness" / "improve harness" / "agent scaffold"
   project-orchestrator     ← "what should I do next" / "orchestrate" / "parallel tasks"
   spec-driven-development  ← "spec-driven development" / "SDD" / "specs-first" / "/specify" / "/plan" / "/analyze"
   venture-exploration      ← "explore business ideas" / "what should I build" / "evaluate this venture" / "is this a good business idea"
@@ -1081,6 +1161,15 @@ learn-from-chat → validate-skills (Step 5, post-apply, in-scope path only)
 apply-paper-to-project → architectural-decision-log (optional, for significant changes)
 
 project-setup → generates AGENTS.md with Orchestration Map (references project-orchestrator)
+              → harness-generation (Step 6c, v0 manifest + eval stub)
+
+harness-engineering → harness-generation (bootstrap)
+                    → harness-evolution (improve; requires eval harness)
+                    → eval-pipeline (regression)
+                    → reality-check (claim audit)
+
+agent-builder → harness-generation (if no manifest, before setup-evaluation)
+              → setup-evaluation (harness checks Step 3b)
               → project-constitution (when sdd_mode: on and no constitution exists)
 
 spec-driven-development → project-constitution (/constitution)

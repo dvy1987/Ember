@@ -1,0 +1,88 @@
+{
+  "harness_version": "v0",
+  "created": "2026-07-05",
+  "project": "ember",
+  "model_family": "agnostic",
+  "eval_interface": "docs/harness/eval-interface.md",
+  "held_out_split": "docs/harness/splits/held-out.json",
+  "allowed_write_paths": [
+    "docs/harness/",
+    "AGENTS.md",
+    "docs/evals/"
+  ],
+  "drift_check": "./scripts/harness-sync-check.sh",
+  "regression": "./scripts/harness-regression.sh",
+  "components": [
+    {
+      "id": "prompt",
+      "path": "AGENTS.md",
+      "status": "user-edited",
+      "sha256": "5d8e6a131794e37c46bbf67f080b8c5466bc52d1b67a7c4128beae5b04f06139",
+      "allowed_write": true
+    },
+    {
+      "id": "tools",
+      "path": "docs/harness/tools.md",
+      "status": "generated",
+      "sha256": "057b0cd6bbca6c94513db784df69073aae114d71a4168080b7611db064c16ff6",
+      "allowed_write": true
+    },
+    {
+      "id": "tool_implementations",
+      "path": "artifacts/ember-mcp/src/server.ts",
+      "status": "user-edited",
+      "sha256": "1f5cce8c9c958b2a51244734a29f1b1baf40fc283bd1c8eda0dfcec4a8e65ffa",
+      "allowed_write": false
+    },
+    {
+      "id": "middleware",
+      "path": "docs/harness/middleware.md",
+      "status": "generated",
+      "sha256": "df9ebfa60217817b2a1b1dd06244342324acca988cb880c98ba00b0cfd3af9b4",
+      "allowed_write": true
+    },
+    {
+      "id": "skills",
+      "path": ".agents/ROUTING.md",
+      "status": "user-edited",
+      "sha256": "bccb8fb2b82d8135c32868379bb7361023462f51c1b415236c1c1af58eeb55eb",
+      "allowed_write": false
+    },
+    {
+      "id": "sub_agents",
+      "path": "docs/harness/sub-agents.md",
+      "status": "generated",
+      "sha256": "2a2d4097bfa4fc81c33fc588304ad51efb734b8794d895b82b2518ddcbadb8db",
+      "allowed_write": true
+    },
+    {
+      "id": "memory",
+      "path": "docs/memory/MEMORY-ROUTING.md",
+      "status": "generated",
+      "sha256": "aa89095d438ebf2698f69c31ed6ef26d32f8011c34e63b5822668e94bede6cf1",
+      "allowed_write": true
+    },
+    {
+      "id": "governance",
+      "path": "docs/harness/governance.md",
+      "status": "generated",
+      "sha256": "f11f9866574f6f3c964e77f240498f28094e8d622b4bc404ec8193f9e2782d61",
+      "allowed_write": true
+    },
+    {
+      "id": "verification",
+      "path": "docs/harness/eval-interface.md",
+      "status": "generated",
+      "sha256": "2d98a7d6870ce78746fe5b7e801ebd03ce61289d21f52855859b70e9735eeaec",
+      "allowed_write": true
+    },
+    {
+      "id": "bootstrap",
+      "path": "docs/harness/bootstrap.md",
+      "status": "generated",
+      "sha256": "1718b0e2421bafa5dfda15fc7ab3f27f86994449f55b000141f57a217f5cb350",
+      "allowed_write": true
+    }
+  ],
+  "notes": "v0 minimal harness. Re-run harness-generation with --force only after explicit user approval. CI: run harness-sync-check on harness path changes."
+}

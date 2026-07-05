@@ -100,3 +100,20 @@ Agent implementations should be rejected if they:
 - delete user data automatically
 - bypass the service layer
 - introduce unnecessary complexity
+
+---
+
+# Agent Harness
+
+Reliability layer for coding agents. **Manifest:** `docs/harness/manifest.json` (v0).
+
+| Surface | Path |
+|---------|------|
+| Governance | `docs/harness/governance.md` |
+| Tools (MCP + commands) | `docs/harness/tools.md` |
+| Session lifecycle | `docs/harness/middleware.md` |
+| Eval / regression | `docs/harness/eval-interface.md` |
+
+**Cold session:** invoke `memory-startup` on first message.  
+**Ember UI:** load `ember-design-constraints` + `docs/visual-direction.md`.  
+**Drift check:** `./scripts/harness-sync-check.sh`

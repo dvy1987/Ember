@@ -11,7 +11,7 @@ description: >
 license: MIT
 metadata:
   author: dvy1987
-  version: "1.0"
+  version: "1.1"
   category: project-specific
   sources: agent-loom consumer install pattern (copy .agents + local skills)
   resources:
@@ -39,6 +39,8 @@ You merge upstream agent-loom library improvements into a consumer project's `.a
 **Never sync the project root `AGENTS.md` from upstream.** That file is project-specific (from `project-setup`). Sync `.agents/skills/`, and **`hooks/`** when present upstream, optionally `.agents/ROUTING.md` when the user opts in.
 
 **Never run rsync on the whole `.agents/skills/` tree with `--delete`.** Sync per library skill directory only — bulk delete would remove project-local skills.
+
+**Ensure `metadata.origin: project-local` on every local-only skill.** After `--apply`, `sync_agent_loom.py` stamps missing origin on skills absent from upstream. Report stamped skills in the impact report. Same-name upstream forks use `forked_skills` in config instead.
 
 ---
 
@@ -80,7 +82,7 @@ Show counts and name lists for Add and Update. Ask: "Apply sync?" One confirmati
 python3 .agents/skills/agent-loom-sync/scripts/sync_agent_loom.py --apply
 ```
 
-Updates `.agents/agent-loom-sync.json` with `last_sync` and `upstream_commit`.
+Updates `.agents/agent-loom-sync.json` with `last_sync` and `upstream_commit`. Script stamps `metadata.origin: project-local` on local-only skills missing it — report which skills were stamped.
 
 ### Step 5 — Optional ROUTING.md
 
@@ -96,15 +98,16 @@ Append to `docs/skill-outputs/SKILL-OUTPUTS.md`. Recommend commit message: `chor
 
 ---
 
-## Marking project-local skills
+## Project-local origin (this skill's job)
 
-When creating a skill only for this repo via `universal-skill-creator`, add under `metadata:`:
+| Responsibility | Owner |
+|----------------|-------|
+| Write `metadata.origin: project-local` when creating skills | `universal-skill-creator` (Step 4 + Step 7b) |
+| Stamp missing origin on local-only skills after sync | `agent-loom-sync` (`--apply` via `sync_agent_loom.py`) |
+| Protect skills with that metadata from overwrite | `agent-loom-sync` sync plan |
+| Same-name customized upstream skill | `forked_skills` in `.agents/agent-loom-sync.json` |
 
-```yaml
-  origin: project-local
-```
-
-Sync will never overwrite it. For one-off forks of a library skill, use `forked_skills` in config with a short reason.
+Every project-local SKILL.md should carry `origin: project-local`. These skills ensure it — not the user.
 
 ---
 
@@ -136,19 +139,17 @@ Sync will never overwrite it. For one-off forks of a library skill, use `forked_
 - [ ] All local-only skills listed under protected
 - [ ] No protected/forked skill in Update list without user approval
 - [ ] `agent-loom-sync.json` updated after apply
+- [ ] Local-only skills have `metadata.origin: project-local` (stamped by apply if missing)
 - [ ] SKILL-OUTPUTS.md appended when files changed
 
 ---
 
 ## Red Flags
 
-- Whole-tree rsync with delete on `.agents/skills/`
+- Whole-tree rsync with delete on .agents/skills/
 - Local-only skill missing from protected list in plan
 - Forked skill overwritten without user opt-in
-- Upstream path points at wrong repo or missing `.agents/skills`
-
----
-
+- Upstream path points at wrong repo or missing .agents/skills
 ## Example
 
 <examples>
@@ -161,6 +162,11 @@ Sync will never overwrite it. For one-off forks of a library skill, use `forked_
 Read `references/examples.md` for full session walkthroughs.
 
 ---
+
+## Prune Log
+Last pruned: 2026-07-04
+- No changes — citation audit passed; content current (improve-skills full pass 2026-07-04)
+
 
 ## Impact Report
 

@@ -1,6 +1,6 @@
 # Ember — Current State
 
-**Last updated:** 2026-07-05 (session handoff)
+**Last updated:** 2026-07-05 (harness v0 bootstrap)
 
 ## Project phase
 
@@ -27,9 +27,15 @@ artifacts/ember  →  api-server  →  lib/ember-core  →  SQLite
 ember-mcp        →  lib/ember-core  →  same DB
 ```
 
+## Agent harness
+
+- **Harness v0** — `docs/harness/manifest.json` (bootstrap 2026-07-05)
+- **Regression:** `./scripts/harness-regression.sh` | **Drift:** `./scripts/harness-sync-check.sh`
+- **Rubric:** `docs/evals/2026-07-05-agent-harness-rubric.md`
+
 ## Agent skills
 
-- **Agent-loom sync:** @ `96f9e73` (harness-engineering suite + 11 skill updates) — **uncommitted** locally.
+- **Agent-loom sync:** @ `91824b2` (memory-startup v1.4, agent-loom-sync v1.1)
 - **Protected:** `ember-design-constraints` (project-local).
 
 ## Next recommended work
@@ -44,6 +50,7 @@ ember-mcp        →  lib/ember-core  →  same DB
 cd lib/ember-core && pnpm test
 pnpm run typecheck
 ./scripts/smoke-ritual.sh   # api-server on :8080
+./scripts/harness-regression.sh
 npx playwright test         # optional e2e
 ```
 
