@@ -1,11 +1,11 @@
 {
   "version": "2.2",
-  "generated_at": "2026-07-05T02:11:13.626877+00:00",
+  "generated_at": "2026-07-05T04:49:13.993064+00:00",
   "mode": "skill-library",
   "mode_reason": "skill-library label: docs/skill-graph.md + docs/SKILL-INDEX.md present → adds authoritative skill invoke edges. Still scans full repo (not skills-only).",
   "scan_layers": [
-    "skills (107 in .agents/skills)",
-    "repo-wide source (.migration-backup, artifacts, lib, scripts)",
+    "skills (110 in .agents/skills)",
+    "repo-wide source ((root), .migration-backup, artifacts, lib, scripts, tests)",
     "docs (AGENTS.md, README.md, docs/**/*.md)",
     "memory (docs/memory, handoffs)",
     "packages (package.json workspaces)",
@@ -15,33 +15,33 @@
   ],
   "root": "/Users/divya/Projects/Building-apps/Ember",
   "stats": {
-    "nodes": 493,
-    "edges": 399,
+    "nodes": 510,
+    "edges": 429,
     "authoritative_edges": 170,
-    "extracted_edges": 389,
-    "inferred_edges": 10,
+    "extracted_edges": 415,
+    "inferred_edges": 14,
     "node_types": {
       "config": 28,
-      "directory": 9,
-      "doc": 13,
-      "handoff": 3,
+      "directory": 10,
+      "doc": 16,
+      "handoff": 5,
       "memory": 3,
-      "module": 317,
+      "module": 325,
       "package": 13,
-      "skill": 107
+      "skill": 110
     }
   },
   "god_nodes": [
     "db.ts (module)",
-    "secure-skill",
     "Icons.tsx (module)",
+    "secure-skill",
     "universal-skill-creator",
     "index.ts (module)",
     "venture-exploration",
+    "projectService.ts (module)",
     "experimentation",
     "validate-skills",
-    "improve-skills",
-    "projectService.ts (module)"
+    "ritual.ts (module)"
   ],
   "surprising_connections": [
     {
@@ -87,18 +87,18 @@
       "to_community": "venture"
     },
     {
+      "from": "harness-evolution",
+      "to": "eval-pipeline",
+      "relation": "invokes",
+      "from_community": "harness",
+      "to_community": "eval"
+    },
+    {
       "from": "reality-check",
       "to": "assumption-mapping",
       "relation": "invokes",
       "from_community": "reality",
       "to_community": "assumption"
-    },
-    {
-      "from": "reality-check",
-      "to": "adversarial-hat",
-      "relation": "invokes",
-      "from_community": "reality",
-      "to_community": "adversarial"
     }
   ],
   "suggested_questions": [
@@ -106,11 +106,11 @@
     "How does project-orchestrator (project) connect to process-decomposer (process)?",
     "How does motion-animation (motion) connect to svg-creation (svg)?",
     "What depends on db.ts (module), and what does db.ts (module) invoke?",
-    "What depends on secure-skill, and what does secure-skill invoke?",
-    "What depends on Icons.tsx (module), and what does Icons.tsx (module) invoke?"
+    "What depends on Icons.tsx (module), and what does Icons.tsx (module) invoke?",
+    "What depends on secure-skill, and what does secure-skill invoke?"
   ],
   "communities": {
-    "create": [
+    "source": [
       "adversarial-hat",
       "agent-builder",
       "agent-launcher",
@@ -144,6 +144,9 @@
       "first-principles",
       "generate-changelog",
       "git-workflow-and-versioning",
+      "harness-engineering",
+      "harness-evolution",
+      "harness-generation",
       "idea-evaluation",
       "idea-generation",
       "implementation-plan",
@@ -201,17 +204,14 @@
       "validate-skills",
       "venture-exploration"
     ],
-    "ember": [
-      "ember-design-constraints"
-    ],
-    "context": [
-      "context-engineering"
-    ],
     "technical": [
       "code-simplification",
       "technical-debt-audit"
     ],
-    "ci": [
+    "debug": [
+      "debug-and-fix"
+    ],
+    "app": [
       "app-security-hardening",
       "browser-testing-with-devtools",
       "ci-cd-and-automation",
@@ -228,8 +228,11 @@
     "code": [
       "code-review-crsp"
     ],
-    "debug": [
-      "debug-and-fix"
+    "ember": [
+      "ember-design-constraints"
+    ],
+    "context": [
+      "context-engineering"
     ]
   },
   "nodes": [
@@ -312,6 +315,14 @@
       "path": ".agents/skills/customer-discovery/SKILL.md",
       "category": "project-specific",
       "community": "customer"
+    },
+    {
+      "id": "skill_harness_evolution",
+      "label": "harness-evolution",
+      "type": "skill",
+      "path": ".agents/skills/harness-evolution/SKILL.md",
+      "category": "project-specific",
+      "community": "harness"
     },
     {
       "id": "skill_test_driven_development",
@@ -720,6 +731,22 @@
       "path": ".agents/skills/shipping-and-launch/SKILL.md",
       "category": "project-specific",
       "community": "shipping"
+    },
+    {
+      "id": "skill_harness_engineering",
+      "label": "harness-engineering",
+      "type": "skill",
+      "path": ".agents/skills/harness-engineering/SKILL.md",
+      "category": "project-specific",
+      "community": "harness"
+    },
+    {
+      "id": "skill_harness_generation",
+      "label": "harness-generation",
+      "type": "skill",
+      "path": ".agents/skills/harness-generation/SKILL.md",
+      "category": "project-specific",
+      "community": "harness"
     },
     {
       "id": "skill_implementation_plan",
@@ -1674,6 +1701,14 @@
       "language": "tsx"
     },
     {
+      "id": "module_artifacts_ember_src_components_insighttray_tsx",
+      "label": "InsightTray.tsx",
+      "type": "module",
+      "path": "artifacts/ember/src/components/InsightTray.tsx",
+      "community": "artifacts",
+      "language": "tsx"
+    },
+    {
       "id": "module_artifacts_ember_src_components_moretendingsection_tsx",
       "label": "MoreTendingSection.tsx",
       "type": "module",
@@ -1710,6 +1745,14 @@
       "label": "SessionCompletePayoff.tsx",
       "type": "module",
       "path": "artifacts/ember/src/components/SessionCompletePayoff.tsx",
+      "community": "artifacts",
+      "language": "tsx"
+    },
+    {
+      "id": "module_artifacts_ember_src_components_sessiondurationpicker_tsx",
+      "label": "SessionDurationPicker.tsx",
+      "type": "module",
+      "path": "artifacts/ember/src/components/SessionDurationPicker.tsx",
       "community": "artifacts",
       "language": "tsx"
     },
@@ -2214,6 +2257,14 @@
       "label": "DemoModeContext.tsx",
       "type": "module",
       "path": "artifacts/ember/src/lib/DemoModeContext.tsx",
+      "community": "artifacts",
+      "language": "tsx"
+    },
+    {
+      "id": "module_artifacts_ember_src_lib_sessiondurationcontext_tsx",
+      "label": "SessionDurationContext.tsx",
+      "type": "module",
+      "path": "artifacts/ember/src/lib/SessionDurationContext.tsx",
       "community": "artifacts",
       "language": "tsx"
     },
@@ -3410,6 +3461,14 @@
       "language": "ts"
     },
     {
+      "id": "module_lib_ember_core_src_dateutils_ts",
+      "label": "dateUtils.ts",
+      "type": "module",
+      "path": "lib/ember-core/src/dateUtils.ts",
+      "community": "lib",
+      "language": "ts"
+    },
+    {
       "id": "module_lib_ember_core_src_db_db_ts",
       "label": "db.ts",
       "type": "module",
@@ -3506,6 +3565,14 @@
       "language": "ts"
     },
     {
+      "id": "module_lib_ember_core_src_services_insighttrayservice_ts",
+      "label": "insightTrayService.ts",
+      "type": "module",
+      "path": "lib/ember-core/src/services/insightTrayService.ts",
+      "community": "lib",
+      "language": "ts"
+    },
+    {
       "id": "module_lib_ember_core_src_services_projectservice_ts",
       "label": "projectService.ts",
       "type": "module",
@@ -3542,6 +3609,14 @@
       "label": "sessionService.ts",
       "type": "module",
       "path": "lib/ember-core/src/services/sessionService.ts",
+      "community": "lib",
+      "language": "ts"
+    },
+    {
+      "id": "module_lib_ember_core_src_services_settingsservice_ts",
+      "label": "settingsService.ts",
+      "type": "module",
+      "path": "lib/ember-core/src/services/settingsService.ts",
       "community": "lib",
       "language": "ts"
     },
@@ -3618,11 +3693,27 @@
       "language": "ts"
     },
     {
+      "id": "module_playwright_config_ts",
+      "label": "playwright.config.ts",
+      "type": "module",
+      "path": "playwright.config.ts",
+      "community": "code",
+      "language": "ts"
+    },
+    {
       "id": "module_scripts_src_hello_ts",
       "label": "hello.ts",
       "type": "module",
       "path": "scripts/src/hello.ts",
       "community": "scripts",
+      "language": "ts"
+    },
+    {
+      "id": "module_tests_e2e_demo_walkthrough_spec_ts",
+      "label": "demo-walkthrough.spec.ts",
+      "type": "module",
+      "path": "tests/e2e/demo-walkthrough.spec.ts",
+      "community": "tests",
       "language": "ts"
     },
     {
@@ -3920,6 +4011,13 @@
       "community": "docs"
     },
     {
+      "id": "doc_readme_md",
+      "label": "README",
+      "type": "doc",
+      "path": "README.md",
+      "community": "docs"
+    },
+    {
       "id": "doc_package_json",
       "label": "package",
       "type": "doc",
@@ -3941,10 +4039,24 @@
       "community": "docs"
     },
     {
+      "id": "doc_docs_show_hn_md",
+      "label": "show-hn",
+      "type": "doc",
+      "path": "docs/show-hn.md",
+      "community": "docs"
+    },
+    {
       "id": "doc_docs_visual_direction_md",
       "label": "visual-direction",
       "type": "doc",
       "path": "docs/visual-direction.md",
+      "community": "docs"
+    },
+    {
+      "id": "doc_docs_launch_md",
+      "label": "launch",
+      "type": "doc",
+      "path": "docs/launch.md",
       "community": "docs"
     },
     {
@@ -4021,6 +4133,20 @@
       "id": "memory_docs_memory_agent_handoffs_md",
       "label": "agent-handoffs",
       "type": "memory",
+      "path": "docs/memory/agent-handoffs.md",
+      "community": "memory"
+    },
+    {
+      "id": "handoff_2026_07_05_10_18_handoff",
+      "label": "2026-07-05 10:18 — Handoff",
+      "type": "handoff",
+      "path": "docs/memory/agent-handoffs.md",
+      "community": "memory"
+    },
+    {
+      "id": "handoff_2026_07_05_09_50_handoff",
+      "label": "2026-07-05 09:50 — Handoff",
+      "type": "handoff",
       "path": "docs/memory/agent-handoffs.md",
       "community": "memory"
     },
@@ -4107,6 +4233,13 @@
       "type": "directory",
       "path": "scripts",
       "community": "structure"
+    },
+    {
+      "id": "directory_tests",
+      "label": "tests",
+      "type": "directory",
+      "path": "tests",
+      "community": "structure"
     }
   ],
   "edges": [
@@ -4180,6 +4313,15 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": ".agents/skills/customer-discovery/SKILL.md",
+      "provenance": "SKILL.md"
+    },
+    {
+      "source": "skill_harness_evolution",
+      "target": "skill_eval_pipeline",
+      "relation": "invokes",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": ".agents/skills/harness-evolution/SKILL.md",
       "provenance": "SKILL.md"
     },
     {
@@ -4399,6 +4541,15 @@
       "provenance": "skill-graph.md"
     },
     {
+      "source": "skill_memory_startup",
+      "target": "skill_harness_engineering",
+      "relation": "invokes",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": ".agents/skills/memory-startup/SKILL.md",
+      "provenance": "SKILL.md"
+    },
+    {
       "source": "skill_experiment_spec",
       "target": "skill_experiment_runbook",
       "relation": "invokes",
@@ -4451,6 +4602,15 @@
       "confidence_score": 1.0,
       "source_file": null,
       "provenance": "skill-graph.md"
+    },
+    {
+      "source": "skill_agent_builder",
+      "target": "skill_harness_generation",
+      "relation": "invokes",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": ".agents/skills/agent-builder/SKILL.md",
+      "provenance": "SKILL.md"
     },
     {
       "source": "skill_agent_builder",
@@ -4606,6 +4766,15 @@
       "provenance": "SKILL.md"
     },
     {
+      "source": "skill_harness_engineering",
+      "target": "skill_harness_evolution",
+      "relation": "invokes",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": ".agents/skills/harness-engineering/SKILL.md",
+      "provenance": "SKILL.md"
+    },
+    {
       "source": "skill_implementation_plan",
       "target": "skill_feature_spec",
       "relation": "invokes",
@@ -4661,7 +4830,7 @@
     },
     {
       "source": "skill_project_setup",
-      "target": "skill_agent_loom_sync",
+      "target": "skill_harness_generation",
       "relation": "invokes",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
@@ -4715,7 +4884,7 @@
     },
     {
       "source": "skill_retroactive_project_setup",
-      "target": "skill_agent_loom_sync",
+      "target": "skill_harness_generation",
       "relation": "invokes",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
@@ -5371,6 +5540,15 @@
       "provenance": "ts-import"
     },
     {
+      "source": "module_artifacts_ember_src_components_insighttray_tsx",
+      "target": "module_artifacts_ember_src_components_icons_tsx",
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "artifacts/ember/src/components/InsightTray.tsx",
+      "provenance": "ts-import"
+    },
+    {
       "source": "module_artifacts_ember_src_components_moretendingsection_tsx",
       "target": "module_artifacts_ember_src_components_icons_tsx",
       "relation": "imports",
@@ -5391,6 +5569,15 @@
     {
       "source": "module_artifacts_ember_src_components_resumecard_tsx",
       "target": "module_artifacts_ember_src_components_icons_tsx",
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "artifacts/ember/src/components/ResumeCard.tsx",
+      "provenance": "ts-import"
+    },
+    {
+      "source": "module_artifacts_ember_src_components_resumecard_tsx",
+      "target": "module_artifacts_ember_src_components_sessiondurationpicker_tsx",
       "relation": "imports",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
@@ -5443,6 +5630,15 @@
       "provenance": "ts-import"
     },
     {
+      "source": "module_artifacts_ember_src_components_settingsmodal_tsx",
+      "target": "module_artifacts_ember_src_components_sessiondurationpicker_tsx",
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "artifacts/ember/src/components/SettingsModal.tsx",
+      "provenance": "ts-import"
+    },
+    {
       "source": "module_artifacts_ember_src_components_skillstrustsection_tsx",
       "target": "module_artifacts_ember_src_components_icons_tsx",
       "relation": "imports",
@@ -5485,6 +5681,15 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "artifacts/ember/src/lib/DemoModeContext.tsx",
+      "provenance": "ts-import"
+    },
+    {
+      "source": "module_artifacts_ember_src_lib_sessiondurationcontext_tsx",
+      "target": "module_artifacts_ember_src_lib_demomode_ts",
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "artifacts/ember/src/lib/SessionDurationContext.tsx",
       "provenance": "ts-import"
     },
     {
@@ -5956,6 +6161,15 @@
       "provenance": "ts-import"
     },
     {
+      "source": "module_lib_ember_core_src_index_ts",
+      "target": "module_lib_ember_core_src_dateutils_ts",
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/ember-core/src/index.ts",
+      "provenance": "ts-import"
+    },
+    {
       "source": "module_lib_ember_core_src_ritual_test_ts",
       "target": "module_lib_ember_core_src_index_ts",
       "relation": "imports",
@@ -6012,6 +6226,24 @@
     {
       "source": "module_lib_ember_core_src_ritual_ts",
       "target": "module_lib_ember_core_src_services_sessionservice_ts",
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/ember-core/src/ritual.ts",
+      "provenance": "ts-import"
+    },
+    {
+      "source": "module_lib_ember_core_src_ritual_ts",
+      "target": "module_lib_ember_core_src_services_ritualmetricsservice_ts",
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/ember-core/src/ritual.ts",
+      "provenance": "ts-import"
+    },
+    {
+      "source": "module_lib_ember_core_src_ritual_ts",
+      "target": "module_lib_ember_core_src_services_settingsservice_ts",
       "relation": "imports",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
@@ -6093,6 +6325,15 @@
     {
       "source": "module_lib_ember_core_src_services_analyticsservice_ts",
       "target": "module_lib_ember_core_src_db_db_ts",
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/ember-core/src/services/analyticsService.ts",
+      "provenance": "ts-import"
+    },
+    {
+      "source": "module_lib_ember_core_src_services_analyticsservice_ts",
+      "target": "module_lib_ember_core_src_dateutils_ts",
       "relation": "imports",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
@@ -6235,6 +6476,51 @@
       "provenance": "ts-import"
     },
     {
+      "source": "module_lib_ember_core_src_services_insighttrayservice_ts",
+      "target": "module_lib_ember_core_src_db_db_ts",
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/ember-core/src/services/insightTrayService.ts",
+      "provenance": "ts-import"
+    },
+    {
+      "source": "module_lib_ember_core_src_services_insighttrayservice_ts",
+      "target": "module_lib_ember_core_src_services_projectservice_ts",
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/ember-core/src/services/insightTrayService.ts",
+      "provenance": "ts-import"
+    },
+    {
+      "source": "module_lib_ember_core_src_services_insighttrayservice_ts",
+      "target": "module_lib_ember_core_src_services_contextbuilder_ts",
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/ember-core/src/services/insightTrayService.ts",
+      "provenance": "ts-import"
+    },
+    {
+      "source": "module_lib_ember_core_src_services_insighttrayservice_ts",
+      "target": "module_lib_ember_core_src_services_sagaservice_ts",
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/ember-core/src/services/insightTrayService.ts",
+      "provenance": "ts-import"
+    },
+    {
+      "source": "module_lib_ember_core_src_services_insighttrayservice_ts",
+      "target": "module_lib_ember_core_src_errors_ts",
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/ember-core/src/services/insightTrayService.ts",
+      "provenance": "ts-import"
+    },
+    {
       "source": "module_lib_ember_core_src_services_projectservice_ts",
       "target": "module_lib_ember_core_src_db_db_ts",
       "relation": "imports",
@@ -6264,6 +6550,15 @@
     {
       "source": "module_lib_ember_core_src_services_ritualmetricsservice_ts",
       "target": "module_lib_ember_core_src_db_db_ts",
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/ember-core/src/services/ritualMetricsService.ts",
+      "provenance": "ts-import"
+    },
+    {
+      "source": "module_lib_ember_core_src_services_ritualmetricsservice_ts",
+      "target": "module_lib_ember_core_src_dateutils_ts",
       "relation": "imports",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
@@ -6322,6 +6617,60 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "lib/ember-core/src/services/sessionService.ts",
+      "provenance": "ts-import"
+    },
+    {
+      "source": "module_lib_ember_core_src_services_sessionservice_ts",
+      "target": "module_lib_ember_core_src_services_ritualmetricsservice_ts",
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/ember-core/src/services/sessionService.ts",
+      "provenance": "ts-import"
+    },
+    {
+      "source": "module_lib_ember_core_src_services_sessionservice_ts",
+      "target": "module_lib_ember_core_src_dateutils_ts",
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/ember-core/src/services/sessionService.ts",
+      "provenance": "ts-import"
+    },
+    {
+      "source": "module_lib_ember_core_src_services_sessionservice_ts",
+      "target": "module_lib_ember_core_src_services_projectservice_ts",
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/ember-core/src/services/sessionService.ts",
+      "provenance": "ts-import"
+    },
+    {
+      "source": "module_lib_ember_core_src_services_sessionservice_ts",
+      "target": "module_lib_ember_core_src_services_taskservice_ts",
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/ember-core/src/services/sessionService.ts",
+      "provenance": "ts-import"
+    },
+    {
+      "source": "module_lib_ember_core_src_services_sessionservice_ts",
+      "target": "module_lib_ember_core_src_errors_ts",
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/ember-core/src/services/sessionService.ts",
+      "provenance": "ts-import"
+    },
+    {
+      "source": "module_lib_ember_core_src_services_settingsservice_ts",
+      "target": "module_lib_ember_core_src_db_db_ts",
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/ember-core/src/services/settingsService.ts",
       "provenance": "ts-import"
     },
     {
@@ -6548,6 +6897,60 @@
       "confidence_score": 1.0,
       "source_file": "artifacts/ember/package.json",
       "provenance": "package.json"
+    },
+    {
+      "source": "handoff_2026_07_05_10_18_handoff",
+      "target": "memory_docs_memory_agent_handoffs_md",
+      "relation": "recorded_in",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/memory/agent-handoffs.md",
+      "provenance": "agent-handoffs.md"
+    },
+    {
+      "source": "handoff_2026_07_05_10_18_handoff",
+      "target": "skill_harness_engineering",
+      "relation": "handoff_mentions",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "docs/memory/agent-handoffs.md",
+      "provenance": "handoff-body"
+    },
+    {
+      "source": "handoff_2026_07_05_10_18_handoff",
+      "target": "skill_harness_evolution",
+      "relation": "handoff_mentions",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "docs/memory/agent-handoffs.md",
+      "provenance": "handoff-body"
+    },
+    {
+      "source": "handoff_2026_07_05_10_18_handoff",
+      "target": "skill_harness_generation",
+      "relation": "handoff_mentions",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "docs/memory/agent-handoffs.md",
+      "provenance": "handoff-body"
+    },
+    {
+      "source": "handoff_2026_07_05_10_18_handoff",
+      "target": "skill_ember_design_constraints",
+      "relation": "handoff_mentions",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "docs/memory/agent-handoffs.md",
+      "provenance": "handoff-body"
+    },
+    {
+      "source": "handoff_2026_07_05_09_50_handoff",
+      "target": "memory_docs_memory_agent_handoffs_md",
+      "relation": "recorded_in",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/memory/agent-handoffs.md",
+      "provenance": "agent-handoffs.md"
     },
     {
       "source": "handoff_2026_07_05_07_40_handoff",

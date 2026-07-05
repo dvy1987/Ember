@@ -4,6 +4,40 @@ Session continuity log for Ember. Newest entries at top.
 
 ---
 
+## 2026-07-05 10:18 — Handoff
+
+### Done
+
+- **Clarified planning backlog** — Old phased plan (Phase 0–4) superseded by `docs/plans/public-launch-plan.md` (implemented). User can delete build todos from that draft; investor defer table is “don’t pitch yet,” not build work.
+- **Agent-loom sync** @ `96f9e73` — 3 new skills (`harness-engineering`, `harness-evolution`, `harness-generation`); 11 updated (agent-builder, eval-pipeline, memory-handoff, memory-startup, project-orchestrator, project-setup, reality-check, retroactive-project-setup, setup-evaluation, skill-finder, skill-routing). `ember-design-constraints` protected.
+
+### Decisions
+
+- **Launch code is done** — Remaining work is human: dogfood, Show HN checklist (`docs/show-hn.md`), external validation. Post-launch deferred: desktop, SaaS, memory admin UI, full MCP parity, inbox copy polish.
+
+### Deferred
+
+- Commit/push agent-loom sync (uncommitted this session).
+- Stale handoff block from `07:40` entry still contradicts reality — safe to archive or trim next cleanup pass.
+
+### Next Agent Should Know
+
+- **Product state:** `main` @ `3058e57` — public launch plan implemented; sacred loop hardened.
+- **Dirty tree:** agent-loom sync files only (14 skills + config). No Ember product code changes this session.
+- **Start here:** `docs/memory/current-state.md` → `docs/plans/public-launch-plan.md` for launch context.
+- **Sync agent-loom:** rsync into Ember only; never edit `../agent-loom`. Checklist in `.agents/EMBER-SKILLS.md`.
+
+### Revisit Triggers
+
+- User says “sync agent-loom” → run `sync_agent_loom.py --dry-run` then `--apply`.
+- User ready to launch → work through `docs/show-hn.md` checklist, not old phased plan items.
+
+### Working Tree
+
+- Uncommitted: `.agents/` sync from agent-loom @ `96f9e73`. Product code clean at `3058e57`.
+
+---
+
 ## 2026-07-05 09:50 — Handoff
 
 ### Done

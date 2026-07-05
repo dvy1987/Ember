@@ -1,6 +1,6 @@
 # Ember — Current State
 
-**Last updated:** 2026-07-05
+**Last updated:** 2026-07-05 (session handoff)
 
 ## Project phase
 
@@ -27,9 +27,16 @@ artifacts/ember  →  api-server  →  lib/ember-core  →  SQLite
 ember-mcp        →  lib/ember-core  →  same DB
 ```
 
+## Agent skills
+
+- **Agent-loom sync:** @ `96f9e73` (harness-engineering suite + 11 skill updates) — **uncommitted** locally.
+- **Protected:** `ember-design-constraints` (project-local).
+
 ## Next recommended work
 
-Post-launch polish from deferred table: desktop, mobile, hosted SaaS, full MCP parity, memory admin UI.
+1. Commit agent-loom sync if approved.
+2. Launch validation: `docs/show-hn.md` checklist (external tester, MCP fresh window, screenshots).
+3. Post-launch deferred: desktop, mobile, hosted SaaS, full MCP parity, memory admin UI.
 
 ## Verification commands
 
