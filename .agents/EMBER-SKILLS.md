@@ -45,12 +45,11 @@ Root `AGENTS.md` lists Ember-specific required reading. Do not replace with gene
 4. Keep root `AGENTS.md` and `docs/visual-direction.md`
 5. Do **not** restore `design-archetype`, `design-tokens-craft`, `icon-craft` unless explicitly requested
 
-### Last sync: 2026-07-05 (91824b2)
+### Last sync: 2026-07-05 (2bbe5cd)
 
-Synced from agent-loom commit `91824b2`:
+Synced from agent-loom commit `2bbe5cd`:
 
-- **Updated:** `memory-startup` (v1.4 — deferred.md OPEN-only filter; already matched from prior partial sync)
-- **Updated:** `agent-loom-sync` — upstream rsync (was incorrectly stamped `origin: project-local` in Ember, blocking updates; now includes auto-stamp for local-only skills)
-- **Unchanged (107):** all other library skills
+- **Added (10):** `dependency-mapping`, `deploy-anywhere`, `dynamic-routing`, `fault-localize`, `issue-sync`, `pr-authoring`, `quickstart`, `run-trace`, `safe-change`, `structured-planning`
+- **Unchanged (109):** all other library skills
 - **Docs synced:** `docs/SKILL-INDEX.md`, `docs/SKILL-EXAMPLES-INDEX.md`, `docs/skill-graph.md`
 - **Protected:** `ember-design-constraints` (project-local)

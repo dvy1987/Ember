@@ -2,6 +2,7 @@
 
 | Date | Skill | Output | Summary |
 |------|-------|--------|---------|
+| 2026-07-05 21:52 | agent-loom-sync | .agents/skills/ @ 2bbe5cd | 10 new skills (safe-change, planning, observability, deploy families) |
 | 2026-07-05 10:53 | agent-loom-sync | .agents/skills/ @ 91824b2 | memory-startup + agent-loom-sync updated; config bumped |
 | 2026-07-05 10:28 | agent-loom-sync | .agents/skills/ @ 96f9e73 | 1 update (memory-startup v1.4); skill index docs synced |
 | 2026-07-05 10:25 | harness-engineering | docs/harness/manifest.json | Harness v0 bootstrap: manifest, eval stub, governance, regression scripts |
